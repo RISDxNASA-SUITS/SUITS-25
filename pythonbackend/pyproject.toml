@@ -1,13 +1,16 @@
 [tool.poetry]
-name = "pythonbackend"
+name = "python_server"
 version = "0.1.0"
 description = ""
 authors = ["Jason Silva <littlejsilva@gmail.com>"]
 readme = "README.md"
+[tool.poetry.scripts]
+start = "python_server.main:start"
 
 [tool.poetry.dependencies]
 python = "^3.12"
 fastapi = "^0.115.4"
+uvicorn = "^0.32.0"
 
 
 [build-system]
