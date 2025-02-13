@@ -10,12 +10,12 @@ mapboxgl.accessToken = 'pk.eyJ1IjoieHplcm84NjQiLCJhIjoiY2xmbW9wZ3BzMDQzaTN3cDUwc
 const BasicMap = () => {
     const mapContainer = useRef(null);
     const map = useRef(null);
-    const [markers, setMarkers] = useState([]); // State to track added markers
+    const [markers, setMarkers] = useState([]);
     const { pois, addPoi, clearPoi } = usePoiStore();
-    const poiButtonActiveRef = useRef(false); // Ref to track POI button active state
+    const poiButtonActiveRef = useRef(false);
     const [buttonActive, setButtonActive] = useState(false);
     const setPoiButtonActive = (value) => {
-        poiButtonActiveRef.current = value; // Update ref value
+        poiButtonActiveRef.current = value;
         setButtonActive(value)
     };
 
@@ -31,7 +31,7 @@ const BasicMap = () => {
         // Listen for map clicks to add markers
         map.current.on('click', (e) => {
             if (!poiButtonActiveRef.current) return;
-            const { lng, lat } = e.lngLat; // Get the longitude and latitude
+            const { lng, lat } = e.lngLat;
             addMarker(lng, lat);
         });
     }, []);
