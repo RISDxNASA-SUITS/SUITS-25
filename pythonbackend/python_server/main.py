@@ -2,7 +2,8 @@ import uvicorn
 from fastapi import FastAPI
 
 app = FastAPI()
-
+# TODO: ADD A SOCKET TO COMMUNICATE WITH THE JAVA BACKEND
+# Every second, ask for telemetry, return Rover Agent output
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
