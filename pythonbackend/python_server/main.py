@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
-from fastapi.responses
+from fastapi.responses import RedirectResponse
 import socket
 import struct
 import time
