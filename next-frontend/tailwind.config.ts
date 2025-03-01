@@ -11,7 +11,13 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "galaxy-purple": "#412D91",
+        "another-purple": "#715DC1",
+        "light-purple": "#9D89FF",
       },
+      fontFamily: {
+        sans: ["var(--font-ibm-plex-sans)"]
+      }
     },
   },
   plugins: [],
