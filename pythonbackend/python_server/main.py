@@ -4,45 +4,52 @@ from fastapi.responses import RedirectResponse
 import socket
 import struct
 import time
+from threading import Thread
+from queue import Queue
 
 app = FastAPI()
 
-TSS_HOST = "10.37.129.2"
+TSS_HOST = "10.37.100.92"
 TSS_PORT = 14141
 
-def send_rover_command(command_num: int, value: float):
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+class Pipeline():
+    def __init__(self, host, port):
+        self.address = (host, port)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.connect(self.address)
+        
+    def _send_packet(self, command_num : int, value : float = None):
+        try:
             timestamp = int(time.time())
-            msg = struct.pack('>IIf', timestamp, command_num, value)
-            sock.sendto(msg, (TSS_HOST, TSS_PORT))
-    except Exception as e:
-        print(f"Error sending command: {e}")
+            msg = struct.pack('>II', timestamp, command_num)
+            if(value):
+                msg = struct.pack('>IIf', timestamp, command_num, value)
+            self.sock.send(msg)
+        except Exception as e:
+            print(f"Error sending command: {e}")
 
-@app.get("/")
-async def root():
-    return "Go to 0.0.0.0/8000/docs"
+    def send_instructions(self, command_num, value):
+        self._send_packet(command_num, value)
 
-@app.post("/move_forward")
-async def move_forward():
-    try:
-        send_rover_command(1107, 0.0)  # Release brakes
-        time.sleep(0.3)  # Small delay
-        send_rover_command(1109, 30.0)  # Set throttle
-        return {"message": "Moving forward"}
-    except Exception as e:
-        return {"message": f"Error: {str(e)}"}
+    def send_receive(self, command_num):
+        self._send_packet(command_num)
+        if(command_num == 167):#if lidar
+            pass#if you look in their codebase, 167 doesn't actually exist as a command... I don't really know what to put here
+        else:
+            return struct.unpack('>IIf', self.sock.recv(1024))
+    
+    def close(self):
+        self.sock.close()
 
-@app.post("/stop")
-async def stop():
-    try:
-        send_rover_command(1109, 0.0)  # Set throttle to zero
-        time.sleep(0.3)  # Small delay
-        send_rover_command(1107, 1.0) 
-        return {"message": "Stopped and brakes engaged"}
-    except Exception as e:
-        return {"message": f"Error: {str(e)}"}
+def start():
+    pipeline = Pipeline(TSS_HOST, TSS_PORT)
+    pipeline.send_instructions(command_num = 1109, value = 10.0)
+    print(pipeline.send_receive(command_num = 2))
+    pipeline.close()
 
-if __name__ == "__main__":
-    # uvicorn.run("python_server:main:app", host="0.0.0.0", port=8000, reload=True)  # Not sure why this doesn't work
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    
+
+    
+    
+
+    
