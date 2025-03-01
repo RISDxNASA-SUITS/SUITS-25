@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
-from fastapi.responses import RedirectResponse
+from fastapi.responses
 import socket
 import struct
 import time
@@ -21,12 +21,14 @@ def send_rover_command(command_num: int, value: float):
 
 @app.get("/")
 async def root():
-    return "Go to 0.0.0.0/8000/docs "
+    return "Go to 0.0.0.0/8000/docs"
 
 @app.post("/move_forward")
 async def move_forward():
     try:
-        send_rover_command(1109, 30.0)
+        send_rover_command(1107, 0.0)  # Release brakes
+        time.sleep(0.3)  # Small delay
+        send_rover_command(1109, 30.0)  # Set throttle
         return {"message": "Moving forward"}
     except Exception as e:
         return {"message": f"Error: {str(e)}"}
@@ -34,11 +36,13 @@ async def move_forward():
 @app.post("/stop")
 async def stop():
     try:
-        send_rover_command(1109, 0.0)
-        return {"message": "Throttle set to zero"}
+        send_rover_command(1109, 0.0)  # Set throttle to zero
+        time.sleep(0.3)  # Small delay
+        send_rover_command(1107, 1.0) 
+        return {"message": "Stopped and brakes engaged"}
     except Exception as e:
         return {"message": f"Error: {str(e)}"}
 
 if __name__ == "__main__":
-    # uvicorn.run("python_server:main:app", host="0.0.0.0", port=8000, reload=True)  # NOt sure why this doesn't work
+    # uvicorn.run("python_server:main:app", host="0.0.0.0", port=8000, reload=True)  # Not sure why this doesn't work
     uvicorn.run(app, host="0.0.0.0", port=8000)
