@@ -44,10 +44,14 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
     const addMarker = (lng: number, lat: number) => {
         if (!map.current) return;
 
+        // create a HTML element for custom marker
+        const el = document.createElement('div');
+        el.className = 'marker';
+
         // Create a new marker
-        const marker = new mapboxgl.Marker()
+        const marker = new mapboxgl.Marker(el)
             .setLngLat([lng, lat])
-            .setPopup(new mapboxgl.Popup().setHTML(`<b>Marker</b><br>(${lng.toFixed(4)}, ${lat.toFixed(4)})`)) // Optional popup
+            .setPopup(new mapboxgl.Popup({className:"test"}).setHTML(`<div><b>Marker</b><br>(${lng.toFixed(4)}, ${lat.toFixed(4)})</div>`)) // Optional popup
             .addTo(map.current);
 
         // Save marker to state
@@ -70,7 +74,7 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
     // TODO Make it look like the figma :) its not even close
 
     return (
-        <div className="w-screen h-screen bg-slate-800 flex justify-center items-center">
+        <div className="w-screen h-screen bg-slate-800 flex justify-center items-center text-black">
             <div className="h-3/4 w-3/4 bg-slate-700 flex flex-row gap-2">
                 <div className="h-full w-1/5 bg-slate-600 flex flex-col gap-2 p-4 justify-center items-center">
                     <MapButton active={buttonActive} onClick={() => setPoiButtonActive(true)}>Add POI</MapButton>
