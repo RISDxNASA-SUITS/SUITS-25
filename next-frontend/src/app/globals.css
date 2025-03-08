@@ -21,7 +21,7 @@ body {
 }
 
 /* custom marker */
-.marker {
+  .marker {
   background-image:url(../../public/poi.svg);
   background-size: cover;
   width: 50px;
@@ -30,14 +30,23 @@ body {
   cursor: pointer;
 }
 
-.mapboxgl-popup {
+.hazard {
+  background-image:url(../../public/warning.svg);
+  background-size: cover;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* .mapboxgl-popup {
   background-color: red;
 }
 
 .mapboxgl-popup-content {
   font: sans;
   padding: 0;
-  /* width: 150px; */
+  /* width: 150px;
   text-align:center;
   border-radius: 15px;
 }
@@ -54,11 +63,6 @@ body {
   border-bottom-color: #91c949;
 }
 
-
-/* .mapboxgl-popup-close-button {
-  display: none;
-} */
-
 .test {
   background-color:red;
-}
+} */

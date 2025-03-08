@@ -5,6 +5,8 @@ import mapboxgl, { Map, Marker } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import MapButton from "./MapButton";
 import { usePoiStore } from "../../../hooks/PoiStore";
+import PrimaryButton from "./PrimaryButton";
+import SecondaryButton from "./SecondaryButton";
 
 // Set your Mapbox access token
 mapboxgl.accessToken = 'pk.eyJ1IjoieHplcm84NjQiLCJhIjoiY2xmbW9wZ3BzMDQzaTN3cDUwcWplcGF6byJ9.PR0YiT3S05lotgY12AwWEQ';
@@ -14,12 +16,18 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<Map | null>(null);
     const [markers, setMarkers] = useState<Marker[]>([]);
-    const { pois, addPoi, clearPois } = usePoiStore();
+    const { addPoi, clearPois } = usePoiStore();
     const poiButtonActiveRef = useRef<boolean>(false);
     const [buttonActive, setButtonActive] = useState<boolean>(false);
     const setPoiButtonActive = (value: boolean) => {
         poiButtonActiveRef.current = value;
         setButtonActive(value)
+    };
+
+    const hazardButtonActiveRef = useRef<boolean>(false);
+    const setHazardButtonActive = (value: boolean) => {
+        hazardButtonActiveRef.current = value;
+        setButtonActive(value);
     };
 
     useEffect(() => {
@@ -39,6 +47,12 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
             const { lng, lat } = e.lngLat;
             addMarker(lng, lat);
         });
+
+        map.current.on('click', (e: mapboxgl.MapMouseEvent) => {
+            if (!hazardButtonActiveRef.current) return;
+            const { lng, lat } = e.lngLat;
+            addWarning(lng, lat);
+        });
     }, []);
 
     const addMarker = (lng: number, lat: number) => {
@@ -47,6 +61,12 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
         // create a HTML element for custom marker
         const el = document.createElement('div');
         el.className = 'marker';
+
+        //  // and give it some content
+        // const newContent = document.createTextNode("Hi there and greetings!");
+
+        // // add the text node to the newly created div
+        // el.appendChild(newContent);
 
         // Create a new marker
         const marker = new mapboxgl.Marker(el)
@@ -57,6 +77,26 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
         // Save marker to state
         setMarkers(prevMarkers => [...prevMarkers, marker]);
         setPoiButtonActive(false); // Reset POI button active state
+
+        // Optional: Save marker to your POI store
+        addPoi({ lng, lat });
+    };
+
+    const addWarning = (lng: number, lat: number) => {
+        if (!map.current) return;
+
+        const el = document.createElement('div');
+        el.className = 'hazard';
+
+        // Create a new marker
+        const hazard = new mapboxgl.Marker(el)
+        .setLngLat([lng, lat])
+        .setPopup(new mapboxgl.Popup({className:"test"}).setHTML(`<div><b>Marker</b><br>(${lng.toFixed(4)}, ${lat.toFixed(4)})</div>`)) // Optional popup
+        .addTo(map.current);
+
+        // Save marker to state
+        setMarkers(prevMarkers => [...prevMarkers, hazard]);
+        setHazardButtonActive(false); // Reset POI button active state
 
         // Optional: Save marker to your POI store
         addPoi({ lng, lat });
@@ -77,8 +117,9 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
         <div className="w-screen h-screen bg-slate-800 flex justify-center items-center text-black">
             <div className="h-3/4 w-3/4 bg-slate-700 flex flex-row gap-2">
                 <div className="h-full w-1/5 bg-slate-600 flex flex-col gap-2 p-4 justify-center items-center">
-                    <MapButton active={buttonActive} onClick={() => setPoiButtonActive(true)}>Add POI</MapButton>
-                    <MapButton active={false} onClick={clearAllMarkers}>Clear All Markers</MapButton>
+                    <PrimaryButton active={buttonActive} onClick={() => setPoiButtonActive(true)}>Add POI</PrimaryButton>
+                    <PrimaryButton active={buttonActive} onClick={() => setHazardButtonActive(true)}>Add Hazard</PrimaryButton>
+                    <SecondaryButton active={false} onClick={clearAllMarkers}>Clear All Markers</SecondaryButton>
                 </div>
                 <div className="w-4/5">
                     <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />

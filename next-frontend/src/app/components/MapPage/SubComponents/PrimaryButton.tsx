@@ -3,9 +3,10 @@ import React, { ButtonHTMLAttributes, ReactNode } from 'react';
 
 interface MapButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
+  active: boolean;
 }
 
-export const PrimaryButton = ({ children, ...props }: MapButtonProps) => {
+export const PrimaryButton = ({ children, active, ...props }: MapButtonProps) => {
     // TODO: This should be a button component that we use throughout the application, try to make components that look like the figma
     // That way small design changes can be made all in one place.
     return (

@@ -5,6 +5,7 @@ interface Poi {
   lat: number;
 }
 
+
 interface PoiStore {
   pois: Poi[];
   addPoi: (poi: Poi) => void;
