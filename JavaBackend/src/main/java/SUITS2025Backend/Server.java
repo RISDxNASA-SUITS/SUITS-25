@@ -19,7 +19,7 @@ public class Server {
             // Configure CORS if needed
             // config.enableCorsForAllOrigins();
         })
-        .get("/", ctx -> sendCommand3())
+        .get("/", ctx -> sendCommand2())
         .ws("/websocket", ws -> {
             ws.onConnect(ctx -> {
                 System.out.println("Connected: " + ctx.sessionId());
@@ -724,7 +724,7 @@ public class Server {
     private static void sendUdpMessage(int commandNumber) {
         try {
             DatagramSocket socket = new DatagramSocket();
-            InetAddress serverAddress = InetAddress.getByName("10.1.77.243");
+            InetAddress serverAddress = InetAddress.getByName("10.1.77.147");
             int serverPort = 14141;
 
             long timestamp = new Date().getTime() / 1000; // Current timestamp in seconds
