@@ -9,7 +9,7 @@ import PrimaryButton from "./PrimaryButton";
 import SecondaryButton from "./SecondaryButton";
 
 // Set your Mapbox access token
-mapboxgl.accessToken = 'pk.eyJ1IjoieHplcm84NjQiLCJhIjoiY2xmbW9wZ3BzMDQzaTN3cDUwcWplcGF6byJ9.PR0YiT3S05lotgY12AwWEQ';
+mapboxgl.accessToken = 'pk.eyJ1IjoicmxlZTA4IiwiYSI6ImNtODltdDlyNzA3eTUyd214eGl6ZmRkYm4ifQ.RAoZWTzUxQwcj421tNF7tA';
 
 const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
     //TODO: Make this work with rover x,y coordinates, mock up the conversion for now
@@ -30,15 +30,17 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
         setButtonActive(value);
     };
 
+    const poiCounter = useRef(1);
+
     useEffect(() => {
         if (map.current) return;
         if (!mapContainer.current) return;
 
         map.current = new mapboxgl.Map({
             container: mapContainer.current,
-            style: 'mapbox://styles/mapbox/streets-v11',
-            center: [-0.09, 51.505],
-            zoom: 13,
+            style: 'mapbox://styles/rlee08/cm89mwa56005w01qr7psu2pz7',
+            center: [-95.08132167779097,29.56487458271902],
+            zoom:18,
         });
         
         // Listen for map clicks to add markers
@@ -55,23 +57,30 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
         });
     }, []);
 
+    useEffect(() => {
+
+    }, [])
+
+
     const addMarker = (lng: number, lat: number) => {
         if (!map.current) return;
 
+        const i = poiCounter.current;
+
         // create a HTML element for custom marker
         const el = document.createElement('div');
-        el.className = 'marker';
-
-        //  // and give it some content
-        // const newContent = document.createTextNode("Hi there and greetings!");
-
-        // // add the text node to the newly created div
-        // el.appendChild(newContent);
+        // el.className = 'marker';
+        el.innerHTML = `<div class='marker'>
+            <div class='label'>
+            <p>POI ${i}</p>
+            </div>
+            <img src="poi.svg" style="width:40px; height:100%"/>
+        </div>`;
 
         // Create a new marker
         const marker = new mapboxgl.Marker(el)
             .setLngLat([lng, lat])
-            .setPopup(new mapboxgl.Popup({className:"test"}).setHTML(`<div><b>Marker</b><br>(${lng.toFixed(4)}, ${lat.toFixed(4)})</div>`)) // Optional popup
+            // .setPopup(new mapboxgl.Popup({className:"test"}).setHTML(`<div><b>Marker</b><br>(${lng.toFixed(4)}, ${lat.toFixed(4)})</div>`)) // Optional popup
             .addTo(map.current);
 
         // Save marker to state
@@ -80,6 +89,8 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
 
         // Optional: Save marker to your POI store
         addPoi({ lng, lat });
+        // console.log(usePoiStore.getState().pois);
+        poiCounter.current++
     };
 
     const addWarning = (lng: number, lat: number) => {
@@ -91,7 +102,7 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
         // Create a new marker
         const hazard = new mapboxgl.Marker(el)
         .setLngLat([lng, lat])
-        .setPopup(new mapboxgl.Popup({className:"test"}).setHTML(`<div><b>Marker</b><br>(${lng.toFixed(4)}, ${lat.toFixed(4)})</div>`)) // Optional popup
+        // .setPopup(new mapboxgl.Popup({className:"test"}).setHTML(`<div><b>Marker</b><br>(${lng.toFixed(4)}, ${lat.toFixed(4)})</div>`)) // Optional popup
         .addTo(map.current);
 
         // Save marker to state
@@ -100,6 +111,7 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
 
         // Optional: Save marker to your POI store
         addPoi({ lng, lat });
+        // console.log(usePoiStore.getState().pois);
     };
 
     const clearAllMarkers = () => {
@@ -109,6 +121,8 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
 
         // Optional: Clear markers from your POI store
         clearPois();
+
+        poiCounter.current = 1;
     };
 
     // TODO Make it look like the figma :) its not even close
