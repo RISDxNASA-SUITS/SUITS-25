@@ -55,8 +55,8 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
                 togglePoiSelection(false);
                 finalizePoiRef.current = false;
             } else {
-            const {lng, lat} = e.lngLat;
-            addMarker(lng, lat);
+                const {lng, lat} = e.lngLat;
+                addMarker(lng, lat);
             }
         });
     }, []);
