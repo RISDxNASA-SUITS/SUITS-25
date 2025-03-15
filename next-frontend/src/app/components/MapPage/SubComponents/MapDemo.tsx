@@ -26,6 +26,7 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
     };
     const finalizePoiRef = useRef<boolean>(false);
     const selectedMarkerRef = useRef<Marker | null>(null);
+    const tempMarkerRef = useRef<Marker | null>(null);
 
     useEffect(() => {
         if (map.current) return;
@@ -40,6 +41,11 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
 
         // Listen for map clicks to add markers
         map.current.on('click', (e: mapboxgl.MapMouseEvent) => {
+            
+            if (tempMarkerRef.current){
+                tempMarkerRef.current.remove();
+            }
+
             // select marker
             const target = e.originalEvent.target;
             if (target instanceof Element) {
@@ -58,6 +64,9 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
                 const {lng, lat} = e.lngLat;
                 addMarker(lng, lat);
             }
+
+
+
         });
     }, []);
 
@@ -89,6 +98,7 @@ const BasicMap = ({roverCoords}: {roverCoords: {x: number, y: number}}) => {
         );
 
         // Save marker to state
+        tempMarkerRef.current = marker;
         setMarkers(prevMarkers => [...prevMarkers, marker]);
         setPoiButtonActive(false); // Reset POI button active state
 
