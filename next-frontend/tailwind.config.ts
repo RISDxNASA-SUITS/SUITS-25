@@ -14,6 +14,7 @@ export default {
         "galaxy-purple": "#412D91",
         "another-purple": "#715DC1",
         "light-purple": "#9D89FF",
+        "midnight-purple": "#100A28"
       },
       fontFamily: {
         sans: ["var(--font-ibm-plex-sans)"]
