@@ -9,7 +9,7 @@ from queue import Queue
 
 app = FastAPI()
 
-TSS_HOST = "10.37.100.92"
+TSS_HOST = "10.20.77.44"
 TSS_PORT = 14141
 
 class Pipeline():
@@ -33,21 +33,24 @@ class Pipeline():
 
     def send_receive(self, command_num):
         self._send_packet(command_num)
+        data = self.sock.recv(1024)
         if(command_num == 167):#if lidar
-            pass#if you look in their codebase, 167 doesn't actually exist as a command... I don't really know what to put here
+            #if you look in their codebase, 167 doesn't actually exist as a command... I don't really know what to put here
+            return struct.unpack('>IIfffffffffffff', data)
         else:
-            return struct.unpack('>IIf', self.sock.recv(1024))
+            print(data)
+            return struct.unpack('>IIf', data)
     
     def close(self):
         self.sock.close()
 
 def start():
     pipeline = Pipeline(TSS_HOST, TSS_PORT)
-    pipeline.send_instructions(command_num = 1109, value = 10.0)
-    print(pipeline.send_receive(command_num = 2))
+    #pipeline.send_instructions(command_num = 1109, value = 0.9)
+    print(pipeline.send_receive(command_num = 58))
     pipeline.close()
 
-    
+start()
 
     
     
