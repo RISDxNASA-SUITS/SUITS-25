@@ -3,7 +3,7 @@
 from pydantic import BaseModel, Field
 
 class OutputData(BaseModel):
-    breaks:bool,
+    breaks:bool
     steering: float = Field(ge=-1, le=1),
     throttle: float = Field(ge=-100, le=100),
 
@@ -24,4 +24,5 @@ class RoverAgentBasic(RoverAgentAbstract):
     def process_telemetry(self) -> OutputData:
         return OutputData(breaks=False, steering=0, throttle=100)
 
+    
 
