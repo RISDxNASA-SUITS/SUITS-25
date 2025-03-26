@@ -139,6 +139,7 @@ class GraphSampler():
     def get_graph(self):
         """
         Generates a new graph, starting at the graph_start node and replaces self.graph_goal with the closest point to the goal
+        TODO: If a sampled point is too close to the nearest node, skip
         
         UNTESTED
         
