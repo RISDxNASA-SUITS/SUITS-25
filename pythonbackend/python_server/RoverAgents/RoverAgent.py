@@ -3,7 +3,7 @@
 from pydantic import BaseModel, Field
 from ..sampler import GraphSampler
 from Astar import astar
-from driving import follow_astar_path
+from Nevigator import AStarNavigator
 
 class OutputData(BaseModel):
     breaks:bool
@@ -38,7 +38,7 @@ class RoverAgentBasic(RoverAgentAbstract):
             RRT_graph.get_graph()
             astar_path = astar(RRT_graph.graph_start, RRT_graph.graph_start.position, RRT_graph.graph_goal.position)
             #TODO: Need to change astar inputs to start and goal nodes
-            reached_goal = follow_astar_path(astar_path)
+            reached_goal = AStarNavigator.follow_astar_path(astar_path)
             if reached_goal == True:
                 return
             else:

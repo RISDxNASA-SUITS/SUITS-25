@@ -38,8 +38,8 @@ def astar(graph, start, goal):
     '''
     graph: the Tree for path
     positions: all nodes and their positions
-    start: start node ex: ('A')
-    goal: goal node ex: ('D')
+    start: start node
+    goal: goal node
     '''
     start_node = TreeNode(start)
     goal_node = TreeNode(goal)
