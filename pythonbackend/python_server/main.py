@@ -6,7 +6,15 @@ import struct
 import time
 from threading import Thread
 from queue import Queue
-
+"""
+TODO: 
+1) Make a utils file, e.g. euclidean distance function is created twice
+2) Change file structure, TreeNode class should be it's own file not within the Astar file
+3) File names can be improved (sampling, driving)
+4) Test RRT functions
+5) Implement driving functions, tested with the simulator
+6) Implement SLAM in RRT, (possibly as a seperate class, as obstacles are used in driving as well)
+"""
 app = FastAPI()
 
 TSS_HOST = "10.20.77.44"
