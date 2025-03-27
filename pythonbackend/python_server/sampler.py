@@ -2,12 +2,11 @@ import numpy as np
 import math
 from RoverAgents.Astar import TreeNode
 class GraphSampler():
-    def __init__(self, unpassable_threshold = 5, 
+    def __init__(self, path_width = 500, 
                  xbound = (-4000, 4000), ybound = (-4000, 4000),
                  sample_points = 1000,
                  current_point = (0, 0),
                  goal_point = (2000, 2000)):
-        self.unpassable_threshold = unpassable_threshold
         self.xbound = xbound
         self.ybound = ybound
         self.sample_points = sample_points
@@ -15,7 +14,7 @@ class GraphSampler():
         self.graph_goal = None
         self.current_point = current_point
         self.goal_point = goal_point
-        self.path_width = 500
+        self.path_width = path_width
         self.known_obstacles = []
         self.lidar_angles = [30, 20, 0, -20, -30, 0, 0, 90, -90, 140, 180, 180, 220]
         self.sensor_offsets = [[170, -150, 15], [200, -40, 20], [200, 0, 20], [200, 40, 20], [170, 150, 15], [200, -40, 20], [200, 40, 20], [0, -100, 0], [0, 100, 0], [-135, -160, 15], [-180, -60, 15], [-180, 60, 15], [-135, 160, 15]]
