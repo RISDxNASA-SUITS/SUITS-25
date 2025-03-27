@@ -1,6 +1,0 @@
-#!/Users/khalil/Desktop/College/SUIT_RISD_NASA/SUITS-25/pythonbackend/SUIT25/bin/python
-import sys
-from python_server.main import start
-
-if __name__ == '__main__':
-    sys.exit(start())

@@ -38,20 +38,17 @@ def astar(graph, start, goal):
     '''
     graph: the Tree for path
     positions: all nodes and their positions
-    start: start position ex: (0, 0)
-    goal: goal position ex: (3, 3)
+    start: start node ex: ('A')
+    goal: goal node ex: ('D')
     '''
-
-    if not graph or (start not in graph) or (goal not in graph):
-        print("Not a complete graph")
-        return False
-    
     start_node = TreeNode(start)
     goal_node = TreeNode(goal)
 
+    #Priority queue for path searching
     open_list = []
     heapq.heappush(open_list, start_node)
 
+    #Closed set to track visited nodes
     closed_set = set()
     while open_list:
         cur_node = heapq.heappop(open_list)
@@ -66,10 +63,12 @@ def astar(graph, start, goal):
 
             neighbor_node = TreeNode(neighbor_pos, parent = cur_node)
 
+            #Compute new cost
             update_g = cur_node.g + cost
             update_h = euclidean_distance(cur_node.position, goal_node.position)
             update_f = update_g + update_h
 
+            #Check if this neighbor is alread yin the open list with a better cost
             better_path_found = False
             for open_node in open_list:
                 if neighbor_node == open_node:
