@@ -11,15 +11,20 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "white-10": "rgba(255,255,255,0.1)",
         "galaxy-purple": "#412D91",
         "another-purple": "#715DC1",
         "light-purple": "#9D89FF",
-        "midnight-purple": "#100A28"
+        "midnight-purple": "#100A28",
+        "crimson-red": "rgba(255, 20, 24, 0.7)",
+        "warning": "rgba(255, 21, 21, 0.25)"
       },
       fontFamily: {
         sans: ["var(--font-ibm-plex-sans)"]
       }
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar'),
+  ],
 } satisfies Config;
