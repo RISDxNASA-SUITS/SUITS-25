@@ -3,7 +3,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl, {Map, Marker, Popup} from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import MapButton from "./MapButton";
+import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
 import { PoiStore } from "@/app/hooks/PoiStore";
 import { createRoot } from "react-dom/client";
 import "../mapstyle.css";
@@ -14,7 +14,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoieHplcm84NjQiLCJhIjoiY2xmbW9wZ3BzMDQzaTN3cDUwc
 
 type BasicMapProps = {
     roverCoords: {x: number, y: number};
-    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" |"SelectStation") => void;
+    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag") => void;
     selectedMarkerPopupRef: React.RefObject<mapboxgl.Popup | null>;
     selectedMarkerElementRef: React.RefObject<HTMLElement | null>;
 }
@@ -94,9 +94,9 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
             .togglePopup();
 
         createRoot(popupContainer).render(
-            <MapButton active={buttonActive} logo={"/logo/poi-stroke.svg"} onClick={() => addPoiMarker(marker, lng, lat)}>
+            <PrimaryButton active={buttonActive} logo={"/logo/poi-stroke.svg"} onClick={() => addPoiMarker(marker, lng, lat)}>
                 +POI
-            </MapButton>
+            </PrimaryButton>
         );
 
         // Save marker to state
@@ -130,13 +130,14 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
         poiMarkerElement.style.backgroundImage = 'url(/markers/selected-poi.svg)';
 
         const popupContainer = document.createElement("div");
-        popupContainer.innerHTML = `<div>POI ${poiNum}</div>`;
 
         const popup = new mapboxgl.Popup({
             className: 'custom-final-popup',
             closeButton: false,
             offset: 16,
-        }).setDOMContent(popupContainer);
+        }).setDOMContent(popupContainer).setHTML(`<div>POI ${poiNum}</div>`);
+
+
 
         new mapboxgl.Marker(poiMarkerElement)
             .setLngLat([lng, lat])

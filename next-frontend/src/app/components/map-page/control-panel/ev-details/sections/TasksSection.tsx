@@ -1,4 +1,4 @@
-import TaskCard from "../Cards/TaskCard"
+import TaskCard from "@/app/components/ui/Cards/TaskCard"
 
 interface TasksProps {
     taskName: string;

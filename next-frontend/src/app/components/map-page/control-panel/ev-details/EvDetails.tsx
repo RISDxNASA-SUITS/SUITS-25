@@ -1,11 +1,11 @@
 "use client"
 
 import {useEffect, useState} from "react";
-import MainTab from "@/app/components/MapPage/ControlPanel/EvDetails/Tabs/MainTab";
-import SubTabButton from "@/app/components/MapPage/ControlPanel/EvDetails/Tabs/SubTabButton";
-import TasksSection from "@/app/components/MapPage/ControlPanel/EvDetails/Sections/TasksSection";
-import WarningSection from "@/app/components/MapPage/ControlPanel/EvDetails/Sections/WarningSection";
-import XrfSection from "@/app/components/MapPage/ControlPanel/EvDetails/Sections/XrfSection";
+import MainTab from "@/app/components/ui/Tabs/MainTab";
+import SubTabButton from "@/app/components/ui/Tabs/SubTabButton";
+import TasksSection from "@/app/components/map-page/control-panel/ev-details/sections/TasksSection";
+import WarningSection from "@/app/components/map-page/control-panel/ev-details/sections/WarningSection";
+import XrfSection from "@/app/components/map-page/control-panel/ev-details/sections/XrfSection";
 
 type EvaTab = "EVA1" | "EVA2"
 

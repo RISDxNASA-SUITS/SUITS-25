@@ -6,7 +6,7 @@ interface MapButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     logo?: string;
 }
 
-export const MapButton = ({ children, active, logo, disabled, ...props }: MapButtonProps) => {
+export const PrimaryButton = ({ children, active, logo, disabled, ...props }: MapButtonProps) => {
     return (
         <button
             className={`
@@ -26,4 +26,4 @@ export const MapButton = ({ children, active, logo, disabled, ...props }: MapBut
     );
 };
 
-export default MapButton;
+export default PrimaryButton;

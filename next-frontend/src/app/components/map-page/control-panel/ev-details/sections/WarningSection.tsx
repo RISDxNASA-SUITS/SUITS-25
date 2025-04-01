@@ -1,4 +1,4 @@
-import WarningCard from "@/app/components/MapPage/ControlPanel/EvDetails/Cards/WarningCard";
+import WarningCard from "@/app/components/ui/Cards/WarningCard";
 
 interface WarningProps {
     message: string;

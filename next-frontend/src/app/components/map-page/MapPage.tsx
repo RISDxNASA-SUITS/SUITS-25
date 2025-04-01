@@ -1,17 +1,15 @@
 "use client"
 
-import BasicMap from "@/app/components/MapPage/Map/BasicMap";
-import ControlPanel from "@/app/components/MapPage/ControlPanel/ControlPanel";
-import MissionInfoPanel from "@/app/components/MapPage/MissionInfo/MissionInfoPanel"
+import BasicMap from "@/app/components/map-page/map/BasicMap";
+import ControlPanel from "@/app/components/map-page/control-panel/ControlPanel";
+import MissionInfoPanel from "@/app/components/map-page/mission-info/MissionInfoPanel"
 import {useRef, useState} from "react";
-import {Marker} from "mapbox-gl";
 
 type MapPageProps = {
     roverCoords: {x: number, y: number}
 }
 
-
-type ControlPanelState = "EvDetails" | "AddPin" | "SelectPin" |"SelectStation"
+type ControlPanelState = "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag"
 
 export const MapPage = ({roverCoords}: MapPageProps)=>{
     const [controlPanelState, setControlPanelState] = useState<ControlPanelState>("EvDetails")

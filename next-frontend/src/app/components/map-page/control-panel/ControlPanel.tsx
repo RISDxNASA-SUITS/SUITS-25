@@ -1,15 +1,16 @@
 "use client"
 
-import EvDetails from "@/app/components/MapPage/ControlPanel/EvDetails/EvDetails";
-import AddPin from "@/app/components/MapPage/ControlPanel/PinDetails/AddPin";
-import SelectPin from "@/app/components/MapPage/ControlPanel/PinDetails/SelectPin"
-import SelectStation from "@/app/components/MapPage/ControlPanel/PinDetails/SelectStation"
+import EvDetails from "@/app/components/map-page/control-panel/ev-details/EvDetails";
+import AddPin from "@/app/components/map-page/control-panel/pin-details/AddPin";
+import SelectPin from "@/app/components/map-page/control-panel/pin-details/SelectPin"
+import SelectStation from "@/app/components/map-page/control-panel/pin-details/SelectStation"
 import {PoiStore} from "@/app/hooks/PoiStore";
 import React, {useRef, useState} from "react";
+import {SelectLabel} from "@/app/components/map-page/control-panel/pin-details/SelectLabel";
 
 type ControlPanelProps = {
     state: string;
-    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" |"SelectStation") => void;
+    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag") => void;
     selectedMarkerPopupRef: React.RefObject<mapboxgl.Popup | null>;
     selectedMarkerElementRef: React.RefObject<HTMLElement | null>;
 }
@@ -39,11 +40,23 @@ export const ControlPanel = ({state, setControlPanelState, selectedMarkerPopupRe
             case "EvDetails":
                 return <EvDetails/>;
             case "AddPin":
-                return selectedPoi ? <AddPin pin={selectedPoi} onClose={handleClose}/> : null;
+                return selectedPoi ? (
+                    <AddPin
+                        pin={selectedPoi}
+                        onClose={handleClose}
+                        popupRef={selectedMarkerPopupRef}
+                        setControlPanelState={setControlPanelState}
+                    />
+                ) : null;
             case "SelectPin":
                 return <SelectPin/>;
             case "SelectStation":
                 return <SelectStation/>;
+            case "AddTag":
+                return <SelectLabel
+                    onClose={handleClose}
+                    setControlPanelState={setControlPanelState}
+                />
         }
     }
 
