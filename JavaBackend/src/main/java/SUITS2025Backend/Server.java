@@ -7,11 +7,12 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.kotlin.KotlinModule;
+
 import SUITS2025Backend.PoiList.PoiController;
 import SUITS2025Backend.TaskList.TaskController;
 import io.javalin.Javalin;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.kotlin.KotlinModule;
 
 public class Server {
     public static void main(String[] args) {
@@ -24,7 +25,11 @@ public class Server {
             // Configure CORS if needed
             // config.enableCorsForAllOrigins();
         })
-        .get("/", ctx -> sendCommand2())
+        .get("/{num}", ctx -> {
+            int num = Integer.parseInt(ctx.pathParam("num"));
+            String result = String.valueOf(sendUdpMessage(num));
+            ctx.result(result);
+        })
 
         .ws("/websocket", ws -> {
             ws.onConnect(ctx -> {
@@ -728,12 +733,16 @@ public class Server {
     public static void sendCommand166() {
         sendUdpMessage(166);
     }
+
+    public static void sendCommand167(){
+        sendUdpMessage(167);
+    }
     
-    private static void sendUdpMessage(int commandNumber) {
+    private static int sendUdpMessage(int commandNumber) {
         try {
             DatagramSocket socket = new DatagramSocket();
-            InetAddress serverAddress = InetAddress.getByName("10.1.77.147");
-            int serverPort = 14141;
+            InetAddress serverAddress = InetAddress.getByName("127.0.0.1");
+            int serverPort = 14142;
 
             long timestamp = new Date().getTime() / 1000; // Current timestamp in seconds
 
@@ -747,10 +756,10 @@ public class Server {
             socket.send(packet);
             System.out.println("Sent command: " + commandNumber);
             
-            byte[] receiveData = new byte[12]; 
+            byte[] receiveData = new byte[12];
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
             socket.receive(receivePacket);
-            
+            System.out.println("Received command");
             ByteBuffer receivedBuffer = ByteBuffer.wrap(receivePacket.getData());
             receivedBuffer.order(ByteOrder.BIG_ENDIAN);
 
@@ -758,13 +767,14 @@ public class Server {
             long receivedTimestamp = receivedBuffer.getInt() & 0xFFFFFFFFL; // Convert to unsigned
             int receivedCommand = receivedBuffer.getInt();
             int outputData = receivedBuffer.getInt();
-
-            // Print the received components
-            System.out.println("Received data: " + outputData);
-
+            System.out.println("Output: " + outputData);
             socket.close();
+            // Print the received components
+            return outputData;
+
         } catch (Exception e) {
             e.printStackTrace();
+            return -1;
         }
     }
 }
