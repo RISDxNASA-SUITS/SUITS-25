@@ -7,19 +7,25 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
 
-import SUITS2025Backend.TssDataSerializations.TssDataHandler;
+import SUITS2025Backend.PoiList.PoiController;
+import SUITS2025Backend.TaskList.TaskController;
 import io.javalin.Javalin;
-import io.javalin.websocket.WsConfig;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.kotlin.KotlinModule;
 
 public class Server {
     public static void main(String[] args) {
-        TssDataHandler handler = new TssDataHandler();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new KotlinModule.Builder()
+            .build());
         
         Javalin app = Javalin.create(config -> {
+            config.jsonMapper(new io.javalin.json.JavalinJackson(mapper, false));
             // Configure CORS if needed
             // config.enableCorsForAllOrigins();
         })
         .get("/", ctx -> sendCommand2())
+
         .ws("/websocket", ws -> {
             ws.onConnect(ctx -> {
                 System.out.println("Connected: " + ctx.sessionId());
@@ -59,6 +65,8 @@ public class Server {
             });
         })
         .start(7070);
+        TaskController.setup(app);
+        PoiController.setup(app);
     }
 
     public static void sendCommand2() {
