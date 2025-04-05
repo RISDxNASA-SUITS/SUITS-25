@@ -61,6 +61,7 @@ class PoiDbController {
                 tags = poi.tags.joinToString(",")
                 description = poi.description
             }
+
         }
     }
 
