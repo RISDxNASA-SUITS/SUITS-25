@@ -17,6 +17,7 @@ export const MapPage = ({roverCoords}: MapPageProps)=>{
     const selectedMarkerPopupRef = useRef<mapboxgl.Popup | null>(null);
     const selectedMarkerElementRef = useRef<HTMLElement | null>(null);
 
+
     return (
         <div className="flex w-full h-screen bg-slate-800">
             <div className="w-1/4 bg-midnight-purple flex flex-col gap-2 p-4 border-r-2 border-white border-opacity-10">
