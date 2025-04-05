@@ -150,7 +150,7 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
             id: id,
             name: `POI ${poiNum}`,
             coords: { lng, lat },
-            tags: [],
+            tags: null,
         });
         selectPoi(id);
 

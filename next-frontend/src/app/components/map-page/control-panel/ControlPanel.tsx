@@ -1,21 +1,22 @@
 "use client"
 
 import EvDetails from "@/app/components/map-page/control-panel/ev-details/EvDetails";
-import AddPin from "@/app/components/map-page/control-panel/pin-details/AddPin";
+import EditPin from "@/app/components/map-page/control-panel/pin-details/EditPin";
 import SelectPin from "@/app/components/map-page/control-panel/pin-details/SelectPin"
 import SelectStation from "@/app/components/map-page/control-panel/pin-details/SelectStation"
+import {AddTag} from "@/app/components/map-page/control-panel/pin-details/description/AddTag";
+import {AddVoiceNote} from "@/app/components/map-page/control-panel/pin-details/description/AddVoiceNote";
 import {PoiStore} from "@/app/hooks/PoiStore";
 import React, {useRef, useState} from "react";
-import {SelectLabel} from "@/app/components/map-page/control-panel/pin-details/SelectLabel";
 
 type ControlPanelProps = {
     state: string;
-    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag") => void;
+    panelState: (panel: "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag" | "AddVoiceNote") => void;
     selectedMarkerPopupRef: React.RefObject<mapboxgl.Popup | null>;
     selectedMarkerElementRef: React.RefObject<HTMLElement | null>;
 }
 
-export const ControlPanel = ({state, setControlPanelState, selectedMarkerPopupRef, selectedMarkerElementRef}: ControlPanelProps ) => {
+export const ControlPanel = ({state, panelState, selectedMarkerPopupRef, selectedMarkerElementRef}: ControlPanelProps ) => {
     const {pois, selectedPoiId, selectPoi, addPoi, updatePoi} = PoiStore();
     const selectedPoi = pois.find(poi => poi.id === selectedPoiId);
 
@@ -32,7 +33,7 @@ export const ControlPanel = ({state, setControlPanelState, selectedMarkerPopupRe
 
         // Clear selected POI and go back
         selectPoi(null);
-        setControlPanelState("EvDetails");
+        panelState("EvDetails");
     };
 
     function handleContent(state: string) {
@@ -41,11 +42,11 @@ export const ControlPanel = ({state, setControlPanelState, selectedMarkerPopupRe
                 return <EvDetails/>;
             case "AddPin":
                 return selectedPoi ? (
-                    <AddPin
+                    <EditPin
                         pin={selectedPoi}
                         onClose={handleClose}
                         popupRef={selectedMarkerPopupRef}
-                        setControlPanelState={setControlPanelState}
+                        setControlPanelState={panelState}
                     />
                 ) : null;
             case "SelectPin":
@@ -53,9 +54,14 @@ export const ControlPanel = ({state, setControlPanelState, selectedMarkerPopupRe
             case "SelectStation":
                 return <SelectStation/>;
             case "AddTag":
-                return <SelectLabel
+                return <AddTag
                     onClose={handleClose}
-                    setControlPanelState={setControlPanelState}
+                    setControlPanelState={panelState}
+                />
+            case "AddVoiceNote":
+                return <AddVoiceNote
+                    onClose={handleClose}
+                    setControlPanelState={panelState}
                 />
         }
     }

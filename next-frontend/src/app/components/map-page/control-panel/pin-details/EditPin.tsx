@@ -4,15 +4,16 @@ import mapboxgl from "mapbox-gl";
 import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
 import React, {useState} from "react";
 import CloseButton from "@/app/components/ui/ui-buttons/CloseButton";
+import RecordingCard from "@/app/components/ui/Cards/RecordingCard";
 
 type AddPinProps = {
     pin: Poi;
     onClose: () => void;
     popupRef: React.RefObject<mapboxgl.Popup | null>;
-    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag") => void;
+    setControlPanelState: (state: "AddTag" |"AddVoiceNote") => void;
 }
 
-export const AddPin = ({pin, onClose, popupRef, setControlPanelState}: AddPinProps) => {
+export const EditPin = ({pin, onClose, popupRef, setControlPanelState}: AddPinProps) => {
     const [showInput, setShowInput] = useState<boolean>(false);
     const [inputValue, setInputValue] = useState(pin.name);
     const [savedText, setSavedText] = useState<string>(pin.name);
@@ -27,11 +28,6 @@ export const AddPin = ({pin, onClose, popupRef, setControlPanelState}: AddPinPro
         setSavedText(inputValue);
         setInputValue(pin.name);
         setShowInput(false);
-    }
-
-    const handleRemoveTags = () => {
-        clearTags(pin.id)
-        pin.tags == null;
     }
 
     return (
@@ -115,7 +111,9 @@ export const AddPin = ({pin, onClose, popupRef, setControlPanelState}: AddPinPro
                 {/*Voice Notes*/}
                 <div className={"flex flex-col gap-4"}>
                     <p className={"text-2xl font-bold"}>Voice Notes</p>
-                    <SecondaryButton logo={"/logo/add.svg"}>Voice Note</SecondaryButton>
+
+                    <SecondaryButton logo={"/logo/add.svg"} onClick={() => setControlPanelState("AddVoiceNote")}
+                    >Voice Note</SecondaryButton>
                 </div>
             </div>
 
@@ -128,4 +126,4 @@ export const AddPin = ({pin, onClose, popupRef, setControlPanelState}: AddPinPro
     )
 }
 
-export default AddPin
+export default EditPin;

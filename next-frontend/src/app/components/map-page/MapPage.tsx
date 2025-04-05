@@ -9,7 +9,7 @@ type MapPageProps = {
     roverCoords: {x: number, y: number}
 }
 
-type ControlPanelState = "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag"
+type ControlPanelState = "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag" | "AddVoiceNote"
 
 export const MapPage = ({roverCoords}: MapPageProps)=>{
     const [controlPanelState, setControlPanelState] = useState<ControlPanelState>("EvDetails")
@@ -22,7 +22,7 @@ export const MapPage = ({roverCoords}: MapPageProps)=>{
             <div className="w-1/4 bg-midnight-purple flex flex-col gap-2 p-4 border-r-2 border-white border-opacity-10">
                 <ControlPanel
                     state={controlPanelState}
-                    setControlPanelState={setControlPanelState}
+                    panelState={setControlPanelState}
                     selectedMarkerPopupRef={selectedMarkerPopupRef}
                     selectedMarkerElementRef={selectedMarkerElementRef}
                 />

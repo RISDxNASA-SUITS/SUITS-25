@@ -6,13 +6,13 @@ import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
 
 type SelectLabelProps = {
     onClose: () => void;
-    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag") => void;
+    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag" ) => void;
 }
 
 type SubTab = "Rock" | "Terrain" | "Category" | ""
 
 
-export const SelectLabel = ({ onClose, setControlPanelState } : SelectLabelProps) => {
+export const AddTag = ({ onClose, setControlPanelState } : SelectLabelProps) => {
     const [selectedSubTab, setSelectedSubTab] = useState<SubTab>("Rock");
     const { selectedPoiId, pois, updateTag } = PoiStore();
     const selectedPoi = pois.find(p => p.id === selectedPoiId);

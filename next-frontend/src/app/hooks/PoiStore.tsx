@@ -10,7 +10,7 @@ export interface Poi {
     id: string;
     name: string;
     coords: { lng: number; lat: number };
-    tags: TagSelections;
+    tags: TagSelections | null;
     voiceMemo?: string[];
 }
 
