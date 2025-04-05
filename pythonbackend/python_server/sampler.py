@@ -72,8 +72,8 @@ class GraphSampler():
                 dist_to_start <= self.path_width or 
                 dist_to_end <= self.path_width):
                 return False
-        
         return True
+    
     def _euclidean(self, point1, point2):
         return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
     def nearest_nodes(self, point) -> TreeNode:
