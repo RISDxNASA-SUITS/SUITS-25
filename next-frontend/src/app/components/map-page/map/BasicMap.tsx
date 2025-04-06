@@ -12,6 +12,9 @@ import {nanoid} from "nanoid";
 // Set your Mapbox access token
 mapboxgl.accessToken = 'pk.eyJ1IjoieHplcm84NjQiLCJhIjoiY2xmbW9wZ3BzMDQzaTN3cDUwcWplcGF6byJ9.PR0YiT3S05lotgY12AwWEQ';
 
+//image map token
+// mapboxgl.accessToken = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGVydSJ9.pIfFx8HCC58f_PzAUjALRQ';
+
 type BasicMapProps = {
     roverCoords: {x: number, y: number};
     setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag") => void;
@@ -41,6 +44,9 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
         map.current = new mapboxgl.Map({
             container: mapContainer.current,
             style: 'mapbox://styles/mapbox/satellite-v9',
+
+            //image map
+            // style: 'mapbox://styles/dkimh/cm7teczs4006b01s0fnj9ezn8/draft',
             center: [-95.081213, 29.564795],
             zoom: 18.8,
         });
