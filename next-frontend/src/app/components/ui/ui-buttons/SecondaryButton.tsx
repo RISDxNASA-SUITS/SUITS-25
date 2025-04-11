@@ -8,7 +8,7 @@ interface SecondaryButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>{
 export const SecondaryButton = ({children, logo, ...props} : SecondaryButtonProps) => {
     return (
         <button
-            className={`flex flex-1 items-center justify-center gap-2 px-4 py-2 rounded-xl border border-light-purple w-full
+            className={`flex flex-1 items-center justify-center gap-2 px-4 py-2 rounded-xl border border-light-purple w-full 
                 backdrop-blur-sm transition-all text-light-purple
                 hover:border-2
                 active:border-2 active:bg-white/10`}

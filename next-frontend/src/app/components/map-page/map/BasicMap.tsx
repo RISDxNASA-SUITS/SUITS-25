@@ -62,7 +62,7 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
             if (tempMarkerRef.current){
                 tempMarkerRef.current.remove();
             }
-            
+
             //deselect all marker
             togglePoiSelection(false);
 
@@ -79,10 +79,8 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
             }
 
             //add temp marker
-            if (poiButtonActiveRef.current) {
-                const {lng, lat} = e.lngLat;
-                addMarker(lng, lat);
-            }
+            const {lng, lat} = e.lngLat;
+            addMarker(lng, lat);
 
         });
 
@@ -118,7 +116,7 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
         // Save marker to state
         tempMarkerRef.current = marker;
         setMarkers(prevMarkers => [...prevMarkers, marker]);
-        // setPoiButtonActive(false); // Reset POI button active state <-- now that we have the add menu option should we just have the user be able to toggle it off instead of doing automatically?
+        setPoiButtonActive(false);
 
         setControlPanelState("EvDetails");
 
@@ -216,9 +214,6 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
 
         //toggle when clicked
         setPoiButtonActive(!poiButtonActiveRef.current);
-        console.log("poi button state is " + poiButtonActiveRef.current)
-
-
     };
 
     return (
@@ -242,33 +237,34 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
                 <div ref={mapContainer} className="mapbox-container" />
                 <div className="map-grid-overlay pointer-events-none" />
 
+                {/* Add Marker Menu */}
                 <div className="absolute bottom-8 right-4 flex flex-col gap-2 items-end">
-                    <SquareButton logo={"/logo/edit-white.svg"}/>
-                    
-                    {/* add button container that will expand */}
-                    <div className="flex flex-1 justify-center items-center text-nowrap w-auto flex-shrink-0 h-[56px]
-                    border border-light-purple bg-galaxy-purple rounded-xl text-white transition-all duration-150">
-                    <AddButton logo={`${addActive? `/logo/minus.svg` : `logo/add-white.svg`}`} onClick={onAddClick}>
-                    </AddButton>
+                    {/* Draw Hazard */}
+                    <PrimaryButton logo={"/logo/edit-white.svg"}/>
 
-                    {/* popup section */}
-                    <div className={`transition-all duration-300 ease-in-out overflow-hidden
-                        ${addActive? `opacity-100 mx-4`: `opacity-0 w-0 pointer-events-none ml-0`} flex justify-center items-center gap-4`}
-                    >
-                    <SmallerButton>
-                        <img src="/logo/hazard.svg" className="w-4 h-4"></img>
-                        <p>
-                        Add Hazard
-                        </p>
-                    </SmallerButton>
-                    <SmallerButton active={buttonActive} onClick={onPoiButtonClick}>
-                        <img src="/logo/poi-stroke.svg" className="w-4 h-4"></img>
-                        <p>
-                        Add POI
-                        </p>
-                    </SmallerButton>
-                    </div>
-                    
+                    {/* expandable button container*/}
+                    <div className="flex flex-row-reverse justify-center items-center text-nowrap
+                    border border-light-purple bg-galaxy-purple rounded-xl transition-all duration-150">
+                        {/* expandable button*/}
+                        <PrimaryButton
+                            logo={`${addActive ? `/logo/minus.svg` : `logo/add-white.svg`}`}
+                            logoClassName={"w-8 h-8"}
+                            className={"p-4"}
+                            onClick={onAddClick}/>
+
+                        {/* popup section - add POI & add Hazard*/}
+                        <div className={`transition-all duration-300 ease-in-out overflow-hidden
+                            ${addActive ? `opacity-100 mx-4`: `opacity-0 w-0 pointer-events-none ml-0`} flex justify-center items-center gap-4`}>
+                            <PrimaryButton>
+                                <img src="/logo/hazard.svg" alt={"add-hazard"}/>
+                                Add Hazard
+                            </PrimaryButton>
+
+                            <PrimaryButton active={buttonActive} onClick={onPoiButtonClick}>
+                                <img src="/logo/poi-stroke.svg" alt={"add-poi"}/>
+                                Add POI
+                            </PrimaryButton>
+                        </div>
                     </div>
                 </div>
             </div>
