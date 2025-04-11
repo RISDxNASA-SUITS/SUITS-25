@@ -6,16 +6,15 @@ interface MapButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     logo?: string;
 }
 
-export const PrimaryButton = ({ children, active, logo, disabled, ...props }: MapButtonProps) => {
+export const SmallerButton = ({ children, active, logo, disabled, ...props }: MapButtonProps) => {
     return (
         <button
             className={`
-                flex flex-1 px-4 py-4 justify-center items-center gap-2 shrink-[2]
-                border border-light-purple rounded-lg text-white transition-all duration-150
+                flex flex-1 px-5 py-1 justify-center items-center gap-2
+                border border-white rounded-lg text-white transition-all duration-150 w-full
                 ${disabled ? "opacity-60 bg-galaxy-purple cursor-not-allowed" : ""}
                 ${active ? "bg-light-purple" : "bg-galaxy-purple"}
                 hover:bg-another-purple
-                active:bg-light-purple
               `}
             disabled={disabled}
             {...props}
@@ -26,4 +25,4 @@ export const PrimaryButton = ({ children, active, logo, disabled, ...props }: Ma
     );
 };
 
-export default PrimaryButton;
+export default SmallerButton;

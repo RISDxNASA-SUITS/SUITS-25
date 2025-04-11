@@ -8,13 +8,15 @@ import { PoiStore } from "@/app/hooks/PoiStore";
 import { createRoot } from "react-dom/client";
 import "../mapstyle.css";
 import {nanoid} from "nanoid";
+import AddButton from '../../ui/ui-buttons/AddButton';
+import SmallerButton from "@/app/components/ui/ui-buttons/SmallerButton"
+import SquareButton from '../../ui/ui-buttons/SquareButton';
 
 // Set your Mapbox access token
 mapboxgl.accessToken = 'pk.eyJ1IjoieHplcm84NjQiLCJhIjoiY2xmbW9wZ3BzMDQzaTN3cDUwcWplcGF6byJ9.PR0YiT3S05lotgY12AwWEQ';
 
 //image map token
 // mapboxgl.accessToken = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGVydSJ9.pIfFx8HCC58f_PzAUjALRQ';
-
 
 type BasicMapProps = {
     roverCoords: {x: number, y: number};
@@ -38,6 +40,9 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
     };
     const tempMarkerRef = useRef<Marker | null>(null);
 
+    //toggle the expanded add menu
+    const [addActive, toggleAddActive] = useState<boolean>(false);
+
     useEffect(() => {
         if (map.current) return;
         if (!mapContainer.current) return;
@@ -57,7 +62,7 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
             if (tempMarkerRef.current){
                 tempMarkerRef.current.remove();
             }
-
+            
             //deselect all marker
             togglePoiSelection(false);
 
@@ -74,10 +79,14 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
             }
 
             //add temp marker
-            const {lng, lat} = e.lngLat;
-            addMarker(lng, lat);
+            if (poiButtonActiveRef.current) {
+                const {lng, lat} = e.lngLat;
+                addMarker(lng, lat);
+            }
+
         });
-    }, []);
+
+    }, [poiButtonActiveRef.current]);
 
     const addMarker = (lng: number, lat: number) => {
         if (!map.current) return;
@@ -109,12 +118,11 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
         // Save marker to state
         tempMarkerRef.current = marker;
         setMarkers(prevMarkers => [...prevMarkers, marker]);
-        setPoiButtonActive(false); // Reset POI button active state
+        // setPoiButtonActive(false); // Reset POI button active state <-- now that we have the add menu option should we just have the user be able to toggle it off instead of doing automatically?
 
         setControlPanelState("EvDetails");
 
         // Optional: Save marker to your POI store
-
     };
 
     // const clearAllMarkers = () => {
@@ -143,7 +151,6 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
             closeButton: false,
             offset: 16,
         }).setDOMContent(popupContainer).setHTML(`<div>POI ${poiNum}</div>`);
-
 
 
         new mapboxgl.Marker(poiMarkerElement)
@@ -178,7 +185,41 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
                 element.style.backgroundImage = 'url(/markers/default-poi.svg)';
             }
         }
-    }
+    };
+
+    //toggles add menu popup
+    const onAddClick = () => {
+        toggleAddActive(!addActive);
+
+        if (poiButtonActiveRef.current) {
+            setPoiButtonActive(false);
+
+            //get rid of any temp marker when the menu closes
+            if (tempMarkerRef.current){
+                tempMarkerRef.current.remove();
+            }
+        }
+    };
+
+    //add poi button click logic
+    const onPoiButtonClick = () => {
+
+        //get rid of any temp marker when toggled off
+        if (poiButtonActiveRef.current) {
+            if (tempMarkerRef.current){
+                tempMarkerRef.current.remove();
+            }
+
+            //remove the popup also
+            toggleAddActive(false);
+        }
+
+        //toggle when clicked
+        setPoiButtonActive(!poiButtonActiveRef.current);
+        console.log("poi button state is " + poiButtonActiveRef.current)
+
+
+    };
 
     return (
         <div className="map-wrapper">
@@ -200,6 +241,36 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
             <div className="map-container">
                 <div ref={mapContainer} className="mapbox-container" />
                 <div className="map-grid-overlay pointer-events-none" />
+
+                <div className="absolute bottom-8 right-4 flex flex-col gap-2 items-end">
+                    <SquareButton logo={"/logo/edit-white.svg"}/>
+                    
+                    {/* add button container that will expand */}
+                    <div className="flex flex-1 justify-center items-center text-nowrap w-auto flex-shrink-0 h-[56px]
+                    border border-light-purple bg-galaxy-purple rounded-xl text-white transition-all duration-150">
+                    <AddButton logo={`${addActive? `/logo/minus.svg` : `logo/add-white.svg`}`} onClick={onAddClick}>
+                    </AddButton>
+
+                    {/* popup section */}
+                    <div className={`transition-all duration-300 ease-in-out overflow-hidden
+                        ${addActive? `opacity-100 mx-4`: `opacity-0 w-0 pointer-events-none ml-0`} flex justify-center items-center gap-4`}
+                    >
+                    <SmallerButton>
+                        <img src="/logo/hazard.svg" className="w-4 h-4"></img>
+                        <p>
+                        Add Hazard
+                        </p>
+                    </SmallerButton>
+                    <SmallerButton active={buttonActive} onClick={onPoiButtonClick}>
+                        <img src="/logo/poi-stroke.svg" className="w-4 h-4"></img>
+                        <p>
+                        Add POI
+                        </p>
+                    </SmallerButton>
+                    </div>
+                    
+                    </div>
+                </div>
             </div>
         </div>
     );
