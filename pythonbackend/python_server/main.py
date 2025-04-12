@@ -1,19 +1,66 @@
 import uvicorn
 from fastapi import FastAPI
-
+from fastapi.responses import RedirectResponse
+import socket
+import struct
+import time
+from threading import Thread
+from queue import Queue
+"""
+TODO: 
+1) Make a utils file, e.g. euclidean distance function is created twice
+2) Change file structure, TreeNode class should be it's own file not within the Astar file
+3) File names can be improved (sampling, driving)
+4) Test RRT functions
+5) Implement driving functions, tested with the simulator
+6) Implement SLAM in RRT, (possibly as a seperate class, as obstacles are used in driving as well)
+"""
 app = FastAPI()
-# TODO: ADD A SOCKET TO COMMUNICATE WITH THE JAVA BACKEND
-# Every second, ask for telemetry, return Rover Agent output
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
 
-def main():
-    print("Hello World")
+TSS_HOST = "10.20.77.44"
+TSS_PORT = 14141
 
+class Pipeline():
+    def __init__(self, host, port):
+        self.address = (host, port)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.connect(self.address)
+        
+    def _send_packet(self, command_num : int, value : float = None):
+        try:
+            timestamp = int(time.time())
+            msg = struct.pack('>II', timestamp, command_num)
+            if(value):
+                msg = struct.pack('>IIf', timestamp, command_num, value)
+            self.sock.send(msg)
+        except Exception as e:
+            print(f"Error sending command: {e}")
+
+    def send_instructions(self, command_num, value):
+        self._send_packet(command_num, value)
+
+    def send_receive(self, command_num):
+        self._send_packet(command_num)
+        data = self.sock.recv(1024)
+        if(command_num == 167):#if lidar
+            #if you look in their codebase, 167 doesn't actually exist as a command... I don't really know what to put here
+            return struct.unpack('>IIfffffffffffff', data)
+        else:
+            print(data)
+            return struct.unpack('>IIf', data)
+    
+    def close(self):
+        self.sock.close()
 
 def start():
-    uvicorn.run("python_server.main:app", host="0.0.0.0", port=8000, reload=True)
+    pipeline = Pipeline(TSS_HOST, TSS_PORT)
+    #pipeline.send_instructions(command_num = 1109, value = 0.9)
+    print(pipeline.send_receive(command_num = 58))
+    pipeline.close()
 
-if __name__ == "__main__":
-    main()
+start()
+
+    
+    
+
+    
