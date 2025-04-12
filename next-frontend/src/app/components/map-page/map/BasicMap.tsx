@@ -251,7 +251,7 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
                         <PrimaryButton
                             logo={`${addActive ? `/logo/minus.svg` : `logo/add-white.svg`}`}
                             logoClassName={"w-8 h-8"}
-                            className={"p-4"}
+                            className={"p-4 hover:bg-another-purple rounded-xl"}
                             onClick={onAddClick}/>
 
                         {/* popup section - add POI & add Hazard*/}
