@@ -12,6 +12,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule;
 
 import SUITS2025Backend.PoiList.PoiController;
 import SUITS2025Backend.TaskList.TaskController;
+import SUITS2025Backend.PythonCommunication.PythonCommunicationHandler;
 import io.javalin.Javalin;
 
 public class Server {
@@ -25,7 +26,7 @@ public class Server {
             // Configure CORS if needed
             // config.enableCorsForAllOrigins();
         })
-        .get("/{num}", ctx -> {
+        .get("/command/{num}", ctx -> {
             int num = Integer.parseInt(ctx.pathParam("num"));
             String result = String.valueOf(sendUdpMessage(num));
             ctx.result(result);
@@ -72,6 +73,7 @@ public class Server {
         .start(7070);
         TaskController.setup(app);
         PoiController.setup(app);
+        PythonCommunicationHandler.setup(app);
     }
 
     public static void sendCommand2() {
@@ -738,7 +740,7 @@ public class Server {
         sendUdpMessage(167);
     }
     
-    private static int sendUdpMessage(int commandNumber) {
+    public static int sendUdpMessage(int commandNumber) {
         try {
             DatagramSocket socket = new DatagramSocket();
             InetAddress serverAddress = InetAddress.getByName("127.0.0.1");
