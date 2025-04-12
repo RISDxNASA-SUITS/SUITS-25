@@ -1,9 +1,9 @@
 #https://docs.pydantic.dev/latest/why/#type-hints
 
 from pydantic import BaseModel, Field
-from ..sampler import GraphSampler
-from Astar import astar
-from Nevigator import AStarNavigator
+from ..helper_folder.GraphSampler import GraphSampler
+from helper_folder.Astar import astar
+from Navigator import AStarNavigator
 
 class OutputData(BaseModel):
     breaks:bool
@@ -36,7 +36,7 @@ class RoverAgentBasic(RoverAgentAbstract):
             lidar_reading = None #TODO: Need to get lidar data from TSS
             RRT_graph.add_obstacle(lidar_reading)
             RRT_graph.get_graph()
-            astar_path = astar(RRT_graph.graph_start, RRT_graph.graph_start.position, RRT_graph.graph_goal.position)
+            astar_path = astar(RRT_graph.adjacency_graph, RRT_graph.graph_start, RRT_graph.graph_goal)
             #TODO: Need to change astar inputs to start and goal nodes
             reached_goal = AStarNavigator.follow_astar_path(astar_path)
             if reached_goal == True:

@@ -1,5 +1,5 @@
 import time
-from Astar import euclidean_distance
+from helper_folder.helper_functions import euclidean_distance
 class AStarNavigator:
     def __init__(self, angle = 15, wall_threshold = 500):
         self.angle = angle
