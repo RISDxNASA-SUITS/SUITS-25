@@ -5,6 +5,7 @@ import helper_functions
 from Node import Node
 from helper_functions import Point
 
+
 from Astar import astar
 
 
@@ -39,6 +40,11 @@ class GraphSampler():
             samples.append(s)
         return samples
     
+    def _prepare_samples(self, sample : NDArray):
+        '''
+        Orders samples by distance from current node 
+        '''
+        return sorted(list(sample), key = lambda point : helper_functions.path_function(point, self.current_node.position))
     def check_valid_path(self, start : Point, end : Point) -> bool:
         """
         Identifies whether a straight line path can connect two given points given known obstacles
@@ -107,8 +113,9 @@ class GraphSampler():
         Args: None
         Returns: None
         """
-        sample = self._sample()
-        for new_point in sample:
+        samples = self._sample()
+        samples = self._prepare_samples(samples)
+        for new_point in samples:
             new_point = tuple(new_point)
             nearest_node = self.get_nearest_node(new_point)
             if self.check_valid_path(nearest_node.position, new_point):
