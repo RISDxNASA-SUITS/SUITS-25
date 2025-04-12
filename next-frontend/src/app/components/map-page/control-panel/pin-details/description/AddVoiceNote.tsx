@@ -82,6 +82,7 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
                     {/* Recording */}
                     <div className="flex flex-col gap-8">
                         {(recording) ? (
+                            //while recording
                             <div className={"flex flex-col gap-4 items-center"}>
                                 <div className={"flex flex-col px-9 py-9 gap-5 border-light-purple border rounded-2xl "}>
                                     <img src={"/logo/pause.svg"} alt={"pause logo"}/>
@@ -92,7 +93,16 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
                                 </div>
                                 <SecondaryButton onClick={() => stopRecording()}>Stop</SecondaryButton>
                             </div>
+                        ) : audioURL ? (
+                            // After recording finished
+                              <div className="flex flex-col gap-4 items-center w-full">
+                              <div className="w-full max-w-[500px] px-9 py-9 gap-5 border-light-purple border rounded-2xl">
+                                <p className="text-center text-sm font-bold">Record Finished</p>
+                                <audio controls src={audioURL} className="w-full" />
+                              </div>
+                            </div>
                         ) : (
+                            //before restarting
                             <SecondaryButton onClick={() => startRecording()}>Start</SecondaryButton>
                     )}
                 </div>

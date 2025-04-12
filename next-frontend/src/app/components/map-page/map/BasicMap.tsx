@@ -240,7 +240,9 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
                 {/* Add Marker Menu */}
                 <div className="absolute bottom-8 right-4 flex flex-col gap-2 items-end">
                     {/* Draw Hazard */}
-                    <PrimaryButton logo={"/logo/edit-white.svg"}/>
+                    <PrimaryButton 
+                        logo={"/logo/edit-white.svg"}
+                        logoClassName={"w-8 h-8"}/>
 
                     {/* expandable button container*/}
                     <div className="flex flex-row-reverse justify-center items-center text-nowrap
