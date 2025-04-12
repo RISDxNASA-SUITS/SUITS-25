@@ -1,5 +1,6 @@
 package SUITS2025Backend.PythonCommunication
 
+import PrTelemetry
 import io.javalin.Javalin
 import io.javalin.http.Context
 import java.net.DatagramPacket
@@ -90,15 +91,18 @@ sealed class RoverCommand {
     }
 
     data object Telemetry : RoverCommand() {
-        override fun communicate(): String {
-            val commandNum = 120;
-            val recvBuffer = ByteBuffer.allocate(104)
-            val sendPacket = makeSendLidarPacket(commandNum);
-            val callBack: (ByteBuffer) -> String = { buff: ByteBuffer ->
-                buff.getInt().toString()
+        override fun communicate(): PrTelemetry {
+            val retList:MutableList<String> = mutableListOf()
+            (119..164).forEach {
+                val recvBuffer = ByteBuffer.allocate(104)
+                val sendPacket = makeSendLidarPacket(it);
+                val callBack: (ByteBuffer) -> String = { buff: ByteBuffer ->
+                    buff.getFloat().toString()
+                }
+                retList.add(sendMessage(sendPacket,recvBuffer,callBack))
             }
-            return sendMessage(sendPacket, recvBuffer, callBack)
 
+        return PrTelemetry.fromStringList(retList);
         }
     }
 
@@ -156,6 +160,7 @@ sealed class RoverCommand {
             app.post("/brakes", this::postBrakes)
             app.post("/throttle", this::postThrottle)
             app.post("/steering", this::postSteering)
+            app.get("/telemetry", this::getTelem)
         }
 
         private fun getLidar(ctx: Context) {
@@ -177,6 +182,9 @@ sealed class RoverCommand {
         private fun postSteering(ctx: Context) {
             val steering = RoverCommand.Steering.communicate(ctx.bodyAsClass(SteeringRequest::class.java).steeringInput)
             ctx.json(steering)
+        }
+        private fun getTelem(ctx: Context) {
+            ctx.json(RoverCommand.Telemetry.communicate())
         }
 
 
