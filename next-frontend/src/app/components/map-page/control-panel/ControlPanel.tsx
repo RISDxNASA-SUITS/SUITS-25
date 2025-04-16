@@ -20,8 +20,6 @@ export const ControlPanel = ({state, panelState, selectedMarkerPopupRef, selecte
     const {pois, selectedPoiId, selectPoi, addPoi, updatePoi} = PoiStore();
     const selectedPoi = pois.find(poi => poi.id === selectedPoiId);
 
-    console.log(selectedPoi);
-
     const handleClose = () => {
         // Close popup if exists
         selectedMarkerPopupRef.current?.remove();
@@ -57,6 +55,7 @@ export const ControlPanel = ({state, panelState, selectedMarkerPopupRef, selecte
                     <SelectPin
                         pin={selectedPoi}
                         onClose={handleClose}
+                        markerRef={selectedMarkerElementRef}
                         popupRef={selectedMarkerPopupRef}
                         setControlPanelState={panelState}
                     />
