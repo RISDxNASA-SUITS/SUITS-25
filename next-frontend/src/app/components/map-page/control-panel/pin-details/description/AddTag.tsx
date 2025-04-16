@@ -6,7 +6,7 @@ import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
 
 type SelectLabelProps = {
     onClose: () => void;
-    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag" ) => void;
+    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" | "AddTag" ) => void;
 }
 
 type SubTab = "Rock" | "Terrain" | "Category" | ""

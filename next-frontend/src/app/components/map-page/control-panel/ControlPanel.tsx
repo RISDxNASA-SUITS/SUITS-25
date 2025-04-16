@@ -7,28 +7,31 @@ import SelectStation from "@/app/components/map-page/control-panel/pin-details/S
 import {AddTag} from "@/app/components/map-page/control-panel/pin-details/description/AddTag";
 import {AddVoiceNote} from "@/app/components/map-page/control-panel/pin-details/description/AddVoiceNote";
 import {PoiStore} from "@/app/hooks/PoiStore";
-import React, {useRef, useState} from "react";
+import React, {RefObject, useRef, useState} from "react";
 
 type ControlPanelProps = {
     state: string;
-    panelState: (panel: "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag" | "AddVoiceNote") => void;
-    selectedMarkerPopupRef: React.RefObject<mapboxgl.Popup | null>;
-    selectedMarkerElementRef: React.RefObject<HTMLElement | null>;
+    panelState: (panel: "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "AddVoiceNote") => void;
+    selectedMarkerRef: RefObject<SelectedMarkerRefs>;
 }
 
-export const ControlPanel = ({state, panelState, selectedMarkerPopupRef, selectedMarkerElementRef}: ControlPanelProps ) => {
+export const ControlPanel = ({state, panelState, selectedMarkerRef}: ControlPanelProps ) => {
     const {pois, selectedPoiId, selectPoi, addPoi, updatePoi} = PoiStore();
     const selectedPoi = pois.find(poi => poi.id === selectedPoiId);
 
+    // console.log(pois);
+
+    console.log(selectedPoi);
+
     const handleClose = () => {
         // Close popup if exists
-        selectedMarkerPopupRef.current?.remove();
-        selectedMarkerPopupRef.current = null;
+        selectedMarkerRef.current.popup?.remove();
+        selectedMarkerRef.current.popup = null;
 
         // Reset marker icon
-        if (selectedMarkerElementRef.current) {
-            selectedMarkerElementRef.current.style.backgroundImage = 'url(/markers/default-poi.svg)';
-            selectedMarkerElementRef.current = null;
+        if (selectedMarkerRef.current.markerElement) {
+            selectedMarkerRef.current.markerElement.style.backgroundImage = 'url(/markers/default-poi.svg)';
+            selectedMarkerRef.current.markerElement = null;
         }
 
         // Clear selected POI and go back
@@ -45,8 +48,7 @@ export const ControlPanel = ({state, panelState, selectedMarkerPopupRef, selecte
                     <EditPin
                         pin={selectedPoi}
                         onClose={handleClose}
-                        markerRef={selectedMarkerElementRef}
-                        popupRef={selectedMarkerPopupRef}
+                        selectedMarkerRef={selectedMarkerRef}
                         setControlPanelState={panelState}
                     />
                 ) : null;
@@ -55,13 +57,10 @@ export const ControlPanel = ({state, panelState, selectedMarkerPopupRef, selecte
                     <SelectPin
                         pin={selectedPoi}
                         onClose={handleClose}
-                        markerRef={selectedMarkerElementRef}
-                        popupRef={selectedMarkerPopupRef}
+                        selectedMarkerRef={selectedMarkerRef}
                         setControlPanelState={panelState}
                     />
                 ): null;
-            case "SelectStation":
-                return <SelectStation/>;
             case "AddTag":
                 return <AddTag
                     onClose={handleClose}

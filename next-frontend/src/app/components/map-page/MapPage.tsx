@@ -4,6 +4,7 @@ import BasicMap from "@/app/components/map-page/map/BasicMap";
 import ControlPanel from "@/app/components/map-page/control-panel/ControlPanel";
 import MissionInfoPanel from "@/app/components/map-page/mission-info/MissionInfoPanel"
 import {useRef, useState} from "react";
+import {SelectedMarkerRefs} from "@/app/components/map-page/SelectedMarkerRefs";
 
 type MapPageProps = {
     roverCoords: {x: number, y: number}
@@ -14,8 +15,10 @@ type ControlPanelState = "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" |
 export const MapPage = ({roverCoords}: MapPageProps)=>{
     const [controlPanelState, setControlPanelState] = useState<ControlPanelState>("EvDetails")
 
-    const selectedMarkerPopupRef = useRef<mapboxgl.Popup | null>(null);
-    const selectedMarkerElementRef = useRef<HTMLElement | null>(null);
+    const selectedMarkerRef = useRef<SelectedMarkerRefs>({
+        markerElement: null,
+        popup: null,
+    });
 
 
     return (
@@ -24,18 +27,17 @@ export const MapPage = ({roverCoords}: MapPageProps)=>{
                 <ControlPanel
                     state={controlPanelState}
                     panelState={setControlPanelState}
-                    selectedMarkerPopupRef={selectedMarkerPopupRef}
-                    selectedMarkerElementRef={selectedMarkerElementRef}
+                    selectedMarkerRef={selectedMarkerRef}
                 />
             </div>
 
             <div className="flex flex-col bg-midnight-purple w-3/4">
                 <MissionInfoPanel/>
+
                 <BasicMap
                     roverCoords={roverCoords}
                     setControlPanelState={setControlPanelState}
-                    selectedMarkerPopupRef={selectedMarkerPopupRef}
-                    selectedMarkerElementRef={selectedMarkerElementRef}
+                    selectedMarkerRef={selectedMarkerRef}
                 />
             </div>
         </div>

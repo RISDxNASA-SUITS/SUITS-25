@@ -2,29 +2,29 @@ import {Poi, PoiStore} from "@/app/hooks/PoiStore";
 import {SecondaryButton} from "@/app/components/ui/ui-buttons/SecondaryButton";
 import mapboxgl from "mapbox-gl";
 import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
-import React, {useState} from "react";
+import React, {RefObject, useState} from "react";
 import CloseButton from "@/app/components/ui/ui-buttons/CloseButton";
 import RecordingCard from "@/app/components/ui/Cards/RecordingCard";
+import {clearSelectedMarker, SelectedMarkerRefs} from "@/app/components/map-page/SelectedMarkerRefs";
 
 type AddPinProps = {
     pin: Poi;
     onClose: () => void;
-    popupRef: React.RefObject<mapboxgl.Popup | null>;
-    markerRef: React.RefObject<HTMLElement | null>;
+    selectedMarkerRef: RefObject<SelectedMarkerRefs>;
     setControlPanelState: (state: "AddTag" |"AddVoiceNote" | "EvDetails") => void;
 }
 
-export const EditPin = ({pin, onClose, markerRef, popupRef, setControlPanelState}: AddPinProps) => {
+export const EditPin = ({pin, onClose, selectedMarkerRef, setControlPanelState}: AddPinProps) => {
     const [showInput, setShowInput] = useState<boolean>(false);
     const [inputValue, setInputValue] = useState(pin.name);
     const [savedText, setSavedText] = useState<string>(pin.name);
 
-    const {clearTags, deletePoi} = PoiStore();
+    const {updatePoi, clearTags, deletePoi} = PoiStore();
 
     const handleSave = () => {
         pin.name = inputValue;
 
-        popupRef.current?.setHTML(`${pin.name}`);
+        selectedMarkerRef.current.popup?.setHTML(`${pin.name}`);
 
         setSavedText(inputValue);
         setInputValue(pin.name);
@@ -35,11 +35,9 @@ export const EditPin = ({pin, onClose, markerRef, popupRef, setControlPanelState
 
     const deletePin = () => {
         deletePoi(pin.id);
-        markerRef.current?.remove();
-        popupRef.current?.remove();
-
+        clearSelectedMarker(selectedMarkerRef);
         setControlPanelState("EvDetails");
-    }
+    };
 
     return (
         <div className={"flex flex-col justify-between h-full"}>
@@ -51,7 +49,7 @@ export const EditPin = ({pin, onClose, markerRef, popupRef, setControlPanelState
                         {!showInput && (
                             <>
                                 <button className={"underline"} onClick={() => setShowInput(true)}>Edit</button>
-                                <p>{savedText}</p>
+                                <p>{pin.name}</p>
                             </>
                         )}
 
@@ -60,7 +58,10 @@ export const EditPin = ({pin, onClose, markerRef, popupRef, setControlPanelState
                                 <input
                                     type={"text"}
                                     value={inputValue}
-                                    onChange={(e) => setInputValue(e.target.value)}
+                                    onChange={(e) => {
+                                        setInputValue(e.target.value)
+                                        updatePoi(pin.id, {name: pin.name});
+                                    }}
                                     className={"flex items-center rounded-lg bg-white-10 w-full"}/>
                             </div>
                         )}

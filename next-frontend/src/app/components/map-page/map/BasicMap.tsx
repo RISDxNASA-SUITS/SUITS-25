@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from 'react';
-import mapboxgl, {Map, Marker, Popup} from 'mapbox-gl';
+import React, {useRef, useEffect, useState, RefObject} from 'react';
+import mapboxgl, {Marker, Popup} from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
 import { PoiStore } from "@/app/hooks/PoiStore";
@@ -11,6 +11,8 @@ import {nanoid} from "nanoid";
 import AddButton from '../../ui/ui-buttons/AddButton';
 import SmallerButton from "@/app/components/ui/ui-buttons/SmallerButton"
 import SquareButton from '../../ui/ui-buttons/SquareButton';
+import closeButton from "@/app/components/ui/ui-buttons/CloseButton";
+import {SelectedMarkerRefs} from "@/app/components/map-page/SelectedMarkerRefs";
 
 // Set your Mapbox access token
 // mapboxgl.accessToken = 'pk.eyJ1IjoieHplcm84NjQiLCJhIjoiY2xmbW9wZ3BzMDQzaTN3cDUwcWplcGF6byJ9.PR0YiT3S05lotgY12AwWEQ';
@@ -24,14 +26,13 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3O
 type BasicMapProps = {
     roverCoords: {x: number, y: number};
     setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag") => void;
-    selectedMarkerPopupRef: React.RefObject<mapboxgl.Popup | null>;
-    selectedMarkerElementRef: React.RefObject<HTMLElement | null>;
+    selectedMarkerRef: RefObject<SelectedMarkerRefs>;
 }
 
-const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, selectedMarkerElementRef}: BasicMapProps) => {
+const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicMapProps) => {
     //TODO: Make this work with rover x,y coordinates, mock up the conversion for now
     const mapContainer = useRef<HTMLDivElement>(null);
-    const map = useRef<Map | null>(null);
+    const map = useRef<mapboxgl.Map | null>(null);
     const [markers, setMarkers] = useState<Marker[]>([]);
     let [poiNum, setPoiNum] = useState(1);
     const { pois, addPoi, selectPoi, selectedPoiId, updatePoi } = PoiStore();
@@ -42,6 +43,7 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
         setButtonActive(value)
     };
     const tempMarkerRef = useRef<Marker | null>(null);
+    const markerMap = new Map<HTMLElement, { id: string, marker: Marker }>();
 
     //toggle the expanded add menu
     const [addActive, toggleAddActive] = useState<boolean>(false);
@@ -75,9 +77,15 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
             if (target instanceof Element) {
                 const markerElement = target.closest('.mapboxgl-marker');
                 if (markerElement instanceof HTMLElement) {
-                    selectedMarkerElementRef.current = markerElement;
+                    selectedMarkerRef.current.markerElement = markerElement;
                     togglePoiSelection(true);
                     setControlPanelState("SelectPin");
+
+                    // find HTMLElement and update selected POI id
+                    const match = markerMap.get(markerElement);
+                    if (match) {
+                        selectPoi(match.id);
+                    }
                     return;
                 }
             }
@@ -101,13 +109,12 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
         // popup container
         const popupContainer = document.createElement("div");
 
-        // add marker
+        const popup = new mapboxgl.Popup({ offset: 12, closeButton: false })
+            .setDOMContent(popupContainer);
+
         const marker = new mapboxgl.Marker(markerElement)
             .setLngLat([lng, lat])
-            .setPopup(new mapboxgl
-                .Popup({className: 'custom-popup', closeButton: false, offset: 6})
-                .setDOMContent(popupContainer)
-            )
+            .setPopup(popup)
             .addTo(map.current)
             .togglePopup();
 
@@ -162,6 +169,9 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
             .togglePopup();
 
         const id = nanoid();
+
+        //hashmap referring marker element
+        markerMap.set(poiMarkerElement, { id, marker });
         addPoi({
             id: id,
             name: `POI ${poiNum}`,
@@ -170,8 +180,8 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
         });
         selectPoi(id);
 
-        selectedMarkerElementRef.current = poiMarkerElement;
-        selectedMarkerPopupRef.current = popup;
+        selectedMarkerRef.current.markerElement = poiMarkerElement;
+        selectedMarkerRef.current.popup = popup;
 
         setPoiNum(poiNum++);
         setControlPanelState("AddPin");
@@ -179,8 +189,8 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
 
 
     const togglePoiSelection = (selected: Boolean) => {
-        if (selectedMarkerElementRef.current) {
-            const element = selectedMarkerElementRef.current;
+        if (selectedMarkerRef.current.markerElement) {
+            const element = selectedMarkerRef.current.markerElement;
             if (selected) {
                 element.style.backgroundImage = 'url(/markers/selected-poi.svg)';
             } else {
