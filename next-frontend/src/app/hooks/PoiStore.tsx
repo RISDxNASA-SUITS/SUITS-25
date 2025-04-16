@@ -23,6 +23,7 @@ interface PoiStore {
     updatePoi: (poiId: string, update: Partial<Poi>) => void;
     updateTag: (poiId: string | null, category: string, subCategory: string, label: string) => void;
     clearTags: (poiId: string) => void;
+    deletePoi: (poiId: string | null) => void;
 }
 
 export const PoiStore = create<PoiStore>((set) => ({
@@ -75,5 +76,11 @@ export const PoiStore = create<PoiStore>((set) => ({
             pois: state.pois.map(p =>
                 p.id === poiId ? { ...p, tags: {} } : p
             )
+        })),
+
+    deletePoi: (poiId: string | null) =>
+        set((state) => ({
+            pois: state.pois.filter(p => p.id !== poiId),
+            selectedPoiId: state.selectedPoiId === poiId ? null : state.selectedPoiId
         }))
 }));

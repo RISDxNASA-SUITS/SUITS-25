@@ -10,15 +10,16 @@ type AddPinProps = {
     pin: Poi;
     onClose: () => void;
     popupRef: React.RefObject<mapboxgl.Popup | null>;
-    setControlPanelState: (state: "AddTag" |"AddVoiceNote") => void;
+    markerRef: React.RefObject<HTMLElement | null>;
+    setControlPanelState: (state: "AddTag" |"AddVoiceNote" | "EvDetails") => void;
 }
 
-export const EditPin = ({pin, onClose, popupRef, setControlPanelState}: AddPinProps) => {
+export const EditPin = ({pin, onClose, markerRef, popupRef, setControlPanelState}: AddPinProps) => {
     const [showInput, setShowInput] = useState<boolean>(false);
     const [inputValue, setInputValue] = useState(pin.name);
     const [savedText, setSavedText] = useState<string>(pin.name);
 
-    const {clearTags} = PoiStore();
+    const {clearTags, deletePoi} = PoiStore();
 
     const handleSave = () => {
         pin.name = inputValue;
@@ -28,6 +29,16 @@ export const EditPin = ({pin, onClose, popupRef, setControlPanelState}: AddPinPr
         setSavedText(inputValue);
         setInputValue(pin.name);
         setShowInput(false);
+
+        setControlPanelState("EvDetails");
+    }
+
+    const deletePin = () => {
+        deletePoi(pin.id);
+        markerRef.current?.remove();
+        popupRef.current?.remove();
+
+        setControlPanelState("EvDetails");
     }
 
     return (
@@ -119,8 +130,8 @@ export const EditPin = ({pin, onClose, popupRef, setControlPanelState}: AddPinPr
 
             {/*Buttons*/}
             <div className={"flex justify-between gap-4"}>
-                <SecondaryButton logo={"/logo/delete.svg"}>Delete Pin</SecondaryButton>
-                <PrimaryButton logo={"/logo/checkmark.svg"} onClick={handleSave}>Save Pin</PrimaryButton>
+                <SecondaryButton logo={"/logo/delete.svg"} onClick={() => deletePin()}>Delete Pin</SecondaryButton>
+                <PrimaryButton logo={"/logo/checkmark.svg"} onClick={() => handleSave()}>Save Pin</PrimaryButton>
             </div>
         </div>
     )
