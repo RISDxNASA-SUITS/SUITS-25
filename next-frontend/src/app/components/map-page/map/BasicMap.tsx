@@ -13,9 +13,12 @@ import SmallerButton from "@/app/components/ui/ui-buttons/SmallerButton"
 import SquareButton from '../../ui/ui-buttons/SquareButton';
 
 // Set your Mapbox access token
-mapboxgl.accessToken = 'pk.eyJ1IjoieHplcm84NjQiLCJhIjoiY2xmbW9wZ3BzMDQzaTN3cDUwcWplcGF6byJ9.PR0YiT3S05lotgY12AwWEQ';
+// mapboxgl.accessToken = 'pk.eyJ1IjoieHplcm84NjQiLCJhIjoiY2xmbW9wZ3BzMDQzaTN3cDUwcWplcGF6byJ9.PR0YiT3S05lotgY12AwWEQ';
 
-//image map token
+//Mapbox token draft
+mapboxgl.accessToken = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGVydSJ9.pIfFx8HCC58f_PzAUjALRQ';
+
+//Mapbox token publish
 // mapboxgl.accessToken = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGVydSJ9.pIfFx8HCC58f_PzAUjALRQ';
 
 type BasicMapProps = {
@@ -49,10 +52,11 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerPopupRef, se
 
         map.current = new mapboxgl.Map({
             container: mapContainer.current,
-            style: 'mapbox://styles/mapbox/satellite-v9',
+            //map style draft
+            style: 'mapbox://styles/dkimh/cm9k7yru7008601s617bl7zmh/draft',
 
-            //image map
-            // style: 'mapbox://styles/dkimh/cm7teczs4006b01s0fnj9ezn8/draft',
+            //map style publish
+            // style: 'mapbox://styles/dkimh/cm9k7yru7008601s617bl7zmh',
             center: [-95.081213, 29.564795],
             zoom: 18.8,
         });
