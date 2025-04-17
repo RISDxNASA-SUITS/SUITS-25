@@ -2,10 +2,12 @@ import {Poi, PoiStore} from "@/app/hooks/PoiStore";
 import {SecondaryButton} from "@/app/components/ui/ui-buttons/SecondaryButton";
 import mapboxgl from "mapbox-gl";
 import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
-import React, {RefObject, useState} from "react";
+import React, {RefObject, useState, useRef} from "react";
 import CloseButton from "@/app/components/ui/ui-buttons/CloseButton";
 import RecordingCard from "@/app/components/ui/Cards/RecordingCard";
 import {clearSelectedMarker, SelectedMarkerRefs} from "@/app/components/map-page/SelectedMarkerRefs";
+import NotePreview from "@/app/components/ui/Cards/NotePreview";
+import useAudioStore from "@/app/hooks/VoiceNoteStore";
 
 type AddPinProps = {
     pin: Poi;
@@ -18,6 +20,8 @@ export const EditPin = ({pin, onClose, selectedMarkerRef, setControlPanelState}:
     const [showInput, setShowInput] = useState<boolean>(false);
     const [inputValue, setInputValue] = useState(pin.name);
     const [savedText, setSavedText] = useState<string>(pin.name);
+
+    const { recordings } = useAudioStore();
 
     const {updatePoi, clearTags, deletePoi} = PoiStore();
 
@@ -123,6 +127,11 @@ export const EditPin = ({pin, onClose, selectedMarkerRef, setControlPanelState}:
                 {/*Voice Notes*/}
                 <div className={"flex flex-col gap-4"}>
                     <p className={"text-2xl font-bold"}>Voice Notes</p>
+
+                    {/* map all recordings from zustand store to the notePreview card */}
+                    {recordings.map(item => (
+                        <NotePreview date={item.date} title={item.name} key={item.id}></NotePreview>
+                    ))}
 
                     <SecondaryButton logo={"/logo/add.svg"} onClick={() => setControlPanelState("AddVoiceNote")}
                     >Voice Note</SecondaryButton>

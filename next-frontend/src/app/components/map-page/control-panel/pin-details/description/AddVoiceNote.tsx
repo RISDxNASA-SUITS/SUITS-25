@@ -5,6 +5,7 @@ import {PoiStore} from "@/app/hooks/PoiStore";
 import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
 import {SecondaryButton} from "@/app/components/ui/ui-buttons/SecondaryButton";
 import RecordingCard from "@/app/components/ui/Cards/RecordingCard";
+import useAudioStore from "@/app/hooks/VoiceNoteStore"
 
 type SelectLabelProps = {
     onClose: () => void;
@@ -17,10 +18,13 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
 
     const [recording, setRecording] = useState<boolean>(false);
     const [audioURL, setAudioURL] = useState("");
-    const [elapsedTime, setElapsedTime] = useState(0); // 초 단위 시간 저장
-    const [inputValue, setInputValue] = useState("Voice Note 1");
+    const [elapsedTime, setElapsedTime] = useState(1); // 초 단위 시간 저장
+    const noteCount = useRef<number>(1);
+    const [inputValue, setInputValue] = useState("Voice Note " + noteCount.current);
     const [showInput, setShowInput] = useState(false);
     const savedText = inputValue;
+
+    const { addRecording } = useAudioStore();
 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
@@ -28,6 +32,8 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
     
 
     const startRecording = async () => {
+        console.log(noteCount.current);
+
         setElapsedTime(0); // 리셋 reset before start a new recording
 
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -43,6 +49,19 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
             });
             const url = URL.createObjectURL(audioBlob);
             setAudioURL(url);
+
+            const newRecording = {
+                id: noteCount.current,
+                audioUrl: url,
+                time: formatTime(elapsedTime),
+                date: `${new Date().toString()}`,
+                name: "Voice Note " + noteCount.current
+            }
+
+            addRecording(newRecording)
+            
+            
+            console.log(noteCount.current);
             audioChunksRef.current = [];
             clearInterval(timerRef.current);
         };
@@ -60,6 +79,9 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
         if (mediaRecorderRef.current) {
             mediaRecorderRef.current.stop();
             setRecording(false);
+
+            //increment the count for the next recording
+            noteCount.current ++;
         }
     };
 
