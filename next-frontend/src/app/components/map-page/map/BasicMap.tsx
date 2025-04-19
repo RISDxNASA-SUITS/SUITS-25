@@ -8,11 +8,6 @@ import { PoiStore } from "@/app/hooks/PoiStore";
 import { createRoot } from "react-dom/client";
 import "../mapstyle.css";
 import {nanoid} from "nanoid";
-import AddButton from '../../ui/ui-buttons/AddButton';
-import SmallerButton from "@/app/components/ui/ui-buttons/SmallerButton"
-import SquareButton from '../../ui/ui-buttons/SquareButton';
-import closeButton from "@/app/components/ui/ui-buttons/CloseButton";
-import {SelectedMarkerRefs} from "@/app/components/map-page/SelectedMarkerRefs";
 
 // Set your Mapbox access token
 // mapboxgl.accessToken = 'pk.eyJ1IjoieHplcm84NjQiLCJhIjoiY2xmbW9wZ3BzMDQzaTN3cDUwcWplcGF6byJ9.PR0YiT3S05lotgY12AwWEQ';
@@ -25,8 +20,8 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3O
 
 type BasicMapProps = {
     roverCoords: {x: number, y: number};
-    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag") => void;
-    selectedMarkerRef: RefObject<SelectedMarkerRefs>;
+    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" | "AddTag") => void;
+    selectedMarkerRef: RefObject<mapboxgl.Marker | null>;
 }
 
 const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicMapProps) => {
@@ -77,16 +72,14 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
             if (target instanceof Element) {
                 const markerElement = target.closest('.mapboxgl-marker');
                 if (markerElement instanceof HTMLElement) {
-                    selectedMarkerRef.current.markerElement = markerElement;
-                    togglePoiSelection(true);
-                    setControlPanelState("SelectPin");
-
-                    // find HTMLElement and update selected POI id
                     const match = markerMap.get(markerElement);
                     if (match) {
+                        selectedMarkerRef.current = match.marker;
+                        togglePoiSelection(true);
+                        setControlPanelState("SelectPin");
                         selectPoi(match.id);
+                        return;
                     }
-                    return;
                 }
             }
 
@@ -130,8 +123,6 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
         setPoiButtonActive(false);
 
         setControlPanelState("EvDetails");
-
-        // Optional: Save marker to your POI store
     };
 
     // const clearAllMarkers = () => {
@@ -162,7 +153,7 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
         }).setDOMContent(popupContainer).setHTML(`<div>POI ${poiNum}</div>`);
 
 
-        new mapboxgl.Marker(poiMarkerElement)
+        const poiMarker = new mapboxgl.Marker(poiMarkerElement)
             .setLngLat([lng, lat])
             .setPopup(popup)
             .addTo(map.current)
@@ -171,7 +162,7 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
         const id = nanoid();
 
         //hashmap referring marker element
-        markerMap.set(poiMarkerElement, { id, marker });
+        markerMap.set(poiMarkerElement, { id, marker: poiMarker });
         addPoi({
             id: id,
             name: `POI ${poiNum}`,
@@ -180,8 +171,8 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
         });
         selectPoi(id);
 
-        selectedMarkerRef.current.markerElement = poiMarkerElement;
-        selectedMarkerRef.current.popup = popup;
+        selectedMarkerRef.current = poiMarker;
+        // selectedMarkerRef.current.popup = popup;
 
         setPoiNum(poiNum++);
         setControlPanelState("AddPin");
@@ -189,8 +180,8 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
 
 
     const togglePoiSelection = (selected: Boolean) => {
-        if (selectedMarkerRef.current.markerElement) {
-            const element = selectedMarkerRef.current.markerElement;
+        if (selectedMarkerRef.current?.getElement()) {
+            const element = selectedMarkerRef.current?.getElement();
             if (selected) {
                 element.style.backgroundImage = 'url(/markers/selected-poi.svg)';
             } else {
