@@ -26,11 +26,7 @@ public class Server {
             // Configure CORS if needed
             // config.enableCorsForAllOrigins();
         })
-        .get("/command/{num}", ctx -> {
-            int num = Integer.parseInt(ctx.pathParam("num"));
-            String result = String.valueOf(sendUdpMessage(num));
-            ctx.result(result);
-        })
+
 
         .ws("/websocket", ws -> {
             ws.onConnect(ctx -> {
