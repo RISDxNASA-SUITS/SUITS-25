@@ -3,7 +3,6 @@
 import EvDetails from "@/app/components/map-page/control-panel/ev-details/EvDetails";
 import EditPin from "@/app/components/map-page/control-panel/pin-details/EditPin";
 import SelectPin from "@/app/components/map-page/control-panel/pin-details/SelectPin"
-import SelectStation from "@/app/components/map-page/control-panel/pin-details/SelectStation"
 import {AddTag} from "@/app/components/map-page/control-panel/pin-details/description/AddTag";
 import {AddVoiceNote} from "@/app/components/map-page/control-panel/pin-details/description/AddVoiceNote";
 import {PoiStore} from "@/app/hooks/PoiStore";
