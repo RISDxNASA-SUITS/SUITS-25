@@ -2,7 +2,9 @@ import TaskCard from "@/app/components/ui/Cards/TaskCard"
 
 interface TasksProps {
     taskName: string;
-    station: string;
+    subTask: string[];
+    risk: string;
+    duration: number;
 }
 
 interface TasksSectionProps {
@@ -20,7 +22,7 @@ export const TasksSection = ({ tasks }: TasksSectionProps) => {
         <div  className={"overflow-y-auto scrollbar-thin scrollbar-thumb-white-10 scrollbar-track-transparent"}>
             {tasks.map((task, index) => (
                 <div key={task.taskName} >
-                    <TaskCard taskName={task.taskName} station={task.station}/>
+                    <TaskCard taskName={task.taskName} subTask={task.subTask} risk={task.risk} duration={task.duration}/>
                     {index < tasks.length - 1 && (<hr/>)}
                 </div>
             ))}

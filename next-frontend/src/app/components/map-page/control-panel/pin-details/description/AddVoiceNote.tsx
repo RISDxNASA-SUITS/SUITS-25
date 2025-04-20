@@ -18,7 +18,7 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
 
     const [recording, setRecording] = useState<boolean>(false);
     const [audioURL, setAudioURL] = useState("");
-    const [elapsedTime, setElapsedTime] = useState(1); // 초 단위 시간 저장
+    const [elapsedTime, setElapsedTime] = useState(1);
     const noteCount = useRef<number>(1);
     const [inputValue, setInputValue] = useState("Voice Note " + noteCount.current);
     const [showInput, setShowInput] = useState(false);
@@ -34,7 +34,7 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
     const startRecording = async () => {
         console.log(noteCount.current);
 
-        setElapsedTime(0); // 리셋 reset before start a new recording
+        setElapsedTime(0);
 
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         mediaRecorderRef.current = new MediaRecorder(stream);

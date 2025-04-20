@@ -1,31 +1,40 @@
+type EvaTab = "PR" | "EVA1" | "EVA2";
+
 type MainTabProps = {
-    selected: string;
-    onSelect: (eva: "EVA1" | "EVA2") => void;
-}
+    selected: EvaTab;
+    onSelect: (eva: EvaTab) => void;
+};
 
-export default function MainTab({selected, onSelect}: MainTabProps) {
-    const renderButton = (label: "EVA1" | "EVA2", isLeft: boolean) => {
-        const isSelected = selected === label;
+export default function MainTab({ selected, onSelect }: MainTabProps) {
+    const tabs: EvaTab[] = ["PR", "EVA1", "EVA2"];
 
-        return(
-            <button
-                className={`flex-1 py-2.5 items-center justify-center text-white transition-all
-                ${isSelected ? "bg-white-10 border border-light-purple font-bold"
-                    : "bg-transparent border border-white font-medium"}
-                ${isLeft ? "rounded-l-xl" : "rounded-r-xl"}
-                hover:bg-white-10`}
-                onClick={() => onSelect(label)}
-            >
-                {label}
-            </button>
-        )
-    }
-
+    const getRoundedClass = (index: number, length: number) => {
+        if (index === 0) return "rounded-l-xl";
+        if (index === length - 1) return "rounded-r-xl";
+        return "";
+    };
 
     return (
-        <div className={"flex"}>
-            {renderButton("EVA1", true)}
-            {renderButton("EVA2", false)}
+        <div className="flex border border-white rounded-xl">
+            {tabs.map((tab, index) => {
+                const isSelected = selected === tab;
+                return (
+                    <button
+                        key={tab}
+                        onClick={() => onSelect(tab)}
+                        className={`
+                            flex-1 py-2.5 text-white text-center transition-all
+                            ${getRoundedClass(index, tabs.length)}
+                            ${isSelected
+                            ? "bg-white/10 border border-light-purple font-bold"
+                            : "bg-transparent border border-white font-medium"}
+                            hover:bg-white/10
+                        `}
+                    >
+                        {tab}
+                    </button>
+                );
+            })}
         </div>
-    )
+    );
 }

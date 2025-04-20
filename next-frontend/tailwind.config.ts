@@ -12,6 +12,7 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
         "white-10": "rgba(255,255,255,0.1)",
+        "white-50": "rgba(255, 255, 255, 0.50)",
         "galaxy-purple": "#412D91",
         "another-purple": "#715DC1",
         "light-purple": "#9D89FF",

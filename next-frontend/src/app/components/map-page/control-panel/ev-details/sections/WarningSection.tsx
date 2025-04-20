@@ -10,6 +10,8 @@ interface WarningSectionProps {
 }
 
 export default function WarningSection({warnings}: WarningSectionProps) {
+    if (!warnings || warnings.length === 0) return null;
+
     return (
         <div>
             {warnings.map((warning, index) => (

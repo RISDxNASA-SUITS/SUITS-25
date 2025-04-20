@@ -1,0 +1,383 @@
+{
+    "PR": {
+        "Tasks": [
+            {
+                "taskName": "Begin Pre-Navigation Checklist PR",
+                "subTask": [
+                    "Pilot verify battery level is > 95%",
+                    "Pilot verify O2 levels are > 95%",
+                    "Verify O2 pressure is > 2900 psi",
+                    "Verify PR Cabin Pressure is > 3.95 psi",
+                    "Pilot verify PR headlights are operational by manually switching lights to ON then to OFF",
+                    "Pilot drop pin at current location",
+                    "Determine \u201cPoint A\u201d location for first terrain scan and drop pin"
+                ],
+                "risk": "low risk",
+                "duration": 2
+            },
+            {
+                "taskName": "Point A Terrain Scan",
+                "subTask": [
+                    "Pilot verify battery level is > 95%",
+                    "Upon arrival, verify PR has come to a complete stop",
+                    "Begin terrain scan of the area (open to team\u2019s interpretation, show off what you have)",
+                    "While terrain is scanning, determine \u201cPoint B\u201d location for second terrain scan and drop pin",
+                    "Ensure Point B location is greater than x meters from Point A",
+                    "Verify PNR",
+                    "Note anticipated remaining consumables",
+                    "When terrain scan has completed, ensure successful storage of terrain data"
+                ],
+                "risk": "low risk",
+                "duration": 2
+            },
+            {
+                "taskName": "Point B Terrain Scan",
+                "subTask": [
+                    "Begin navigation to Point B",
+                    "Upon arrival, verify PR has come to a complete stop",
+                    "Begin terrain scan of the area",
+                    "While terrain is scanning, determine \u201cPoint C\u201d location for final terrain scan and drop pin",
+                    "Ensure Point C location is greater than x meters from Point B",
+                    "When terrain scan has completed, ensure successful storage of terrain data"
+                ],
+                "risk": "high risk",
+                "duration": 5
+            },
+            {
+                "taskName": "Point C Terrain Scan",
+                "subTask": [
+                    "Begin navigation to Point C",
+                    "Upon arrival, verify PR has come to a complete stop",
+                    "Begin terrain scan of the area",
+                    "When terrain scan has completed, ensure successful storage of terrain data",
+                    "Verify path is generated for home base",
+                    "Begin navigation to home base"
+                ],
+                "risk": "high risk",
+                "duration": 8
+            },
+            {
+                "taskName": "Nav to new POI",
+                "subTask": [],
+                "risk": "high risk",
+                "duration": 11
+            },
+            {
+                "taskName": "Park and Prepare for Egress",
+                "subTask": [],
+                "risk": "low risk",
+                "duration": 15
+            }
+        ]
+    },
+    "EVA1": {
+        "Tasks": [
+            {
+                "taskName": "EVA Egress",
+                "subTask": [
+                    "Verify LTV Coordination",
+                    "PR 1. Verify ping has been received from LTV",
+                    "PR 2. Verify worksite POI locations have been provided by LTV"
+                ],
+                "risk": "low risk",
+                "duration": 4
+            },
+            {
+                "taskName": "Connect UIA to DCU and start Depress",
+                "subTask": [
+                    "UIA and DCU 1. EV1 verify umbilical connection from UIA to DCU",
+                    "UIA 2. EV-1, PWR – ON",
+                    "DCU 3. BATT – UMB",
+                    "UIA 4. DEPRESS PUMP PWR – ON"
+                ],
+                "risk": "low risk",
+                "duration": 4
+            },
+            {
+                "taskName": "Prep O2 Tanks",
+                "subTask": [
+                    "UIA 1. OXYGEN O2 VENT – OPEN",
+                    "HMD 2. Wait until both Primary and Secondary OXY tanks are < 10psi",
+                    "UIA 3. OXYGEN O2 VENT – CLOSE",
+                    "DCU 4. OXY – PRI",
+                    "UIA 5. OXYGEN EMU-1 – OPEN",
+                    "HMD 6. Wait until EV1 Primary O2 tank > 3000 psi",
+                    "UIA 7. OXYGEN EMU-1 – CLOSE",
+                    "DCU 8. OXY – SEC",
+                    "UIA 9. OXYGEN EMU-1 – OPEN",
+                    "HMD 10. Wait until EV1 Secondary O2 tank > 3000 psi",
+                    "UIA 11. OXYGEN EMU-1 – CLOSE",
+                    "DCU 12. OXY – PRI"
+                ],
+                "risk": "low risk",
+                "duration": 4
+            },
+            {
+                "taskName": "End Depress, Check Switches and Disconnect",
+                "subTask": [
+                    "HMD 1. Wait until SUIT P, O2 P = 4",
+                    "UIA 2. DEPRESS PUMP PWR – OFF",
+                    "DCU 3. BATT – LOCAL",
+                    "UIA 4. EV-1 PWR - OFF",
+                    "DCU 5. Verify OXY – PRI",
+                    "DCU 6. Verify COMMS – A",
+                    "DCU 7. Verify FAN – PRI",
+                    "DCU 8. Verify PUMP – CLOSE",
+                    "DCU 9. Verify CO2 – A",
+                    "UIA and DCU 10. EV1 disconnect UIA and DCU umbilical"
+                ],
+                "risk": "low risk",
+                "duration": 4
+            },
+            {
+                "taskName": "Determine Navigation Path",
+                "subTask": [
+                    "EV1 1. Drop pins and determine best path for each POI provided by LTV",
+                    "EV1 2. Verify the path has been generated. Wait for go from PR",
+                    "PR 3. Unlock Airlock, announce all clear for EV",
+                    "EV 4. Exit airlock and begin navigation to worksite"
+                ],
+                "risk": "low risk",
+                "duration": 11
+            },
+            {
+                "taskName": "Navigation",
+                "subTask": [
+                    "EV 1. Navigate to first POI",
+                    "(Your team can create procedures to guide your EV in how to use the HMD.)"
+                ],
+                "risk": "low risk",
+                "duration": 12
+            },
+            {
+                "taskName": "Geologic Sampling",
+                "subTask": [
+                    "1. Announce arrival to worksite over comms",
+                    "2. Perform Sampling Procedures",
+                    "3. Upon completion of sampling procedures at worksite, announce completion over comms",
+                    "4. Proceed to next location if available and restart Geologic Sampling procedures",
+                    "a. If sampling is complete at all locations or return is required, announce completion and begin ingress procedures"
+                ],
+                "risk": "low risk",
+                "duration": 13
+            },
+            {
+                "taskName": "Sampling Procedure",
+                "subTask": [
+                    "HMD 1. EV Open Sampling Procedure",
+                    "HMD 4. If available, perform Field Notes on Rock, which can include picture, voice notes, etc.",
+                    "HMD 2. Perform XRF Scan",
+                    "XRF 3. Press and HOLD trigger",
+                    "XRF 4. Aim close to sample until beep, then release trigger",
+                    "HMD 5. If Rock Composition outside of nominal parameters (define), collect rock.",
+                    "HMD 6. If able, drop and label a pin"
+                ],
+                "risk": "low risk",
+                "duration": 14
+            },
+            {
+                "taskName": "EVA Ingress",
+                "subTask": [
+                    "Connect UIA to DCU and start Depress"
+                ],
+                "risk": "low risk",
+                "duration": 14
+            },
+            {
+                "taskName": "EVA Ingress - Connect UIA to DCU and start Depress",
+                "subTask": [
+                    "UIA and DCU 1. EV1 connect UIA and DCU umbilical",
+                    "UIA 2. EV-1 EMU PWR – ON",
+                    "DCU 3. BATT – UMB"
+                ],
+                "risk": "low risk",
+                "duration": 12
+            },
+            {
+                "taskName": "Vent O2 Tanks",
+                "subTask": [
+                    "UIA 1. OXYGEN O2 VENT – OPEN",
+                    "HMD 2. Wait until both Primary and Secondary OXY tanks are < 10psi",
+                    "UIA 3. OXYGEN O2 VENT – CLOSE"
+                ],
+                "risk": "low risk",
+                "duration": 13
+            },
+            {
+                "taskName": "Empty Water Tanks",
+                "subTask": [
+                    "DCU 1. PUMP – OPEN",
+                    "UIA 2. EV-1 WASTE WATER – OPEN",
+                    "HMD 3. Wait until water EV1 Coolant tank is < 5%",
+                    "UIA 4. EV-1, WASTE WATER – CLOSE"
+                ],
+                "risk": "low risk",
+                "duration": 13
+            },
+            {
+                "taskName": "Disconnect UIA from DCU",
+                "subTask": [
+                    "UIA 1. EV-1 EMU PWR – OFF",
+                    "DCU 2. EV1 disconnect umbilical"
+                ],
+                "risk": "low risk",
+                "duration": 13
+            }
+        ]
+    },
+    "EVA2": {
+        "Tasks": [
+            {
+                "taskName": "EVA Egress",
+                "subTask": [
+                    "Verify LTV Coordination",
+                    "PR 1. Verify ping has been received from LTV",
+                    "PR 2. Verify worksite POI locations have been provided by LTV"
+                ],
+                "risk": "low risk",
+                "duration": 4
+            },
+            {
+                "taskName": "Connect UIA to DCU and start Depress",
+                "subTask": [
+                    "UIA and DCU 1. EV1 verify umbilical connection from UIA to DCU",
+                    "UIA 2. EV-1, PWR – ON",
+                    "DCU 3. BATT – UMB",
+                    "UIA 4. DEPRESS PUMP PWR – ON"
+                ],
+                "risk": "low risk",
+                "duration": 4
+            },
+            {
+                "taskName": "Prep O2 Tanks",
+                "subTask": [
+                    "UIA 1. OXYGEN O2 VENT – OPEN",
+                    "HMD 2. Wait until both Primary and Secondary OXY tanks are < 10psi",
+                    "UIA 3. OXYGEN O2 VENT – CLOSE",
+                    "DCU 4. OXY – PRI",
+                    "UIA 5. OXYGEN EMU-1 – OPEN",
+                    "HMD 6. Wait until EV1 Primary O2 tank > 3000 psi",
+                    "UIA 7. OXYGEN EMU-1 – CLOSE",
+                    "DCU 8. OXY – SEC",
+                    "UIA 9. OXYGEN EMU-1 – OPEN",
+                    "HMD 10. Wait until EV1 Secondary O2 tank > 3000 psi",
+                    "UIA 11. OXYGEN EMU-1 – CLOSE",
+                    "DCU 12. OXY – PRI"
+                ],
+                "risk": "low risk",
+                "duration": 4
+            },
+            {
+                "taskName": "End Depress, Check Switches and Disconnect",
+                "subTask": [
+                    "HMD 1. Wait until SUIT P, O2 P = 4",
+                    "UIA 2. DEPRESS PUMP PWR – OFF",
+                    "DCU 3. BATT – LOCAL",
+                    "UIA 4. EV-1 PWR - OFF",
+                    "DCU 5. Verify OXY – PRI",
+                    "DCU 6. Verify COMMS – A",
+                    "DCU 7. Verify FAN – PRI",
+                    "DCU 8. Verify PUMP – CLOSE",
+                    "DCU 9. Verify CO2 – A",
+                    "UIA and DCU 10. EV1 disconnect UIA and DCU umbilical"
+                ],
+                "risk": "low risk",
+                "duration": 4
+            },
+            {
+                "taskName": "Determine Navigation Path",
+                "subTask": [
+                    "EV1 1. Drop pins and determine best path for each POI provided by LTV",
+                    "EV1 2. Verify the path has been generated. Wait for go from PR",
+                    "PR 3. Unlock Airlock, announce all clear for EV",
+                    "EV 4. Exit airlock and begin navigation to worksite"
+                ],
+                "risk": "low risk",
+                "duration": 11
+            },
+            {
+                "taskName": "Navigation",
+                "subTask": [
+                    "EV 1. Navigate to first POI",
+                    "(Your team can create procedures to guide your EV in how to use the HMD.)"
+                ],
+                "risk": "low risk",
+                "duration": 12
+            },
+            {
+                "taskName": "Geologic Sampling",
+                "subTask": [
+                    "1. Announce arrival to worksite over comms",
+                    "2. Perform Sampling Procedures",
+                    "3. Upon completion of sampling procedures at worksite, announce completion over comms",
+                    "4. Proceed to next location if available and restart Geologic Sampling procedures",
+                    "a. If sampling is complete at all locations or return is required, announce completion and begin ingress procedures"
+                ],
+                "risk": "low risk",
+                "duration": 13
+            },
+            {
+                "taskName": "Sampling Procedure",
+                "subTask": [
+                    "HMD 1. EV Open Sampling Procedure",
+                    "HMD 4. If available, perform Field Notes on Rock, which can include picture, voice notes, etc.",
+                    "HMD 2. Perform XRF Scan",
+                    "XRF 3. Press and HOLD trigger",
+                    "XRF 4. Aim close to sample until beep, then release trigger",
+                    "HMD 5. If Rock Composition outside of nominal parameters (define), collect rock.",
+                    "HMD 6. If able, drop and label a pin"
+                ],
+                "risk": "low risk",
+                "duration": 14
+            },
+            {
+                "taskName": "EVA Ingress",
+                "subTask": [
+                    "Connect UIA to DCU and start Depress"
+                ],
+                "risk": "low risk",
+                "duration": 14
+            },
+            {
+                "taskName": "EVA Ingress - Connect UIA to DCU and start Depress",
+                "subTask": [
+                    "UIA and DCU 1. EV1 connect UIA and DCU umbilical",
+                    "UIA 2. EV-1 EMU PWR – ON",
+                    "DCU 3. BATT – UMB"
+                ],
+                "risk": "low risk",
+                "duration": 12
+            },
+            {
+                "taskName": "Vent O2 Tanks",
+                "subTask": [
+                    "UIA 1. OXYGEN O2 VENT – OPEN",
+                    "HMD 2. Wait until both Primary and Secondary OXY tanks are < 10psi",
+                    "UIA 3. OXYGEN O2 VENT – CLOSE"
+                ],
+                "risk": "low risk",
+                "duration": 13
+            },
+            {
+                "taskName": "Empty Water Tanks",
+                "subTask": [
+                    "DCU 1. PUMP – OPEN",
+                    "UIA 2. EV-1 WASTE WATER – OPEN",
+                    "HMD 3. Wait until water EV1 Coolant tank is < 5%",
+                    "UIA 4. EV-1, WASTE WATER – CLOSE"
+                ],
+                "risk": "low risk",
+                "duration": 13
+            },
+            {
+                "taskName": "Disconnect UIA from DCU",
+                "subTask": [
+                    "UIA 1. EV-1 EMU PWR – OFF",
+                    "DCU 2. EV1 disconnect umbilical"
+                ],
+                "risk": "low risk",
+                "duration": 13
+            }
+        ]
+    }
+}

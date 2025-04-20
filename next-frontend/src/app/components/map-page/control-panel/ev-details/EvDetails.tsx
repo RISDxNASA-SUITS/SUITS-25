@@ -7,7 +7,7 @@ import TasksSection from "@/app/components/map-page/control-panel/ev-details/sec
 import WarningSection from "@/app/components/map-page/control-panel/ev-details/sections/WarningSection";
 import XrfSection from "@/app/components/map-page/control-panel/ev-details/sections/XrfSection";
 
-type EvaTab = "EVA1" | "EVA2"
+type EvaTab = "PR" | "EVA1" | "EVA2"
 
 type SubTab = "Tasks" | "Warnings" | "XRFData"
 
@@ -18,37 +18,26 @@ type Eva = {
 }
 
 export const EvDetails = () => {
-    const [selectedEva, setSelectedEva] = useState<EvaTab>("EVA1");
+    const [selectedEva, setSelectedEva] = useState<EvaTab>("PR");
     const [selectedSubTab, setSelectedSubTab] = useState<SubTab>("Tasks");
     const [evaData, setEvaData] = useState<Record<EvaTab, Eva>>({
+        PR: {},
         EVA1: {},
         EVA2: {}
     });
 
     useEffect(() => {
-        const mockData: Record<EvaTab, Eva> = {
-            EVA1: {
-                Tasks: [
-                    {taskName: "EVs turn on Power", station: "Station 1"},
-                    {taskName: "Geo Sampling", station: "Station 5"},
-                    {taskName: "Prep O2 Tanks", station: "Station 5"},
-                    {taskName: "Connect UIA to DCU", station: "Station 5"},
-                    {taskName: "Begin navigation to Point B", station: "Station 5"},
-                ],
-                Warnings: [{message: "Battery Failure", description: "Battery level below 10%"}],
-                XRFData: [{magnesium: "10%", calcium: "0.5%"}]
-            },
-            EVA2: {
-                Tasks: [
-                    {taskName: "Connect UIA and DCU umbilical", station: "Station 3"},
-                    {taskName: "Geo Sampling", station: "Station 2"}
-                ],
-                Warnings: [{message: "Water Pump Failure", description: "Water Pump level low"}],
-                XRFData: [{magnesium: "20%", calcium: "10%", calcite: "0.1%"}]
+        const fetchTaskData = async () => {
+            try {
+                const res = await fetch('/taskData.json');
+                const data: Record<EvaTab, Eva> = await res.json();
+                setEvaData(data);
+            } catch (e) {
+                console.error("Failed to fetch: ", e);
             }
-        };
+        }
 
-        setEvaData(mockData);
+        fetchTaskData();
     }, []);
 
 
@@ -68,6 +57,7 @@ export const EvDetails = () => {
     return (
         <div className={"flex flex-col gap-5 w-full h-full"}>
             <div className={"text-2xl font-bold"}>EV Details</div>
+
 
             <MainTab selected={selectedEva} onSelect={setSelectedEva}/>
 
