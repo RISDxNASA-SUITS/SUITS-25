@@ -1,7 +1,7 @@
 import React, { ButtonHTMLAttributes, ReactNode } from "react";
 
 interface TertiaryButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-    children: ReactNode;
+    children?: ReactNode;
     logo?: string;
 }
 
@@ -10,7 +10,7 @@ export const TertiaryButton = ({ children, logo, ...props }: TertiaryButtonProps
         <button
             className={`flex flex-1 items-center justify-center gap-2 px-4 py-2 rounded-xl 
                 border border-light-purple 
-                bg-light-purple/50 
+                bg-light-purple/0 
                 backdrop-blur-sm 
                 text-light-purple 
                 transition-all 

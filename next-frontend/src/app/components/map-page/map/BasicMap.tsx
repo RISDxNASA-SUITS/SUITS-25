@@ -8,6 +8,7 @@ import { PoiStore } from "@/app/hooks/PoiStore";
 import { createRoot } from "react-dom/client";
 import "../mapstyle.css";
 import {nanoid} from "nanoid";
+import TertiaryButton from "@/app/components/ui/ui-buttons/TertiaryButton";
 
 // Set your Mapbox access token
 // mapboxgl.accessToken = 'pk.eyJ1IjoieHplcm84NjQiLCJhIjoiY2xmbW9wZ3BzMDQzaTN3cDUwcWplcGF6byJ9.PR0YiT3S05lotgY12AwWEQ';
@@ -273,6 +274,15 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
                             </PrimaryButton>
                         </div>
                     </div>
+                </div>
+
+                {/* ZoomIn & ZoomOut*/}
+                <div className="absolute bottom-8 left-4 flex flex-col gap-2 z-10">
+                     <TertiaryButton onClick={() => map.current?.zoomIn()} logo="/logo/zoom-in.svg">
+                      </TertiaryButton>
+
+                     <TertiaryButton onClick={() => map.current?.zoomOut()} logo="/logo/zoom-out.svg">
+                      </TertiaryButton>
                 </div>
             </div>
         </div>
