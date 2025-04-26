@@ -9,6 +9,7 @@ import { createRoot } from "react-dom/client";
 import "../mapstyle.css";
 import {nanoid} from "nanoid";
 import TertiaryButton from "@/app/components/ui/ui-buttons/TertiaryButton";
+import { Tooltip } from '../../ui/ui-buttons/Tooltip';
 
 // Set your Mapbox access token
 // mapboxgl.accessToken = 'pk.eyJ1IjoieHplcm84NjQiLCJhIjoiY2xmbW9wZ3BzMDQzaTN3cDUwcWplcGF6byJ9.PR0YiT3S05lotgY12AwWEQ';
@@ -244,11 +245,20 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
                 <div className="map-grid-overlay pointer-events-none" />
 
                 {/* Add Marker Menu */}
-                <div className="absolute bottom-8 right-4 flex flex-col gap-2 items-end">
-                    {/* Draw Hazard */}
+                <div className="absolute bottom-8 right-4 flex flex-col gap-2 items-end z-10">
+                    {/* Draw Path */}
                     <PrimaryButton 
                         logo={"/logo/edit-white.svg"}
-                        logoClassName={"w-8 h-8"}/>
+                        logoClassName={"w-8 h-8"}
+                        className={`
+                            relative flex flex-1 px-4 py-4 justify-center items-center gap-2 flex-shrink-0 bg-galaxy-purple
+                            border border-light-purple rounded-xl text-white transition-all duration-150
+                            hover:bg-another-purple
+                            active:bg-light-purple
+                          `}
+                    >
+                    <Tooltip text="Draw Path"/>
+                    </PrimaryButton>
 
                     {/* expandable button container*/}
                     <div className="flex flex-row-reverse justify-center items-center text-nowrap
@@ -257,15 +267,17 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
                         <PrimaryButton
                             logo={`${addActive ? `/logo/minus.svg` : `logo/add-white.svg`}`}
                             logoClassName={"w-8 h-8"}
-                            className={"p-4 hover:bg-another-purple rounded-xl"}
-                            onClick={onAddClick}/>
-
+                            className={"p-4 relative hover:bg-another-purple rounded-xl"}
+                            onClick={onAddClick}
+                        />
+                        
                         {/* popup section - add POI & add Hazard*/}
                         <div className={`transition-all duration-300 ease-in-out overflow-hidden
-                            ${addActive ? `opacity-100 mx-4`: `opacity-0 w-0 pointer-events-none ml-0`} flex justify-center items-center gap-4`}>
+                            ${addActive ? `opacity-100 mx-4 overflow-visible`: `opacity-0 w-0 pointer-events-none ml-0`} flex justify-center items-center gap-4`}>
                             <PrimaryButton>
                                 <img src="/logo/hazard.svg" alt={"add-hazard"}/>
                                 Add Hazard
+                                <Tooltip text="Click anywhere on the map"/>
                             </PrimaryButton>
 
                             <PrimaryButton active={buttonActive} onClick={onPoiButtonClick}>

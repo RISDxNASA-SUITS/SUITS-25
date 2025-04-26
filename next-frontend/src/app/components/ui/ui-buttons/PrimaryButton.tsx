@@ -1,4 +1,5 @@
 import React, { ButtonHTMLAttributes, ReactNode } from 'react';
+import { Tooltip } from './Tooltip';
 
 interface MapButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     children?: ReactNode;
@@ -11,7 +12,7 @@ export const PrimaryButton = ({ children, active, logo, disabled, logoClassName,
     return (
         <button
             className={`
-                flex flex-1 px-4 py-2.5 justify-center items-center gap-2 flex-shrink-0 
+                relative flex flex-1 px-4 py-2.5 justify-center items-center gap-2 flex-shrink-0 
                 border border-light-purple rounded-xl text-white transition-all duration-150
                 ${disabled ? "opacity-60 bg-galaxy-purple cursor-not-allowed" : ""}
                 ${active ? "bg-light-purple" : "bg-galaxy-purple"}
