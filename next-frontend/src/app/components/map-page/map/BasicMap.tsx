@@ -283,6 +283,7 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
                             <PrimaryButton active={buttonActive} onClick={onPoiButtonClick}>
                                 <img src="/logo/poi-stroke.svg" alt={"add-poi"}/>
                                 Add POI
+                                <Tooltip text="Click anywhere on the map"/>
                             </PrimaryButton>
                         </div>
                     </div>
