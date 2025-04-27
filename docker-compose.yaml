@@ -38,7 +38,7 @@ services:
   c-backend:
     build:
       context: ./tss
-      dockerfile: Dockerfile
+      dockerfile: ../Dockerfile
     expose:
       - "14141/udp"
     ports:
