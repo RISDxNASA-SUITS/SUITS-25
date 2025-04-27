@@ -1,7 +1,7 @@
 ﻿FROM debian:bookworm-slim
 
 WORKDIR /app
-COPY tss ./tss
+COPY . .
 
 RUN chmod +x server.exe
 CMD ["./server.exe --local"]
