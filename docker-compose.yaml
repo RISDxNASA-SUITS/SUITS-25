@@ -1,0 +1,45 @@
+﻿version: '3.9'
+
+services:
+  nextjs-frontend:
+    build:
+      context: ./next-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - python-backend
+      - java-backend
+      - c-backend
+
+  python-backend:
+    build:
+      context: ./pythonbackend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - POETRY_VIRTUALENVS_CREATE=false
+
+
+  java-backend:
+    build:
+      context: ./JavaBackend
+      dockerfile: Dockerfile
+    ports:
+      - "7070:7070"
+
+
+  c-backend:
+    build:
+      context: ./tss
+      dockerfile: Dockerfile
+    ports:
+      - "14141:14141"
+    command: ["./server.exe"]
+
+networks:
+  default:
+    driver: bridge

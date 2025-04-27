@@ -1,0 +1,20 @@
+diff --git a/node_modules/react-semicircle-progressbar/package.json b/node_modules/react-semicircle-progressbar/package.json
+index 85cbbff..b38f807 100644
+--- a/node_modules/react-semicircle-progressbar/package.json
++++ b/node_modules/react-semicircle-progressbar/package.json
+@@ -22,14 +22,11 @@
+     "preview": "vite preview"
+   },
+   "dependencies": {
+-    "react": "^18.2.0",
+-    "react-dom": "^18.2.0"
++
+   },
+   "devDependencies": {
+     "@rollup/plugin-typescript": "^11.1.0",
+     "@types/node": "^18.15.11",
+-    "@types/react": "^18.0.28",
+-    "@types/react-dom": "^18.0.11",
+     "@vitejs/plugin-react": "^3.1.0",
+     "rollup-plugin-typescript-paths": "^1.4.0",
+     "tsc": "^2.0.4",
