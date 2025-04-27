@@ -93,7 +93,7 @@ export const Editpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}:
                     onChange={(e) => {
                         setInitialInputValue(e.target.value)
 
-                        //ui does not reflect the update to the name yet 
+                        //ui does not reflect the update to the name
                         updatePoi(poi.id, {name: poi.name});
                     }}
                     onBlur={() => setInitialShowInput(false)}
