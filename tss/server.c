@@ -540,7 +540,7 @@ int main(int argc, char* argv[])
 ///////////////////////////////////////////////////////////////////////////////////
 
 bool continue_server(){
-    return true
+    return true;
     // if the user presses the ENTER key, the program will end gracefully
     struct timeval select_wait;
     select_wait.tv_sec = 0;
