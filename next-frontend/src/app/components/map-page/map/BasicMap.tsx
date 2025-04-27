@@ -290,12 +290,25 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
                 </div>
 
                 {/* ZoomIn & ZoomOut*/}
-                <div className="absolute bottom-8 left-4 flex flex-col gap-2 z-10">
-                     <TertiaryButton onClick={() => map.current?.zoomIn()} logo="/logo/zoom-in.svg">
-                      </TertiaryButton>
+                <div className="absolute bottom-8 left-6 z-10">
+                    <div className="flex flex-col items-center justify-center border border-light-purple rounded-xl bg-light-purple/20 backdrop-blur-sm overflow-hidden">
 
-                     <TertiaryButton onClick={() => map.current?.zoomOut()} logo="/logo/zoom-out.svg">
-                      </TertiaryButton>
+                         <TertiaryButton 
+                            onClick={() => map.current?.zoomIn()} 
+                            logo="/logo/zoom-in.svg" 
+                            className="rounded-none p-3" 
+                        />
+
+                        {/* 分割线 */}
+                        <div className="w-8 h-px bg-light-purple opacity-50" />
+
+                        <TertiaryButton 
+                            onClick={() => map.current?.zoomOut()} 
+                            logo="/logo/zoom-out.svg" 
+                            className="rounded-none p-3" 
+                        />
+                            
+                    </div>
                 </div>
             </div>
         </div>

@@ -17,7 +17,7 @@ export const TertiaryButton = ({ children, logo, ...props }: TertiaryButtonProps
                 active:border-2 active:bg-light-purple/60`}
             {...props}
         >
-            {logo && <img src={logo} alt="tertiary button logo" className="w-5 h-5" />}
+            {logo && <img src={logo} alt="tertiary button logo" className="w-8 h-8" />}
             {children}
         </button>
     );
