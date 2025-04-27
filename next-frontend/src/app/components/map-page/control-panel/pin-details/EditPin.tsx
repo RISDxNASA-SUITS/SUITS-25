@@ -20,6 +20,11 @@ export const Editpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}:
     const [inputValue, setInputValue] = useState(poi.name);
     const [savedText, setSavedText] = useState<string>(poi.name);
 
+    //initial input field value
+    const [initialInputValue, setInitialInputValue] = useState(poi.name);
+    //initial input field state
+    const [showInitialInput, setInitialShowInput] = useState<boolean>(true);
+
     const { recordings } = useAudioStore();
 
     const {updatePoi, clearTags, deletePoi} = PoiStore();
@@ -79,6 +84,23 @@ export const Editpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}:
                     {/*Close button*/}
                     <CloseButton onClose={onClose}/>
                 </div>
+
+                {/* Initial title input field */}
+                {showInitialInput && (
+                    <input
+                    type="text"
+                    value={initialInputValue}
+                    onChange={(e) => {
+                        setInitialInputValue(e.target.value)
+
+                        //ui does not reflect the update to the name yet 
+                        updatePoi(poi.id, {name: poi.name});
+                    }}
+                    onBlur={() => setInitialShowInput(false)}
+                    className="rounded-lg bg-white-10 px-3 py-1 text-center border border-gray-300"
+                    autoFocus
+                    />
+                )}
 
                 {/*Tag*/}
                 <div className={"flex flex-col gap-4"}>
