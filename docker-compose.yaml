@@ -30,12 +30,17 @@ services:
       dockerfile: Dockerfile
     ports:
       - "7070:7070"
+    environment:
+      IP: c-backend
+
 
 
   c-backend:
     build:
       context: ./tss
       dockerfile: Dockerfile
+    expose:
+      - "14141/udp"
     ports:
       - "14141:14141"
     command: ["./server.exe"]
