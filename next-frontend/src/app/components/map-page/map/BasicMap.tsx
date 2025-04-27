@@ -114,9 +114,14 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
             .togglePopup();
 
         createRoot(popupContainer).render(
-            <PrimaryButton active={buttonActive} logo={"/logo/poi-stroke.svg"} onClick={() => addPoiMarker(marker, lng, lat)}>
-                +POI
-            </PrimaryButton>
+            <>
+                <PrimaryButton active={buttonActive} logo={"/logo/poi-stroke.svg"} onClick={() => addPoiMarker(marker, lng, lat)}>
+                    +POI
+                </PrimaryButton>
+                <PrimaryButton active={buttonActive} logo={"/logo/poi-stroke.svg"} onClick={() => addHazardMarker(marker, lng, lat)}>
+                    +Hazard
+                </PrimaryButton>
+            </>
         );
 
         // Save marker to state
@@ -179,6 +184,17 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
         setPoiNum(poiNum++);
         setControlPanelState("AddPin");
     };
+
+    const addHazardMarker = (marker: Marker, lng: number, lat: number) => {
+        if (!map.current) return;
+
+        marker?.getPopup()?.remove();
+        marker?.remove();
+
+        const hazardEl = document.createElement("div");
+        hazardEl.className = 'bg-no-repeat bg-contain bg-center sm:w-5m md:w-6 lg:w-7 sm:h-5 md:h-6 lg:h-7';
+        hazardEl.style.backgroundImage = 'url(/markers/selected-poi.svg)';
+    }
 
 
     const togglePoiSelection = (selected: Boolean) => {

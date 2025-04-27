@@ -10,7 +10,7 @@ export const WarningCard = ({warningName, description}: TaskCardProps ) => {
             <div className={"flex flex-col gap-2"}>
                 <p className={"text-2xl font-bold"}>{warningName}</p>
                 <div className={"flex flex-row items-center gap-2"}>
-                    <img src={"/logo/warning.svg"} alt="poi" className="h-5 w-5" />
+                    <img src={"/logo/Hazard.svg"} alt="poi" className="h-5 w-5" />
                     <p className={"text-lg"}>{description}</p>
                 </div>
             </div>
