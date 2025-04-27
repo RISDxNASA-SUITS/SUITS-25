@@ -299,7 +299,7 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
                             className="rounded-none p-3" 
                         />
 
-                        {/* 分割线 */}
+                        {/* divider */}
                         <div className="w-8 h-px bg-light-purple opacity-50" />
 
                         <TertiaryButton 
