@@ -6,7 +6,7 @@ authors = ["Jason Silva <littlejsilva@gmail.com>"]
 readme = "README.md"
 [tool.poetry.scripts]
 start = "python_server.main:start"
-test = "TODO.."
+
 
 [tool.poetry.dependencies]
 python = "^3.12"

@@ -1,0 +1,244 @@
+{
+    "ROCKS" : [
+        {
+            "name": "default_rock",
+            "id" : 0,
+            "data": {
+                "SiO2": 1,
+                "TiO2": 1,
+                "Al2O3": 1,
+                "FeO": 1,
+                "MnO": 1,
+                "MgO": 1,
+                "CaO": 1,
+                "K2O": 1,
+                "P2O3": 1,
+                "other" : 91 
+            }
+        },
+        {
+            "name": "mare_basalt",
+            "id" : 1,
+            "data": {
+                "SiO2": 40.58,
+                "TiO2": 12.83,
+                "Al2O3": 10.91,
+                "FeO": 13.18,
+                "MnO": 0.19,
+                "MgO": 6.70,
+                "CaO": 10.64,
+                "K2O": -0.11,
+                "P2O3": 0.34,
+                "other" : 4.74
+            }
+        },
+        {
+            "name": "vesicular_basalt",
+            "id" : 2,
+            "data": {
+                "SiO2": 36.89,
+                "TiO2": 2.44,
+                "Al2O3": 9.60,
+                "FeO": 14.52,
+                "MnO": 0.24,
+                "MgO": 5.30,
+                "CaO": 8.22,
+                "K2O": -0.13,
+                "P2O3": 0.29,
+                "other" : 22.63
+            }
+        },
+        {
+            "name": "olivine_basalt_1",
+            "id" : 3,
+            "data": {
+                "SiO2": 41.62,
+                "TiO2": 2.44,
+                "Al2O3": 9.52,
+                "FeO": 18.12,
+                "MnO": 0.27,
+                "MgO": 11.10,
+                "CaO": 8.12,
+                "K2O": -0.12,
+                "P2O3": 0.28,
+                "other" : 8.65
+            }
+        },
+        {
+            "name": "feldspathic_basalt",
+            "id" : 4,
+            "data": {
+                "SiO2": 46.72,
+                "TiO2": 1.10,
+                "Al2O3": 19.01,
+                "FeO": 7.21,
+                "MnO": 0.14,
+                "MgO": 7.83,
+                "CaO": 14.22,
+                "K2O": 0.43,
+                "P2O3": 0.65,
+                "other" : 2.69
+            }
+        },
+        {
+            "name": "pigeonite_basalt",
+            "id" : 5,
+            "data": {
+                "SiO2": 46.53,
+                "TiO2": 3.40,
+                "Al2O3": 11.68,
+                "FeO": 16.56,
+                "MnO": 0.24,
+                "MgO": 6.98,
+                "CaO": 11.11,
+                "K2O": -0.02,
+                "P2O3": 0.38,
+                "other" : 3.14
+            }
+        },
+        {
+            "name": "olivine_basalt_2",
+            "id" : 6,
+            "data": {
+                "SiO2": 42.45,
+                "TiO2": 1.56,
+                "Al2O3": 11.44,
+                "FeO": 17.91,
+                "MnO": 0.27,
+                "MgO": 10.45,
+                "CaO": 9.37,
+                "K2O": -0.08,
+                "P2O3": 0.34,
+                "other" : 6.29
+            }
+        }, 
+        {
+            "name": "ilmenite_basalt",
+            "id" : 7,
+            "data": {
+                "SiO2": 42.56,
+                "TiO2": 9.38,
+                "Al2O3": 12.03,
+                "FeO": 11.27,
+                "MnO": 0.17,
+                "MgO": 9.70,
+                "CaO": 10.52,
+                "K2O": 0.28,
+                "P2O3": 0.44,
+                "other" : 3.65
+            }
+        }, 
+        {
+            "name": "ilmenite_basalt",
+            "id" : 8,
+            "data": {
+                "SiO2": 37.93,
+                "TiO2": 13.08,
+                "Al2O3": 8.47,
+                "FeO": 19.37,
+                "MnO": 0.28,
+                "MgO": 9.63,
+                "CaO": 9.79,
+                "K2O": 0.38,
+                "P2O3": 0.04,
+                "other" : 1.03
+            }
+        },  
+        {
+            "name": "ilmenite_basalt",
+            "id" : 9,
+            "data": {
+                "SiO2": 37.8,
+                "TiO2": 13.0,
+                "Al2O3": 8.85,
+                "FeO": 18.50,
+                "MnO": 0.28,
+                "MgO": 9.89,
+                "CaO": 10.10,
+                "K2O": 0.06,
+                "P2O3": 0.05,
+                "other" : 1.47
+            }
+        },  
+        {
+            "name": "brecia_granite",
+            "id" : 10,
+            "data": {
+                "SiO2": 53.7,
+                "TiO2": 3.17,
+                "Al2O3": 13.40,
+                "FeO": 14.1,
+                "MnO": 0.16,
+                "MgO": 0.00,
+                "CaO": 8.95,
+                "K2O": 0.58,
+                "P2O3": 0.00,
+                "other" : 5.94
+            }
+        },  
+        {
+            "name": "kreep_breccia",
+            "id" : 11,
+            "data": {
+                "SiO2": 48.00,
+                "TiO2": 1.10,
+                "Al2O3": 24.20,
+                "FeO": 6.20,
+                "MnO": 0.11,
+                "MgO": 6.10,
+                "CaO": 13.9,
+                "K2O": 0.73,
+                "P2O3": 0.40,
+                "other" : 0.00
+            }
+        },  
+        {
+            "name": "ancient_regolith_breccia",
+            "id" : 12,
+            "data": {
+                "SiO2": 45.25,
+                "TiO2": 0.59,
+                "Al2O3": 26.34,
+                "FeO": 5.30,
+                "MnO": 0.00,
+                "MgO": 6.73,
+                "CaO": 14.93,
+                "K2O": 0.14,
+                "P2O3": 0.18,
+                "other" : 0.54
+            }
+        },  
+        {
+            "name": "vitric_matrix_breccia",
+            "id" : 13,
+            "data": {
+                "SiO2": 48.8,
+                "TiO2": 2.00,
+                "Al2O3": 15.10,
+                "FeO": 10.20,
+                "MnO": 0.13,
+                "MgO": 12.4,
+                "CaO": 9.2,
+                "K2O": 0.95,
+                "P2O3": 0.66,
+                "other" : 0.56
+            }
+        },  
+        {
+            "name": "ilmenite_basalt",
+            "id" : 14,
+            "data": {
+                "SiO2": 38,
+                "TiO2": 9.00,
+                "Al2O3": 11.00,
+                "FeO": 20.00,
+                "MnO": 0.50,
+                "MgO": 10.00,
+                "CaO": 10.00,
+                "K2O": 0.06,
+                "P2O3": 0.08,
+                "other" : 1.36
+            }
+        }
+    ]
+}
