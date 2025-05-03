@@ -1,13 +1,21 @@
 import React from 'react';
 
 // Define the properties expected by the PressureGauge component
-interface PressureGaugeProps {
+interface CircularGaugeProps {
   currentValue: number; // The current value to display on the gauge
-  minValue: number;     // The minimum value the gauge can represent
-  maxValue: number;     // The maximum value the gauge can represent
+  minValue?: number;     // The minimum value the gauge can represent
+  maxValue?: number;     // The maximum value the gauge can represent
+  label: string;        // The label to display on the gauge
+  units?: string;      // The units to display (default: '%')
 }
 
-const PressureGauge = ({ currentValue, minValue, maxValue }: PressureGaugeProps) => {
+const CircularGauge = ({
+  currentValue,
+  minValue = 0,
+  maxValue = 100,
+  label,
+  units = '%',
+}: CircularGaugeProps) => {
   // --- Percentage Calculation ---
   // Ensure the current value doesn't go below the minimum or above the maximum
   const clampedValue = Math.min(Math.max(currentValue, minValue), maxValue);
@@ -97,9 +105,9 @@ const PressureGauge = ({ currentValue, minValue, maxValue }: PressureGaugeProps)
       {/* Container for the text labels, absolutely positioned to overlay the center */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
         {/* Label text */}
-        <p className="text-xs text-gray-300">Total Suit Pressure</p>
+        <p className="text-xs text-gray-300">{label}</p>
         {/* Current value display */}
-        <p className="text-4xl font-medium">{currentValue.toFixed(1)} psi</p>
+        <p className="text-4xl font-medium">{Math.round(currentValue)}{units}</p>
       </div>
       {/* "Steady" status indicator at the bottom */}
       <div className="absolute bottom-3 bg-[#2E2B50] px-3 py-1 rounded-full text-sm font-semibold italic">
@@ -109,4 +117,4 @@ const PressureGauge = ({ currentValue, minValue, maxValue }: PressureGaugeProps)
   );
 };
 
-export default PressureGauge;
+export default CircularGauge;

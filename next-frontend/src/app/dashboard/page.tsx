@@ -1,6 +1,6 @@
 
 import React from 'react';
-import PressureGauge from '../components/ui/Gauges/PressureGauge';
+import CircularGauge from '../components/ui/Gauges/CircularGauge';
 
 export default function DashboardPage() {
     return (
@@ -11,14 +11,15 @@ export default function DashboardPage() {
 
             {/* Add the PressureGauge component here */}
             <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center' }}>
-                <PressureGauge
-                    currentValue={3.5}
-                    minValue={0}
-                    maxValue={5}
+                <CircularGauge
+                    currentValue={50}
+                    label="Oxygen Tank"
+                />
+                <CircularGauge
+                    currentValue={60}
+                    label="Coolant Tank"
                 />
             </div>
-
-           
         </div>
     );
 }
