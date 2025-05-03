@@ -8,11 +8,8 @@ import { PoiStore } from "@/app/hooks/PoiStore";
 import { createRoot } from "react-dom/client";
 import "../mapstyle.css";
 import {nanoid} from "nanoid";
-import AddButton from '../../ui/ui-buttons/AddButton';
-import SmallerButton from "@/app/components/ui/ui-buttons/SmallerButton"
-import SquareButton from '../../ui/ui-buttons/SquareButton';
-import closeButton from "@/app/components/ui/ui-buttons/CloseButton";
-import {SelectedMarkerRefs} from "@/app/components/map-page/SelectedMarkerRefs";
+import TertiaryButton from "@/app/components/ui/ui-buttons/TertiaryButton";
+import { Tooltip } from '../../ui/ui-buttons/Tooltip';
 
 // Set your Mapbox access token
 // mapboxgl.accessToken = 'pk.eyJ1IjoieHplcm84NjQiLCJhIjoiY2xmbW9wZ3BzMDQzaTN3cDUwcWplcGF6byJ9.PR0YiT3S05lotgY12AwWEQ';
@@ -25,8 +22,8 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3O
 
 type BasicMapProps = {
     roverCoords: {x: number, y: number};
-    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag") => void;
-    selectedMarkerRef: RefObject<SelectedMarkerRefs>;
+    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" | "AddTag") => void;
+    selectedMarkerRef: RefObject<mapboxgl.Marker | null>;
 }
 
 const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicMapProps) => {
@@ -77,16 +74,14 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
             if (target instanceof Element) {
                 const markerElement = target.closest('.mapboxgl-marker');
                 if (markerElement instanceof HTMLElement) {
-                    selectedMarkerRef.current.markerElement = markerElement;
-                    togglePoiSelection(true);
-                    setControlPanelState("SelectPin");
-
-                    // find HTMLElement and update selected POI id
                     const match = markerMap.get(markerElement);
                     if (match) {
+                        selectedMarkerRef.current = match.marker;
+                        togglePoiSelection(true);
+                        setControlPanelState("SelectPin");
                         selectPoi(match.id);
+                        return;
                     }
-                    return;
                 }
             }
 
@@ -119,9 +114,14 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
             .togglePopup();
 
         createRoot(popupContainer).render(
-            <PrimaryButton active={buttonActive} logo={"/logo/poi-stroke.svg"} onClick={() => addPoiMarker(marker, lng, lat)}>
-                +POI
-            </PrimaryButton>
+            <>
+                <PrimaryButton active={buttonActive} logo={"/logo/poi-stroke.svg"} onClick={() => addPoiMarker(marker, lng, lat)}>
+                    +POI
+                </PrimaryButton>
+                <PrimaryButton active={buttonActive} logo={"/logo/poi-stroke.svg"} onClick={() => addHazardMarker(marker, lng, lat)}>
+                    +Hazard
+                </PrimaryButton>
+            </>
         );
 
         // Save marker to state
@@ -130,8 +130,6 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
         setPoiButtonActive(false);
 
         setControlPanelState("EvDetails");
-
-        // Optional: Save marker to your POI store
     };
 
     // const clearAllMarkers = () => {
@@ -162,7 +160,7 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
         }).setDOMContent(popupContainer).setHTML(`<div>POI ${poiNum}</div>`);
 
 
-        new mapboxgl.Marker(poiMarkerElement)
+        const poiMarker = new mapboxgl.Marker(poiMarkerElement)
             .setLngLat([lng, lat])
             .setPopup(popup)
             .addTo(map.current)
@@ -171,7 +169,7 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
         const id = nanoid();
 
         //hashmap referring marker element
-        markerMap.set(poiMarkerElement, { id, marker });
+        markerMap.set(poiMarkerElement, { id, marker: poiMarker });
         addPoi({
             id: id,
             name: `POI ${poiNum}`,
@@ -180,17 +178,98 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
         });
         selectPoi(id);
 
-        selectedMarkerRef.current.markerElement = poiMarkerElement;
-        selectedMarkerRef.current.popup = popup;
+        selectedMarkerRef.current = poiMarker;
+        // selectedMarkerRef.current.popup = popup;
 
         setPoiNum(poiNum++);
         setControlPanelState("AddPin");
     };
 
+    const addHazardMarker = (marker: Marker, lng: number, lat: number) => {
+        if (!map.current) return;
+
+        marker?.getPopup()?.remove();
+        marker?.remove();
+
+        // Default radius in meters
+        let radius = 50;
+        const minRadius = 10;
+        const maxRadius = 200;
+
+        // Create hazard marker element
+        const hazardEl = document.createElement("div");
+        hazardEl.className = 'hazard-marker';
+        hazardEl.style.width = hazardEl.style.height = `${radius * 2}px`;
+        hazardEl.style.position = 'absolute';
+        hazardEl.style.transform = 'translate(-50%, -50%)'; 
+
+
+        // Exclamation mark
+        const exclamation = document.createElement("div");
+        exclamation.className = 'hazard-marker-exclamation';
+        exclamation.innerText = '!';
+        hazardEl.appendChild(exclamation);
+
+        // Popup container
+        const popupContainer = document.createElement("div");
+
+        // React popup for radius control
+        function HazardRadiusPopup({ onConfirm, onCancel, radius, setRadius }: any) {
+            return (
+                <div className="bg-backplate rounded-2xl p-4 min-w-[220px] text-white border-[1.5px] border-light-purple shadow-lg flex flex-col items-center">
+                    <div className="flex items-center mb-3">
+                    <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => setRadius((r: number) => Math.max(minRadius, r - 5))}>-</PrimaryButton>
+                    <span className="mx-[18px] text-2xl">{radius}m</span>
+                    <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => setRadius((r: number) => Math.min(maxRadius, r + 5))}>+</PrimaryButton>
+                    </div>
+                    <div className="flex gap-4 w-full justify-center">
+                    <PrimaryButton style={{ flex: 1, background: 'transparent', border: '1.5px solid #9D89FF', color: '#9D89FF' }} onClick={onCancel}>Cancel</PrimaryButton>
+                    <PrimaryButton style={{ flex: 1 }} onClick={onConfirm}>Confirm</PrimaryButton>
+                    </div>
+                </div>
+            );
+        }
+
+        // React state for popup
+        let setPopupRadius: (r: number | ((r: number) => number)) => void = () => {};
+        let popupRadius = radius;
+        function PopupWrapper() {
+            const [r, setR] = React.useState(radius);
+            setPopupRadius = setR;
+            popupRadius = r;
+            React.useEffect(() => { // Update marker size
+                hazardEl.style.width = hazardEl.style.height = `${r * 2}px`;
+            }, [r]);
+            return <HazardRadiusPopup radius={r} setRadius={setR} onConfirm={onConfirm} onCancel={onCancel} />;
+        }
+
+        // Popup logic
+        const popup = new mapboxgl.Popup({ offset: -160, closeButton: false })
+            .setDOMContent(popupContainer);
+
+        // Add marker to map
+        const hazardMarker = new mapboxgl.Marker(hazardEl, { anchor: 'center' })
+            .setLngLat([lng, lat])
+            .setPopup(popup)
+            .addTo(map.current)
+            .togglePopup();
+
+        // Render popup
+        createRoot(popupContainer).render(<PopupWrapper />);
+
+        // Confirm/Cancel logic
+        function onConfirm() {
+            popup.remove();
+            // TODO save hazard marker to state/store here
+        }
+        function onCancel() {
+            hazardMarker.remove();
+        }
+    };
 
     const togglePoiSelection = (selected: Boolean) => {
-        if (selectedMarkerRef.current.markerElement) {
-            const element = selectedMarkerRef.current.markerElement;
+        if (selectedMarkerRef.current?.getElement()) {
+            const element = selectedMarkerRef.current?.getElement();
             if (selected) {
                 element.style.backgroundImage = 'url(/markers/selected-poi.svg)';
             } else {
@@ -252,11 +331,20 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
                 <div className="map-grid-overlay pointer-events-none" />
 
                 {/* Add Marker Menu */}
-                <div className="absolute bottom-8 right-4 flex flex-col gap-2 items-end">
-                    {/* Draw Hazard */}
+                <div className="absolute bottom-8 right-4 flex flex-col gap-2 items-end z-10">
+                    {/* Draw Path */}
                     <PrimaryButton 
                         logo={"/logo/edit-white.svg"}
-                        logoClassName={"w-8 h-8"}/>
+                        logoClassName={"w-8 h-8"}
+                        className={`
+                            relative flex flex-1 px-4 py-4 justify-center items-center gap-2 flex-shrink-0 bg-galaxy-purple
+                            border border-light-purple rounded-xl text-white transition-all duration-150
+                            hover:bg-another-purple
+                            active:bg-light-purple
+                          `}
+                    >
+                    <Tooltip text="Draw Path"/>
+                    </PrimaryButton>
 
                     {/* expandable button container*/}
                     <div className="flex flex-row-reverse justify-center items-center text-nowrap
@@ -265,22 +353,47 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
                         <PrimaryButton
                             logo={`${addActive ? `/logo/minus.svg` : `logo/add-white.svg`}`}
                             logoClassName={"w-8 h-8"}
-                            className={"p-4 hover:bg-another-purple rounded-xl"}
-                            onClick={onAddClick}/>
-
+                            className={"p-4 relative hover:bg-another-purple rounded-xl"}
+                            onClick={onAddClick}
+                        />
+                        
                         {/* popup section - add POI & add Hazard*/}
                         <div className={`transition-all duration-300 ease-in-out overflow-hidden
-                            ${addActive ? `opacity-100 mx-4`: `opacity-0 w-0 pointer-events-none ml-0`} flex justify-center items-center gap-4`}>
+                            ${addActive ? `opacity-100 mx-4 overflow-visible`: `opacity-0 w-0 pointer-events-none ml-0`} flex justify-center items-center gap-4`}>
                             <PrimaryButton>
                                 <img src="/logo/hazard.svg" alt={"add-hazard"}/>
                                 Add Hazard
+                                <Tooltip text="Click anywhere on the map"/>
                             </PrimaryButton>
 
                             <PrimaryButton active={buttonActive} onClick={onPoiButtonClick}>
                                 <img src="/logo/poi-stroke.svg" alt={"add-poi"}/>
                                 Add POI
+                                <Tooltip text="Click anywhere on the map"/>
                             </PrimaryButton>
                         </div>
+                    </div>
+                </div>
+
+                {/* ZoomIn & ZoomOut*/}
+                <div className="absolute bottom-8 left-6 z-10">
+                    <div className="flex flex-col items-center justify-center border border-light-purple rounded-xl bg-light-purple/20 backdrop-blur-sm overflow-hidden">
+
+                         <TertiaryButton 
+                            onClick={() => map.current?.zoomIn()} 
+                            logo="/logo/zoom-in.svg" 
+                            className="rounded-none p-3" 
+                        />
+
+                        {/* divider */}
+                        <div className="w-8 h-px bg-light-purple opacity-50" />
+
+                        <TertiaryButton 
+                            onClick={() => map.current?.zoomOut()} 
+                            logo="/logo/zoom-out.svg" 
+                            className="rounded-none p-3" 
+                        />
+                            
                     </div>
                 </div>
             </div>

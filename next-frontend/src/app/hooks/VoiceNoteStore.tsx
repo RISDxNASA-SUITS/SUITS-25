@@ -6,17 +6,18 @@ interface Recording {
   time:string
   date:string
   name:string
+
+  //the poi id associated with this voice note
+  poiID: string | null
 }
 
 interface AudioState {
     recordings: Recording[]
-    currentRecordingId: string | null
     addRecording: (recording: Recording) => void
 }
 
 const useAudioStore = create<AudioState>((set) => ({
     recordings: [],
-    currentRecordingId: null,
 
     addRecording: (recording) => set((state) => ({
         recordings: [...state.recordings, recording]

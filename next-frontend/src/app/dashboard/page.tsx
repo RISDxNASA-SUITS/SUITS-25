@@ -1,19 +1,24 @@
 
-import {SemiCircleProgress} from 'react-semicircle-progressbar';
+import React from 'react';
+import PressureGauge from '../components/ui/Gauges/PressureGauge';
 
 export default function DashboardPage() {
     return (
         <div>
             <h1>Dashboard</h1>
-             <SemiCircleProgress
-        percentage={80}
-        size={{
-          width: 200,
-          height: 200,
-        }}
-        strokeWidth={10}
-        strokeColor="#f00"
-      />
+
+            <p>This is the dashboard view for the second screen.</p>
+
+            {/* Add the PressureGauge component here */}
+            <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center' }}>
+                <PressureGauge
+                    currentValue={3.5}
+                    minValue={0}
+                    maxValue={5}
+                />
+            </div>
+
+           
         </div>
     );
 }

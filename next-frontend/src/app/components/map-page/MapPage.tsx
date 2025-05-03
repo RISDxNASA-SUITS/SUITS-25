@@ -4,22 +4,17 @@ import BasicMap from "@/app/components/map-page/map/BasicMap";
 import ControlPanel from "@/app/components/map-page/control-panel/ControlPanel";
 import MissionInfoPanel from "@/app/components/map-page/mission-info/MissionInfoPanel"
 import {useRef, useState} from "react";
-import {SelectedMarkerRefs} from "@/app/components/map-page/SelectedMarkerRefs";
 
 type MapPageProps = {
     roverCoords: {x: number, y: number}
 }
 
-type ControlPanelState = "EvDetails" | "AddPin" | "SelectPin" |"SelectStation" | "AddTag" | "AddVoiceNote"
+type ControlPanelState = "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "AddVoiceNote"
 
 export const MapPage = ({roverCoords}: MapPageProps)=>{
     const [controlPanelState, setControlPanelState] = useState<ControlPanelState>("EvDetails")
 
-    const selectedMarkerRef = useRef<SelectedMarkerRefs>({
-        markerElement: null,
-        popup: null,
-    });
-
+    const selectedMarkerRef = useRef<mapboxgl.Marker | null>(null);
 
     return (
         <div className="flex w-full h-screen bg-slate-800">

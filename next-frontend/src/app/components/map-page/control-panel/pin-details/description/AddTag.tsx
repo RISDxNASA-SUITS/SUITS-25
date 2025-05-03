@@ -34,7 +34,6 @@ export const AddTag = ({ onClose, setControlPanelState } : SelectLabelProps) => 
         "": {}
     };
 
-
     const options = tagOptions[selectedSubTab];
 
     return (
