@@ -1,5 +1,5 @@
 
-import {MapPage} from "@/app/components/MapPage/MapPage";
+import {MapPage} from "@/app/components/map-page/MapPage";
 
 
 export default async function Page() {
