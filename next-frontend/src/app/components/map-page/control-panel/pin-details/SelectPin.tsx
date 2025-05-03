@@ -3,6 +3,7 @@ import {SecondaryButton} from "@/app/components/ui/ui-buttons/SecondaryButton";
 import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
 import React, {RefObject, useState} from "react";
 import CloseButton from "@/app/components/ui/ui-buttons/CloseButton";
+import NotePreview from "@/app/components/ui/Cards/NotePreview";
 
 type selectpoiProps = {
     poi: Poi;
@@ -15,6 +16,9 @@ export const Selectpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState
     const [showInput, setShowInput] = useState<boolean>(false);
     const [inputValue, setInputValue] = useState(poi.name);
     const [savedText, setSavedText] = useState<string>(poi.name);
+
+    //voice note IDs from currently selected POI
+    const recordingIDs = poi.voiceNoteID;
 
     const {clearTags, deletePoi} = PoiStore();
 
@@ -83,6 +87,11 @@ export const Selectpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState
                 {/*Voice Notes*/}
                 <div className={"flex flex-col gap-4"}>
                     <p className={"text-2xl font-bold"}>Voice Notes</p>
+
+                    {/* map all recordings from zustand store to the notePreview card */}
+                    {recordingIDs?.map(item => (
+                        <NotePreview date="test" title={`${item}`} key={item}></NotePreview>
+                    ))}
 
                     <SecondaryButton logo={"/logo/add.svg"} onClick={() => setControlPanelState("AddVoiceNote")}
                     >Voice Note</SecondaryButton>
