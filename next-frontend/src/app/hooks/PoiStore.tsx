@@ -11,7 +11,8 @@ export interface Poi {
     name: string;
     coords: { lng: number; lat: number };
     tags: TagSelections | null;
-    voiceMemo?: string[];
+    voiceMemo?: string[]; // was this meant for voice note?
+    voiceNoteID?: number[];
 }
 
 interface PoiStore {

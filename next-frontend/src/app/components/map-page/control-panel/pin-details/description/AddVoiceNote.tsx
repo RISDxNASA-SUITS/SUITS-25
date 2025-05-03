@@ -13,8 +13,9 @@ type SelectLabelProps = {
 }
 
 export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProps) => {
-    const { selectedPoiId, pois, updateTag } = PoiStore();
+    const { updatePoi, selectedPoiId, pois, updateTag } = PoiStore();
     const selectedPoi = pois.find(p => p.id === selectedPoiId);
+
 
     const [recording, setRecording] = useState<boolean>(false);
     const [audioURL, setAudioURL] = useState("");
@@ -60,24 +61,7 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
         };
 
         mediaRecorderRef.current.onstop = () => {
-            const audioBlob = new Blob(audioChunksRef.current, {
-                type: "audio/webm",
-            });
-            const url = URL.createObjectURL(audioBlob);
-            setAudioURL(url);
-
-            const newRecording = {
-                id: noteCount.current,
-                audioUrl: url,
-                time: formatTime(elapsedTime),
-                date: `${new Date().toString()}`,
-                name: "Voice Note " + noteCount.current
-            }
-
-            //save recording to the voice note store
-            addRecording(newRecording);
-            audioChunksRef.current = [];
-            clearInterval(timerRef.current);
+            saveRecording();
         };
 
         mediaRecorderRef.current.start();
@@ -94,6 +78,41 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
             mediaRecorderRef.current.stop();
             setRecording(false);
         }
+    };
+
+    const saveRecording = () => {
+        const audioBlob = new Blob(audioChunksRef.current, {
+            type: "audio/webm",
+        });
+        const url = URL.createObjectURL(audioBlob);
+        setAudioURL(url);
+
+        const newRecording = {
+            id: noteCount.current,
+            audioUrl: url,
+            time: formatTime(elapsedTime),
+            date: `${new Date().toString()}`,
+            name: "Voice Note " + noteCount.current,
+
+            //save the id of the poi the note was for
+            poiID: selectedPoiId
+        }
+
+        //save recording to the voice note store
+        addRecording(newRecording);
+
+        //update the list of recording IDs for this poi
+        if (selectedPoiId){
+
+            const poiRecordings = selectedPoi?.voiceNoteID || [];
+
+            updatePoi(selectedPoiId, { 
+                voiceNoteID: [...poiRecordings, newRecording.id] 
+            });
+        }
+
+        audioChunksRef.current = [];
+        clearInterval(timerRef.current);
     };
 
     const formatTime = (seconds: number) => {
