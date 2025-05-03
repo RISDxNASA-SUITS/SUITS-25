@@ -115,3 +115,26 @@
     background-size: calc(100% / 28) calc(100% / 26);
     pointer-events: none;
 }
+
+.hazard-marker {
+    position: relative;
+    border: 2px dashed #FF4D4F;
+    background: rgba(255, 77, 79, 0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.hazard-marker-exclamation {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 2em;
+    font-weight: bold;
+    pointer-events: none;
+    text-shadow: 0 0 6px #FF4D4F, 0 0 2px #fff;
+}

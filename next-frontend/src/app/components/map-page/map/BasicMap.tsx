@@ -191,11 +191,81 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
         marker?.getPopup()?.remove();
         marker?.remove();
 
-        const hazardEl = document.createElement("div");
-        hazardEl.className = 'bg-no-repeat bg-contain bg-center sm:w-5m md:w-6 lg:w-7 sm:h-5 md:h-6 lg:h-7';
-        hazardEl.style.backgroundImage = 'url(/markers/selected-poi.svg)';
-    }
+        // Default radius in meters
+        let radius = 50;
+        const minRadius = 10;
+        const maxRadius = 200;
 
+        // Create hazard marker element
+        const hazardEl = document.createElement("div");
+        hazardEl.className = 'hazard-marker';
+        hazardEl.style.width = hazardEl.style.height = `${radius * 2}px`;
+        hazardEl.style.position = 'absolute';
+        hazardEl.style.transform = 'translate(-50%, -50%)'; 
+
+
+        // Exclamation mark
+        const exclamation = document.createElement("div");
+        exclamation.className = 'hazard-marker-exclamation';
+        exclamation.innerText = '!';
+        hazardEl.appendChild(exclamation);
+
+        // Popup container
+        const popupContainer = document.createElement("div");
+
+        // React popup for radius control
+        function HazardRadiusPopup({ onConfirm, onCancel, radius, setRadius }: any) {
+            return (
+                <div className="bg-backplate rounded-2xl p-4 min-w-[220px] text-white border-[1.5px] border-light-purple shadow-lg flex flex-col items-center">
+                    <div className="flex items-center mb-3">
+                    <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => setRadius((r: number) => Math.max(minRadius, r - 5))}>-</PrimaryButton>
+                    <span className="mx-[18px] text-2xl">{radius}m</span>
+                    <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => setRadius((r: number) => Math.min(maxRadius, r + 5))}>+</PrimaryButton>
+                    </div>
+                    <div className="flex gap-4 w-full justify-center">
+                    <PrimaryButton style={{ flex: 1, background: 'transparent', border: '1.5px solid #9D89FF', color: '#9D89FF' }} onClick={onCancel}>Cancel</PrimaryButton>
+                    <PrimaryButton style={{ flex: 1 }} onClick={onConfirm}>Confirm</PrimaryButton>
+                    </div>
+                </div>
+            );
+        }
+
+        // React state for popup
+        let setPopupRadius: (r: number | ((r: number) => number)) => void = () => {};
+        let popupRadius = radius;
+        function PopupWrapper() {
+            const [r, setR] = React.useState(radius);
+            setPopupRadius = setR;
+            popupRadius = r;
+            React.useEffect(() => { // Update marker size
+                hazardEl.style.width = hazardEl.style.height = `${r * 2}px`;
+            }, [r]);
+            return <HazardRadiusPopup radius={r} setRadius={setR} onConfirm={onConfirm} onCancel={onCancel} />;
+        }
+
+        // Popup logic
+        const popup = new mapboxgl.Popup({ offset: -160, closeButton: false })
+            .setDOMContent(popupContainer);
+
+        // Add marker to map
+        const hazardMarker = new mapboxgl.Marker(hazardEl, { anchor: 'center' })
+            .setLngLat([lng, lat])
+            .setPopup(popup)
+            .addTo(map.current)
+            .togglePopup();
+
+        // Render popup
+        createRoot(popupContainer).render(<PopupWrapper />);
+
+        // Confirm/Cancel logic
+        function onConfirm() {
+            popup.remove();
+            // TODO save hazard marker to state/store here
+        }
+        function onCancel() {
+            hazardMarker.remove();
+        }
+    };
 
     const togglePoiSelection = (selected: Boolean) => {
         if (selectedMarkerRef.current?.getElement()) {

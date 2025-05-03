@@ -18,7 +18,8 @@ export default {
         "light-purple": "#9D89FF",
         "midnight-purple": "#100A28",
         "crimson-red": "rgba(255, 20, 24, 0.7)",
-        "warning": "rgba(255, 21, 21, 0.25)"
+        "warning": "rgba(255, 21, 21, 0.25)",
+        "backplate": "rgba(16, 10, 40, 0.50)",
       },
       fontFamily: {
         sans: ["var(--font-ibm-plex-sans)"]

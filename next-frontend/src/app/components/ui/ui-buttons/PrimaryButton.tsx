@@ -6,9 +6,10 @@ interface MapButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     active?: boolean;
     logo?: string;
     logoClassName?: string;
+    className?: string;
 }
 
-export const PrimaryButton = ({ children, active, logo, disabled, logoClassName, ...props }: MapButtonProps) => {
+export const PrimaryButton = ({ children, active, logo, disabled, logoClassName, className = "", ...props }: MapButtonProps) => {
     return (
         <button
             className={`
@@ -18,6 +19,7 @@ export const PrimaryButton = ({ children, active, logo, disabled, logoClassName,
                 ${active ? "bg-light-purple" : "bg-galaxy-purple"}
                 hover:bg-another-purple
                 active:bg-light-purple
+                ${className}
               `}
             disabled={disabled}
             {...props}
