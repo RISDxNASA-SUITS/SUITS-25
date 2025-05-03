@@ -3,6 +3,34 @@ from typing import Tuple, List, Dict
 from Node import Node
 
 Point = Tuple[float, float]
+import requests
+
+BASE_URL = "http://localhost:7070"
+
+def get_lidar():
+    response = requests.post(f"{BASE_URL}/lidar")
+    return response.json()
+
+def get_telemetry():
+    response = requests.get(f"{BASE_URL}/telemetry")
+    return response.json()
+
+def post_brakes(brake_input: float):
+    payload = {"brakeInput": brake_input}
+    response = requests.post(f"{BASE_URL}/brakes", json=payload)
+    return response.status_code, response.text
+
+def post_throttle(throttle_input: float):
+    payload = {"throttleInput": throttle_input}
+    response = requests.post(f"{BASE_URL}/throttle", json=payload)
+    return response.status_code, response.text
+
+def post_steering(steering_input: float):
+    payload = {"steeringInput": steering_input}
+    response = requests.post(f"{BASE_URL}/steering", json=payload)
+    return response.status_code, response.text
+
+
 def euclidean_distance(pos_a : Point, pos_b : Point) -> float:
     '''
     Gets the Euclidean Distance between 2 positions

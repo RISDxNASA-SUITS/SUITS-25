@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 from ..helper_folder.GraphSampler import GraphSampler
 from helper_folder.Astar import astar
 from Navigator import AStarNavigator
+import requests
 
 class OutputData(BaseModel):
     breaks:bool
@@ -30,20 +31,9 @@ class RoverAgentBasic(RoverAgentAbstract):
     TODO: Should functions be restructured to give output direction each time it is called, or should the driving class determine all movement
     SHOULD DISCUSS, this version wouldn't return until the destination is reached
     """
-    def process_telemetry(self, start, goal) -> OutputData:
-        RRT_graph = GraphSampler(current_point=start, goal_point=goal)
-        while start != goal:
-            lidar_reading = None #TODO: Need to get lidar data from TSS
-            RRT_graph.add_obstacle(lidar_reading)
-            RRT_graph.get_graph()
-            astar_path = astar(RRT_graph.adjacency_graph, RRT_graph.graph_start, RRT_graph.graph_goal)
-            #TODO: Need to change astar inputs to start and goal nodes
-            reached_goal = AStarNavigator.follow_astar_path(astar_path)
-            if reached_goal == True:
-                return
-            else:
-                current_position = None #Get position from TSS
-                RRT_graph.reset_graph(current_position)
-        return
+    def process_telemetry(self) -> OutputData:
     
+    
+    def lidar(self):
+        
 

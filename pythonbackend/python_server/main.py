@@ -17,7 +17,7 @@ TODO:
 """
 app = FastAPI()
 
-TSS_HOST = "10.20.77.44"
+TSS_HOST = "127.0.0.1"
 TSS_PORT = 14141
 
 class Pipeline():
@@ -42,11 +42,12 @@ class Pipeline():
     def send_receive(self, command_num):
         self._send_packet(command_num)
         data = self.sock.recv(1024)
-        if(command_num == 167):#if lidar
+        if(command_num == 171):#if lidar
             #if you look in their codebase, 167 doesn't actually exist as a command... I don't really know what to put here
-            return struct.unpack('>IIfffffffffffff', data)
-        else:
             print(data)
+            print(len(data))
+            return struct.unpack('>' + 'f'*13, data)
+        else:
             return struct.unpack('>IIf', data)
     
     def close(self):
@@ -55,7 +56,11 @@ class Pipeline():
 def start():
     pipeline = Pipeline(TSS_HOST, TSS_PORT)
     #pipeline.send_instructions(command_num = 1109, value = 0.9)
-    print(pipeline.send_receive(command_num = 58))
+    
+    pipeline.send_instructions(1109, 0)
+    pipeline.send_instructions(1107, 1)
+    pipeline.send_instructions(1110, 0)
+    
     pipeline.close()
 
 start()
