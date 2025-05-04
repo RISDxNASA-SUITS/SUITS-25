@@ -25,9 +25,16 @@ export const Editpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}:
     //initial input field state
     const [showInitialInput, setInitialShowInput] = useState<boolean>(true);
 
-    const { recordings } = useAudioStore();
 
-    const {updatePoi, clearTags, deletePoi} = PoiStore();
+
+    const {updatePoi, clearTags, deletePoi, selectedPoiId, pois} = PoiStore();
+
+    //voice note IDs from currently selected POI
+    const recordingIDs = poi.voiceNoteID;
+
+    // // all recordings from the AudioStore
+    // const { recordings } = useAudioStore();
+
 
     const handleSave = () => {
         poi.name = inputValue;
@@ -155,8 +162,8 @@ export const Editpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}:
                     <p className={"text-2xl font-bold"}>Voice Notes</p>
 
                     {/* map all recordings from zustand store to the notePreview card */}
-                    {recordings.map(item => (
-                        <NotePreview date={item.date} title={item.name} key={item.id}></NotePreview>
+                    {recordingIDs?.map(item => (
+                        <NotePreview date="test" title={`${item}`} key={item}></NotePreview>
                     ))}
 
                     <SecondaryButton logo={"/logo/add.svg"} onClick={() => setControlPanelState("AddVoiceNote")}

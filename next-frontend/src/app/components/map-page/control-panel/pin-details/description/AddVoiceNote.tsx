@@ -111,6 +111,8 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
             });
         }
 
+        console.log(selectedPoi)
+
         audioChunksRef.current = [];
         clearInterval(timerRef.current);
     };
