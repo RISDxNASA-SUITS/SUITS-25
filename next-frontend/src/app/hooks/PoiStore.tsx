@@ -1,5 +1,6 @@
 import { create } from "zustand/react";
-
+import {Marker} from "mapbox-gl"
+export type PinTypes = 'hazard' | 'Poi'
 type TagSelections = {
     [category: string]: {
         [subCategory: string]: string[];
@@ -13,6 +14,8 @@ export interface Poi {
     tags: TagSelections | null;
     voiceMemo?: string[]; // was this meant for voice note?
     voiceNoteID?: number[];
+    marker: Marker;
+    type: PinTypes
 }
 
 interface PoiStore {
@@ -25,12 +28,17 @@ interface PoiStore {
     updateTag: (poiId: string | null, category: string, subCategory: string, label: string) => void;
     clearTags: (poiId: string) => void;
     deletePoi: (poiId: string | null) => void;
+    loadFromBackend: () => void
 }
 
 export const PoiStore = create<PoiStore>((set) => ({
     pois: [],
     selectedPoiId: null,
-
+    loadFromBackend: async () => {
+        await fetch("")
+        const pois:Poi[] = []
+        set({pois:pois})
+    },
     addPoi: (poi: Poi) => set((state) => ({
         pois: [...state.pois, poi],
         selectedPoiId: poi.id

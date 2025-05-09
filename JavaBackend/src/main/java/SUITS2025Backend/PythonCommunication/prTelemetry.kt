@@ -48,7 +48,8 @@
 ) {
     companion object {
         fun fromStringList(values: List<String>): PrTelemetry {
-            require(values.size == 48) { "Expected 46 values, got ${values.size}" }
+            println(values)
+            require(values.size == 48) { "Expected 48 values, got ${values.size}" }
 
             var i = 0
             fun safeBoolean(value: String): Boolean {

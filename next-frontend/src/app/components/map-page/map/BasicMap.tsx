@@ -10,6 +10,8 @@ import "../mapstyle.css";
 import {nanoid} from "nanoid";
 import TertiaryButton from "@/app/components/ui/ui-buttons/TertiaryButton";
 import { Tooltip } from '../../ui/ui-buttons/Tooltip';
+import {PinTypes} from "@/app/hooks/PoiStore";
+
 
 // Set your Mapbox access token
 // mapboxgl.accessToken = 'pk.eyJ1IjoieHplcm84NjQiLCJhIjoiY2xmbW9wZ3BzMDQzaTN3cDUwcWplcGF6byJ9.PR0YiT3S05lotgY12AwWEQ';
@@ -32,7 +34,7 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
     const map = useRef<mapboxgl.Map | null>(null);
     const [markers, setMarkers] = useState<Marker[]>([]);
     let [poiNum, setPoiNum] = useState(1);
-    const { pois, addPoi, selectPoi, selectedPoiId, updatePoi } = PoiStore();
+    const { pois, addPoi, selectPoi, selectedPoiId, updatePoi, loadFromBackend } = PoiStore();
     const poiButtonActiveRef = useRef<boolean>(false);
     const [buttonActive, setButtonActive] = useState<boolean>(false);
     const setPoiButtonActive = (value: boolean) => {
@@ -93,6 +95,17 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
 
     }, [poiButtonActiveRef.current]);
 
+
+    useEffect(()=> {
+
+
+        loadFromBackend()
+
+    },[])
+    useEffect(()=> {
+        pois.forEach(x => x.addMarkerFromBackend())
+    }, [pois])
+
     const addMarker = (lng: number, lat: number) => {
         if (!map.current) return;
 
@@ -126,11 +139,41 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
 
         // Save marker to state
         tempMarkerRef.current = marker;
-        setMarkers(prevMarkers => [...prevMarkers, marker]);
+        // setMarkers(prevMarkers => [...prevMarkers, marker]);
         setPoiButtonActive(false);
 
         setControlPanelState("EvDetails");
     };
+    const addMarkerFromBackend = (lng: number, lat: number, type: PinTypes) => {
+        if (!map.current) return;
+
+        // custom marker
+        const markerElement = document.createElement("div");
+        markerElement.className = 'w-2 h-2 sm:w-2 sm:h-2 md:w-3 md:h-3 lg:w-3 lg:h-3 xl:w-3 xl:h-3 bg-contain bg-no-repeat bg-center';
+        markerElement.style.backgroundImage = 'url(/markers/marker.svg)';
+
+        // popup container
+        const popupContainer = document.createElement("div");
+
+        const popup = new mapboxgl.Popup({ offset: 12, closeButton: false })
+            .setDOMContent(popupContainer);
+
+        const marker = new mapboxgl.Marker(markerElement)
+            .setLngLat([lng, lat])
+            .setPopup(popup)
+            .addTo(map.current)
+            .togglePopup();
+
+        if(type === "hazard"){
+            addHazardMarker(marker,lng,lat);
+        }else {
+            addPoiMarker(marker,lng,lat);
+        }
+
+
+
+    };
+
 
     // const clearAllMarkers = () => {
     //     // Remove all markers from the map
@@ -140,6 +183,19 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
     //     // Optional: Clear markers from your POI store
     //     clearPois();
     // };
+
+
+    const addMarkerNoDom(marker : Marker, lng:number, lat:number, type:PinTypes){
+        const id = nanoid();
+        addPoi({
+            id,
+            name: `POI ${poiNum}`,
+            coords: { lng, lat },
+            tags: null,
+            marker,
+        });
+    }
+
 
     const addPoiMarker = (marker: Marker, lng: number, lat: number) => {
         if (!map.current) return;
@@ -166,16 +222,16 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
             .addTo(map.current)
             .togglePopup();
 
-        const id = nanoid();
+
 
         //hashmap referring marker element
         markerMap.set(poiMarkerElement, { id, marker: poiMarker });
-        addPoi({
-            id: id,
-            name: `POI ${poiNum}`,
-            coords: { lng, lat },
-            tags: null,
-        });
+        // addPoi({
+        //     id: id,
+        //     name: `POI ${poiNum}`,
+        //     coords: { lng, lat },
+        //     tags: null,
+        // });
         selectPoi(id);
 
         selectedMarkerRef.current = poiMarker;
