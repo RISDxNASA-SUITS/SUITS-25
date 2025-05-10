@@ -6,14 +6,24 @@ type TagSelections = {
     };
 };
 
+type VoiceNotes = {
+    id: number;
+    audioUrl: string | null;
+    time: string;
+    date: string;
+    name: string;
+}
+
 export interface Poi {
     id: string;
     name: string;
     coords: { lng: number; lat: number };
     tags: TagSelections | null;
     voiceMemo?: string[];
-    
+
     voiceNoteID?: number[];
+
+    voiceNotes?: VoiceNotes[];
 }
 
 interface PoiStore {
