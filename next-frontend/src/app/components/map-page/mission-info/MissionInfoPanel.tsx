@@ -27,7 +27,7 @@ export const MissionInfoPanel = () => {
     }
 
     return (
-        <div className={"flex items-center text-white gap-3 border-b-2 border-[#28233E]"}>
+        <div className={"relative flex items-center text-white gap-3 border-b-2 border-[#28233E] "}>
 
             {/* button and dropdown container */}
             <div className="flex w-full items-start gap-6 p-6">
