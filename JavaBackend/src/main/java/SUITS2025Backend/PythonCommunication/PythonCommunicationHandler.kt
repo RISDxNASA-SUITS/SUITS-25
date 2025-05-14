@@ -70,21 +70,21 @@ sealed class RoverCommand {
 
     data object Lidar : RoverCommand() {
         override fun communicate(): List<Float> {
-            val returnList:MutableList<Float> = mutableListOf()
-            (172..184).map {
+        
+            return (arrayOf(167)).map {
                 val recvBuffer = ByteBuffer.allocate(104)
                 recvBuffer.order(ByteOrder.BIG_ENDIAN)
                 val sendPacket = makeSendLidarPacket(it);
-                val callBack: (ByteBuffer) -> Float = { buff: ByteBuffer ->
-
-                    buff.getFloat()
+                val callBack: (ByteBuffer) -> List<Float> = { buff: ByteBuffer ->
+                    (1..13).map{
+                        buff.getFloat()
+                    }
                 }
-                returnList.add(sendMessage(sendPacket,recvBuffer,callBack))
-            };
+                sendMessage(sendPacket,recvBuffer,callBack)
+            }.flatten();
 
 
 
-            return returnList;
 
 
         }
@@ -93,11 +93,13 @@ sealed class RoverCommand {
     data object Telemetry : RoverCommand() {
         override fun communicate(): PrTelemetry {
             val retList:MutableList<String> = mutableListOf()
-            (124..171).forEach {
+            (124..166).forEach {
                 val recvBuffer = ByteBuffer.allocate(104)
                 val sendPacket = makeSendLidarPacket(it);
                 val callBack: (ByteBuffer) -> String = { buff: ByteBuffer ->
-                    buff.getFloat().toString()
+                    var l = buff.getFloat()
+                    println(l)
+                    l.toString()
                 }
                 retList.add(sendMessage(sendPacket,recvBuffer,callBack))
             }
