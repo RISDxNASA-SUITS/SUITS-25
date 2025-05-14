@@ -1,8 +1,11 @@
 import { useState } from "react";
 import SecondaryButton from "../ui-buttons/SecondaryButton";
 
+interface GeoSampleCardProps {
+    setControlPanelState: (state: "AddTag" |"AddVoiceNote" | "EvDetails") => void
+}
 
-export const GeoSampleCard = () => {
+export const GeoSampleCard = ({setControlPanelState}: GeoSampleCardProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const handleExpand = () => {
@@ -180,7 +183,7 @@ export const GeoSampleCard = () => {
                     </div>
 
                     <div className="w-full pt-4">
-                        <SecondaryButton logo={"/logo/sound-purple.svg"}
+                        <SecondaryButton logo="/logo/sound-purple.svg" onClick={() => setControlPanelState("AddVoiceNote")}
                         >Add Voice Note</SecondaryButton>
                     </div>
 

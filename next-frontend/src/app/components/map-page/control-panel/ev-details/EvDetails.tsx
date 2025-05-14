@@ -17,7 +17,11 @@ type Eva = {
     XRFData?: any;
 }
 
-export const EvDetails = () => {
+type EvDetailsProps = {
+    setControlPanelState: (state: "AddTag" |"AddVoiceNote" | "EvDetails") => void
+}
+
+export const EvDetails = ({setControlPanelState}: EvDetailsProps) => {
     const [selectedEva, setSelectedEva] = useState<EvaTab>("PR");
     const [selectedSubTab, setSelectedSubTab] = useState<SubTab>("Tasks");
     const [evaData, setEvaData] = useState<Record<EvaTab, Eva>>({
@@ -50,7 +54,7 @@ export const EvDetails = () => {
             case "Warnings":
                 return <WarningSection warnings={data} />;
             case "XRFData":
-                return <XrfSection xrfData={data} />
+                return <XrfSection xrfData={data} setControlPanelState={setControlPanelState}/>
         }
     }
 

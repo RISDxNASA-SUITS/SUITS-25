@@ -40,7 +40,9 @@ export const ControlPanel = ({state, panelState, selectedMarkerRef}: ControlPane
     function handleContent(state: string) {
         switch (state) {
             case "EvDetails":
-                return <EvDetails/>;
+                return <EvDetails
+                    setControlPanelState={panelState}
+                />;
             case "AddPin":
                 return selectedPoi ? (
                     <EditPin
