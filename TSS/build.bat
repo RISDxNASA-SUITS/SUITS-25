@@ -1,0 +1,1 @@
+x86_64-w64-mingw32-gcc network.c server_data.c server.c cJSON.c -o server.exe -lws2_32 -liphlpapi -lm
