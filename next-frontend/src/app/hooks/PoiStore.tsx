@@ -14,7 +14,6 @@ export interface Poi {
     tags: TagSelections | null;
     voiceMemo?: string[]; // was this meant for voice note?
     voiceNoteID?: number[];
-    marker: Marker;
     type: PinTypes
 }
 
