@@ -1,34 +1,88 @@
-import math
+import math, sys, os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from commands import (
+    TSS_HOST, TSS_PORT,
+    LIDAR_CMD, BRAKE_CMD, THROTTLE_CMD, STEERING_CMD,
+    ROVER_X_CMD, ROVER_Y_CMD, ROVER_ALT_CMD,
+    ROVER_HEADING_CMD, ROVER_PITCH_CMD, ROVER_ROLL_CMD,
+    ROVER_SPEED_CMD,
+)
+from main import Pipeline
 from typing import Tuple, List, Dict
 from Node import Node
 
 Point = Tuple[float, float]
 import requests
-
 BASE_URL = "http://localhost:7070"
+pipeline = Pipeline(TSS_HOST, TSS_PORT)
 
 def get_lidar():
-    response = requests.post(f"{BASE_URL}/lidar")
-    return response.json()
 
-def get_telemetry():
-    response = requests.get(f"{BASE_URL}/telemetry")
-    return response.json()
+    # response = requests.post(f"{BASE_URL}/lidar")
+    # return response.json()
+    response = pipeline.send_receive(LIDAR_CMD)
+    if not response:
+        return []
+    _, _, *lidar_data = response
+    return lidar_data
+
+def get_rover_location() -> Dict[str, float]:
+    x_data = pipeline.send_receive(ROVER_X_CMD)
+    y_data = pipeline.send_receive(ROVER_Y_CMD)
+    alt_data = pipeline.send_receive(ROVER_ALT_CMD)
+    if not (x_data and y_data and alt_data):
+        return {}
+    return {
+        "x":    x_data[2],
+        "y":    y_data[2],
+        "altitute":  alt_data[2],
+    }
+
+def get_rover_orientation() -> Dict[str, float]:
+    heading_data = pipeline.send_receive(ROVER_HEADING_CMD)
+    pitch_data = pipeline.send_receive(ROVER_PITCH_CMD)
+    roll_data = pipeline.send_receive(ROVER_ROLL_CMD)
+    if not (heading_data and pitch_data and roll_data):
+        return {}
+    return {
+        "heading":    heading_data[2],
+        "pitch":    pitch_data[2],
+        "roll":  roll_data[2],
+    }
+def get_speed():
+    speed_data = pipeline.send_receive(ROVER_SPEED_CMD)
+    return speed_data[2] if speed_data else 0.0
+
+def get_telemetry() -> Dict[str, object]:
+    # response = requests.get(f"{BASE_URL}/telemetry")
+    # return response.json()
+    return {
+        "location": get_rover_location(),
+        "orientation": get_rover_orientation(),
+        "speed": get_speed(),
+    }
 
 def post_brakes(brake_input: float):
-    payload = {"brakeInput": brake_input}
-    response = requests.post(f"{BASE_URL}/brakes", json=payload)
-    return response.status_code, response.text
+    # payload = {"brakeInput": brake_input}
+    # response = requests.post(f"{BASE_URL}/brakes", json=payload)
+    # return response.status_code, response.text
+    pipeline.send_instructions(BRAKE_CMD, brake_input)
+    print(f"brake set to {brake_input}")
 
 def post_throttle(throttle_input: float):
-    payload = {"throttleInput": throttle_input}
-    response = requests.post(f"{BASE_URL}/throttle", json=payload)
-    return response.status_code, response.text
+    # payload = {"throttleInput": throttle_input}
+    # response = requests.post(f"{BASE_URL}/throttle", json=payload)
+    # return response.status_code, response.text
+    pipeline.send_instructions(THROTTLE_CMD, throttle_input)
+    print(f"throttle set to {throttle_input}")
+
 
 def post_steering(steering_input: float):
-    payload = {"steeringInput": steering_input}
-    response = requests.post(f"{BASE_URL}/steering", json=payload)
-    return response.status_code, response.text
+    # payload = {"steeringInput": steering_input}
+    # response = requests.post(f"{BASE_URL}/steering", json=payload)
+    # return response.status_code, response.text
+    pipeline.send_instructions(STEERING_CMD, steering_input)
+    print(f"steering set to {steering_input}")
 
 
 def euclidean_distance(pos_a : Point, pos_b : Point) -> float:

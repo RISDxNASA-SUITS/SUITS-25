@@ -1,22 +1,29 @@
-from main import Pipeline, TSS_HOST, TSS_PORT
+from commands import (
+    TSS_HOST, TSS_PORT,
+    LIDAR_CMD, BRAKE_CMD, THROTTLE_CMD, STEERING_CMD,
+    ROVER_X_CMD, ROVER_Y_CMD, ROVER_ALT_CMD,
+    ROVER_HEADING_CMD, ROVER_PITCH_CMD, ROVER_ROLL_CMD,
+    ROVER_SPEED_CMD,
+)
+from main import pipeline
 
 def main():
     pipeline = Pipeline(TSS_HOST, TSS_PORT)
     
     # Command definitions
-    BRAKE_CMD = 1107      # 0.0 or 1.0
-    THROTTLE_CMD = 1109   # -100.0 to 100.0
-    STEERING_CMD = 1110   # -1.0 to 1.0
+    # BRAKE_CMD = 1107      # 0.0 or 1.0
+    # THROTTLE_CMD = 1109   # -100.0 to 100.0
+    # STEERING_CMD = 1110   # -1.0 to 1.0
     
     # Information commands
-    LIDAR_CMD = 171
-    ROVER_X_CMD = 133
-    ROVER_Y_CMD = 134
-    ROVER_ALT_CMD = 135
-    ROVER_HEADING_CMD = 136
-    ROVER_PITCH_CMD = 137
-    ROVER_ROLL_CMD = 138
-    ROVER_SPEED_CMD = 140
+    
+    # ROVER_X_CMD = 133
+    # ROVER_Y_CMD = 134
+    # ROVER_ALT_CMD = 135
+    # ROVER_HEADING_CMD = 136
+    # ROVER_PITCH_CMD = 137
+    # ROVER_ROLL_CMD = 138
+    # ROVER_SPEED_CMD = 140
     
     print("=== Rover Control Interface ===")
     print("Commands:")
@@ -94,7 +101,7 @@ def main():
                 if lidar_data:
                     print(f"Timestamp: {lidar_data[0]}")
                     print(f"Command: {lidar_data[1]}")
-                    print(f"Lidar Data (13 points):")
+                    print(f"Lidar Data: {lidar_data[2]}")
                     
                     # Display all 13 lidar data points
                     for i in range(13):
