@@ -66,9 +66,11 @@ int clock_gettime(int fake, struct timespec *spec)
 
 bool continue_server();
 //bool big_endian();
-void get_contents();
-//void reverse_bytes();
-void tss_to_unreal();
+// void reverse_bytes();
+void get_contents(char* buffer, unsigned int* time, unsigned int* command, unsigned char* data);
+void tss_to_unreal(int socket, struct sockaddr_in address, socklen_t len, struct backend_data_t* backend);
+struct backend_data_t;
+struct backend_data_t* init_backend(struct backend_data_t* backend);
 
 ///////////////////////////////////////////////////////////////////////////////////
 //                               Main Functions
@@ -540,7 +542,7 @@ int main(int argc, char* argv[])
 ///////////////////////////////////////////////////////////////////////////////////
 
 bool continue_server(){
-    return true;
+
     // if the user presses the ENTER key, the program will end gracefully
     struct timeval select_wait;
     select_wait.tv_sec = 0;
