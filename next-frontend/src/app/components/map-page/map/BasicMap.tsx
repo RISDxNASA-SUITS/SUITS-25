@@ -233,13 +233,36 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
         // React state for popup
         let setPopupRadius: (r: number | ((r: number) => number)) => void = () => {};
         let popupRadius = radius;
+        
         function PopupWrapper() {
             const [r, setR] = React.useState(radius);
+            const [label, setLabel] = React.useState(r > 100 ? "Large Crater" : "Small Crater");
+
             setPopupRadius = setR;
             popupRadius = r;
+
             React.useEffect(() => { // Update marker size
                 hazardEl.style.width = hazardEl.style.height = `${r * 2}px`;
             }, [r]);
+
+            React.useEffect(() => { //Update marker name
+                const labelInput = document.createElement("input");
+                labelInput.value = label;
+                labelInput.className = "absolute -top-8 left-1/2 transform -translate-x-1/2 bg-red-100/20 border border-red-500 text-sm font-semibold rounded-md px-2 py-[2px] backdrop-blur-sm text-center w-[120px]";
+                labelInput.oninput = (e: any) => {
+                    setLabel(e.target.value);
+                    hazardEl.setAttribute("data-hazard-label", e.target.value);
+                };
+
+                labelInput.onpointerdown = (e) => e.stopPropagation();
+                hazardEl.style.pointerEvents = 'auto';
+                hazardEl.appendChild(labelInput);
+
+                setTimeout(() => labelInput.focus(), 0);
+
+                return () => {hazardEl.removeChild(labelInput);};
+            }, []);
+
             return <HazardRadiusPopup radius={r} setRadius={setR} onConfirm={onConfirm} onCancel={onCancel} />;
         }
 
@@ -260,7 +283,6 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
         // Confirm/Cancel logic
         function onConfirm() {
             popup.remove();
-            // TODO save hazard marker to state/store here
         }
         function onCancel() {
             hazardMarker.remove();
