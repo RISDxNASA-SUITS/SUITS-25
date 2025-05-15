@@ -8,6 +8,7 @@ This directory contains scripts and instructions for testing the Java backend AP
 - `GET /audio/{id}` — Retrieve an audio file by its ID
 - `POST /poi` — Add a POI (can reference an audio file by ID)
 - `GET /poi` — Retrieve all POIs
+` `delete /poi` - Deletes ALL POIS
 
 ## Process Overview
 
