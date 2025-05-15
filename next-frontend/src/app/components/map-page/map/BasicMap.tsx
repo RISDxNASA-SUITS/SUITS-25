@@ -33,12 +33,13 @@ const initialViewState = {
 
 const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: BasicMapProps) => {
     const [viewState, setViewState] = useState(initialViewState);
-    const { pois, addPoi, selectPoi, selectedPoiId, loadFromBackend, updatePoi } = PoiStore();
+    const { pois, hazardPois, addPoi, addHazardPoi, selectPoi, selectedPoiId, loadFromBackend, updatePoi, updateHazardPoi } = PoiStore();
     const [poiNum, setPoiNum] = useState(1); // For default naming, might need better persistence
 
     const [newPinLocation, setNewPinLocation] = useState<{ lng: number; lat: number } | null>(null);
     const [tempPinType, setTempPinType] = useState<PinTypes | null>(null);
     const [hazardRadius, setHazardRadius] = useState(50); // Default hazard radius
+    const [tempHazardPin, setTempHazardPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
 
     // For the expandable add menu
     const [addActive, toggleAddActive] = useState<boolean>(false);
@@ -55,27 +56,13 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     // }, [pois])
 
     const handleMapClick = useCallback((event: MapMouseEvent) => {
-        // If "Add POI" button is active, place a new pin
-        if (poiButtonClickActive) {
-            const { lng, lat } = event.lngLat;
-            setNewPinLocation({ lng, lat });
-            // Do not open popup here, wait for user to choose POI or Hazard from menu
-            // Or, if the intention is to immediately show a temp pin, this logic needs to be adjusted
-            setControlPanelState("EvDetails"); // Or perhaps a new state like "ConfirmPinPlacement"
-            // Deselect "Add POI" button mode
-            setPoiButtonClickActive(false);
-            toggleAddActive(false); // Close the add menu
-        } else {
-            // If not in "Add POI" mode, deselect any selected POI
-            // Check if the click was on a marker (handled by marker's onClick) or map
-            // If on map, and not on a marker, deselect
-            const target = event.originalEvent.target as HTMLElement;
-            if (!target.closest('.mapboxgl-marker')) {
-                 selectPoi(null);
-                 setControlPanelState("EvDetails");
-            }
-        }
-    }, [poiButtonClickActive, selectPoi, setControlPanelState]);
+        const { lng, lat } = event.lngLat;
+        setNewPinLocation({ lng, lat });
+        setTempPinType(null); // Reset temp pin type
+        setControlPanelState("EvDetails");
+        // Deselect any selected POI
+        selectPoi(null);
+    }, [setControlPanelState, selectPoi]);
 
 
     const onPoiButtonClick = () => {
@@ -90,23 +77,47 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
         }
     };
     
-    // Generic function to add a new POI or Hazard to the store
-    const addNewPinToStore = (lng: number, lat: number, type: PinTypes, namePrefix: string, additionalData?: Partial<Poi>) => {
+    // Generic function to add a new POI
+    const addNewPinToStore = (
+        lng: number,
+        lat: number,
+        type: PinTypes,
+        namePrefix: string,
+        additionalData?: Partial<Poi>,
+        hazardRadius?: number
+    ) => {
         const newId = nanoid();
-        const newPoi: Poi = { // Adjusted type to satisfy PoiStore for now
+        if (type === 'hazard') {
+            const newHazardPoi = {
+                id: newId,
+                name: `${namePrefix} ${poiNum}`,
+                coords: { lng, lat },
+                tags: null,
+                type: 'hazard' as const,
+                radius: hazardRadius ?? 50,
+            };
+            addHazardPoi(newHazardPoi);
+            setPoiNum(prev => prev + 1);
+            selectPoi(newId);
+            setControlPanelState("EvDetails");
+            setNewPinLocation(null);
+            setTempPinType(null);
+            return;
+        }
+        // Normal POI
+        const newPoi: Poi = {
             id: newId,
             name: `${namePrefix} ${poiNum}`,
             coords: { lng, lat },
             tags: null,
             type: type,
-           
             ...additionalData,
         };
-        addPoi(newPoi); // Type assertion, assuming PoiStore.Poi will be updated
+        addPoi(newPoi);
         setPoiNum(prev => prev + 1);
-        selectPoi(newId); // Select the newly added POI
-        setControlPanelState(type === "hazard" ? "EvDetails" : "AddPin"); // Different panel states
-        setNewPinLocation(null); // Clear the temporary pin location
+        selectPoi(newId);
+        setControlPanelState("AddPin");
+        setNewPinLocation(null);
         setTempPinType(null);
     };
 
@@ -116,13 +127,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     };
 
     const handleAddHazardFromPopup = (lng: number, lat: number, radius: number) => {
-        // For hazards, we might store radius or other specific data
-        // This part needs to be fleshed out based on how hazard data (like radius) is stored.
-        // For now, just adding as a generic POI of type 'hazard'.
-        // You might want to add a 'radius' field to your Poi interface or a separate store for hazards.
-        console.log(`Hazard with radius ${radius}m added at ${lng}, ${lat}`);
-        // Example: Storing radius in a 'details' field or custom field in PoiStore
-        addNewPinToStore(lng, lat, "hazard", "Hazard", { hazardDetails: { radius } } as Partial<Poi>);
+        addNewPinToStore(lng, lat, "hazard", "Hazard", undefined, radius);
     };
     
     const onAddClick = () => {
@@ -146,6 +151,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                     onClose={() => {
                         setNewPinLocation(null);
                         setTempPinType(null);
+                        setTempHazardPin(null);
                     }}
                     closeButton={true}
                     closeOnClick={false}
@@ -154,36 +160,31 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                 >
                     <div className="p-2 bg-backplate rounded-md shadow-lg flex flex-col gap-2">
                         <PrimaryButton onClick={() => {
-                            setTempPinType("Poi")
-                            // No direct add here, wait for confirm from panel or another UI element
+                            handleAddPoiFromPopup(newPinLocation.lng, newPinLocation.lat);
+                            setNewPinLocation(null);
                         }}>
                             +POI
                         </PrimaryButton>
                         <PrimaryButton onClick={() => {
-                             setTempPinType("hazard");
-                             // Open radius selection or directly add with default
+                            setTempPinType("hazard");
+                            setHazardRadius(50);
+                            setTempHazardPin({lng: newPinLocation.lng, lat: newPinLocation.lat, radius: 50});
                         }}>
                             +Hazard
                         </PrimaryButton>
                     </div>
                 </Popup>
             );
-        } else if (newPinLocation && tempPinType === "Poi") {
-            // Logic to confirm POI addition, perhaps via ControlPanel
-            // For now, directly adding
-            handleAddPoiFromPopup(newPinLocation.lng, newPinLocation.lat);
-            setNewPinLocation(null); // Pin handled
-            setTempPinType(null);
-
         } else if (newPinLocation && tempPinType === "hazard") {
             // Show hazard radius controls
             return (
-                 <Popup
+                <Popup
                     longitude={newPinLocation.lng}
                     latitude={newPinLocation.lat}
                     onClose={() => {
                         setNewPinLocation(null);
                         setTempPinType(null);
+                        setTempHazardPin(null);
                     }}
                     closeButton={true}
                     closeOnClick={false}
@@ -191,16 +192,22 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                     offset={15}
                     className="min-w-[250px]"
                 >
-                   <HazardRadiusPopup
+                    <HazardRadiusPopup
                         initialRadius={hazardRadius}
+                        onRadiusChange={(radius) => {
+                            setHazardRadius(radius);
+                            setTempHazardPin((prev) => prev ? {...prev, radius} : prev);
+                        }}
                         onConfirm={(radius) => {
                             handleAddHazardFromPopup(newPinLocation.lng, newPinLocation.lat, radius);
                             setNewPinLocation(null);
                             setTempPinType(null);
+                            setTempHazardPin(null);
                         }}
                         onCancel={() => {
                             setNewPinLocation(null);
                             setTempPinType(null);
+                            setTempHazardPin(null);
                         }}
                     />
                 </Popup>
@@ -227,17 +234,22 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     };
     
     // Hazard Radius Popup Component (can be moved to a separate file)
-    function HazardRadiusPopup({ initialRadius, onConfirm, onCancel }: { initialRadius: number, onConfirm: (radius: number) => void, onCancel: () => void}) {
+    function HazardRadiusPopup({ initialRadius, onRadiusChange, onConfirm, onCancel }: { initialRadius: number, onRadiusChange: (radius: number) => void, onConfirm: (radius: number) => void, onCancel: () => void}) {
         const [radius, setRadius] = useState(initialRadius);
         const minRadius = 10;
         const maxRadius = 200;
 
+        const handleSetRadius = (newRadius: number) => {
+            setRadius(newRadius);
+            onRadiusChange(newRadius);
+        };
+
         return (
             <div className="bg-backplate rounded-2xl p-4 min-w-[220px] text-white border-[1.5px] border-light-purple shadow-lg flex flex-col items-center">
                 <div className="flex items-center mb-3">
-                <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => setRadius((r: number) => Math.max(minRadius, r - 5))}>-</PrimaryButton>
+                <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => handleSetRadius(Math.max(minRadius, radius - 5))}>-</PrimaryButton>
                 <span className="mx-[18px] text-2xl">{radius}m</span>
-                <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => setRadius((r: number) => Math.min(maxRadius, r + 5))}>+</PrimaryButton>
+                <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => handleSetRadius(Math.min(maxRadius, radius + 5))}>+</PrimaryButton>
                 </div>
                 <div className="flex gap-4 w-full justify-center">
                 <PrimaryButton style={{ flex: 1, background: 'transparent', border: '1.5px solid #9D89FF', color: '#9D89FF' }} onClick={onCancel}>Cancel</PrimaryButton>
@@ -288,52 +300,90 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             <div className="map-container">
                 <Map
                     {...viewState}
-                    onMove={(evt: ViewStateChangeEvent) => setViewState(evt.viewState)}
+                    onMove={(evt: ViewStateChangeEvent) => {
+                        const vs = evt.viewState;
+                        setViewState({
+                            ...vs,
+                            padding: {
+                                top: vs.padding?.top ?? 0,
+                                bottom: vs.padding?.bottom ?? 0,
+                                left: vs.padding?.left ?? 0,
+                                right: vs.padding?.right ?? 0,
+                            }
+                        });
+                    }}
                     mapboxAccessToken={MAPBOX_TOKEN}
                     style={{ width: '100%', height: '100%' }}
-                    mapStyle="mapbox://styles/dkimh/cm9k7yru7008601s617bl7zmh/draft" // Your map style
+                    mapStyle="mapbox://styles/dkimh/cm9k7yru7008601s617bl7zmh/draft"
                     onClick={handleMapClick}
-                    doubleClickZoom={false} // If you want to disable double click zoom to use it for other things
+                    doubleClickZoom={false}
                 >
+                    {/* Render normal POIs */}
                     {pois.map(poi => (
                         <Marker
                             key={poi.id}
                             longitude={poi.coords.lng}
                             latitude={poi.coords.lat}
-                            onClick={(e: MapLayerMouseEvent) => {
-                                e.originalEvent.stopPropagation(); // Prevent map click from firing
+                            onClick={(e) => {
+                                e.originalEvent.stopPropagation();
                                 selectPoi(poi.id);
-                                setControlPanelState(poi.type === "hazard" ? "EvDetails" : "SelectPin"); // Or "EditPin" if that's the flow
-                                // selectedMarkerRef.current = ???; // react-map-gl doesn't expose marker instances easily this way.
-                                                                // This ref might need to be handled differently, e.g., by finding the DOM element if absolutely necessary.
+                                setControlPanelState("SelectPin");
                             }}
                         >
-                            {/* Custom marker element */}
                             <div
                                 className={`
                                     bg-contain bg-no-repeat bg-center cursor-pointer
-                                    ${poi.type === 'hazard' ? 'w-5 h-5' : 'sm:w-5m md:w-6 lg:w-7 sm:h-5 md:h-6 lg:h-7'}
+                                    sm:w-5m md:w-6 lg:w-7 sm:h-5 md:h-6 lg:h-7
                                 `}
                                 style={{
-                                    backgroundImage: poi.type === 'hazard'
-                                        ? 'url(/markers/hazard-icon.svg)' // Replace with actual hazard icon
-                                        : poi.id === selectedPoiId
-                                            ? 'url(/markers/selected-poi.svg)'
-                                            : 'url(/markers/default-poi.svg)',
-                                    // If hazard needs dynamic sizing based on radius:
-                                    // width: poi.type === 'hazard' ? `${poi.hazardDetails?.radius * 2}px` : undefined,
-                                    // height: poi.type === 'hazard' ? `${poi.hazardDetails?.radius * 2}px` : undefined,
+                                    backgroundImage: poi.id === selectedPoiId
+                                        ? 'url(/markers/selected-poi.svg)'
+                                        : 'url(/markers/default-poi.svg)',
+                                }}
+                            />
+                        </Marker>
+                    ))}
+                    {/* Render hazard POIs */}
+                    {hazardPois.map(hazard => (
+                        <Marker
+                            key={hazard.id}
+                            longitude={hazard.coords.lng}
+                            latitude={hazard.coords.lat}
+                            onClick={(e) => {
+                                e.originalEvent.stopPropagation();
+                                selectPoi(hazard.id);
+                                setControlPanelState("EvDetails");
+                            }}
+                        >
+                            <div
+                                className={`bg-red-500 border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center`}
+                                style={{
+                                    width: `${hazard.radius}px`,
+                                    height: `${hazard.radius}px`,
                                 }}
                             >
-                                {poi.type === 'hazard' && (
-                                    <div className="hazard-marker-exclamation text-center text-red-500 font-bold">!</div>
-                                )}
+                                <div className="hazard-marker-exclamation text-center text-white font-bold text-lg">!</div>
                             </div>
                         </Marker>
                     ))}
-
+                    {/* Show temporary hazard marker while adjusting radius */}
+                    {tempHazardPin && (
+                        <Marker
+                            longitude={tempHazardPin.lng}
+                            latitude={tempHazardPin.lat}
+                        >
+                            <div
+                                className={`bg-red-500 border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center opacity-70`}
+                                style={{
+                                    width: `${tempHazardPin.radius}px`,
+                                    height: `${tempHazardPin.radius}px`,
+                                }}
+                            >
+                                <div className="hazard-marker-exclamation text-center text-white font-bold text-lg">!</div>
+                            </div>
+                        </Marker>
+                    )}
                     {renderPopup()}
-
                 </Map>
                 <div className="map-grid-overlay pointer-events-none" />
 
