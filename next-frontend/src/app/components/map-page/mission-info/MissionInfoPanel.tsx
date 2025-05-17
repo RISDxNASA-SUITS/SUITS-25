@@ -11,7 +11,7 @@ export const MissionInfoPanel = () => {
 
     //TODO: fetch from backend
     useEffect(() => {
-
+    
     })
 
     return (

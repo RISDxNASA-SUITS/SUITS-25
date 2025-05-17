@@ -11,6 +11,7 @@ export interface Poi {
     id: string;
     name: string;
     coords: { lng: number; lat: number };
+    moonCoords: { x: number; y: number };
     tags: TagSelections | null;
     voiceMemo?: string[]; // was this meant for voice note?
     voiceNoteID?: number[];
