@@ -9,6 +9,17 @@
 #include <stdio.h>
 
 ///////////////////////////////////////////////////////////////////////////////////
+//                                  LTV POI Locations
+///////////////////////////////////////////////////////////////////////////////////
+
+#define ROVER_POI_1_X -5635.00
+#define ROVER_POI_1_Y -9970.00
+#define ROVER_POI_2_X -5610.00
+#define ROVER_POI_2_Y -9971.00
+#define ROVER_POI_3_X -5615.00
+#define ROVER_POI_3_Y -9995.00
+
+///////////////////////////////////////////////////////////////////////////////////
 //                                  Simulation Values
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -110,9 +121,9 @@
 #define PR_FAN_RPM 30000.0f
 
 //Other
-#define exp7           10000000i64    //1E+7     
-#define exp9         1000000000i64     //1E+9
-#define w2ux 116444736000000000i64     //1.jan1601 to 1.jan1970
+#define exp7           10000000ULL    //1E+7     
+#define exp9         1000000000ULL     //1E+9
+#define w2ux 116444736000000000ULL     //1.jan1601 to 1.jan1970
 
 //
 
@@ -406,7 +417,7 @@ struct backend_data_t {
 ///////////////////////////////////////////////////////////////////////////////////
 
 // initialize the backend with default values and clean up at the end
-struct backend_data_t* init_backend();
+// struct backend_data_t* init_backend();
 void cleanup_backend(struct backend_data_t*  backend);
 void reset_telemetry(struct telemetry_data_t* telemetry, float seed);
 void reset_pr_telemetry(struct backend_data_t* backend, int teamIndex);

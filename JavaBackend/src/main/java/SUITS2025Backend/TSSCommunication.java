@@ -8,7 +8,7 @@ import java.nio.ByteOrder;
 import java.util.Date;
 
 public class TSSCommunication {
-    private String address = "10.1.77.114";
+    private String address = "127.0.0.1";
     private int port = 14141;
     
     public int[] sendCommands(int startCommand, int endCommand) {        

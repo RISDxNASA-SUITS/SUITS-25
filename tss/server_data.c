@@ -10,16 +10,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-
-#define ROVER_POI_1_X -5635.00
-#define ROVER_POI_1_Y -9970.00
-#define ROVER_POI_2_X -5610.00
-#define ROVER_POI_2_Y -9971.00
-#define ROVER_POI_3_X -5615.00
-#define ROVER_POI_3_Y -9995.00
-
 // Helper functions
-size_t rover_index();
+size_t rover_index(int idx);
 float prPrevX = 0;
 float prPrevY = 0;
 ///////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +74,7 @@ void handle_udp_get_request(unsigned int command, unsigned char* data, struct ba
 
         udp_get_eva(command, team_number, data);
     }
-    else if(command < 172){
+    else if(command < 177){
         printf("Getting Rover Telemetry.\n");
 
         udp_get_pr_telemetry(command, data, backend);
@@ -2430,7 +2422,7 @@ bool udp_get_telemetry(unsigned int command, unsigned int team_number, unsigned 
 bool udp_get_pr_telemetry(unsigned int command, unsigned char* data, struct backend_data_t* backend){
     int off_set = command - 124;
 
-    if(off_set > 47){
+    if(off_set > 52){
         printf("Not yet implemented.\n");
         return false;
     }
