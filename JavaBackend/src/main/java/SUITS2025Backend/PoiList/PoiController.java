@@ -16,6 +16,9 @@ public class PoiController {
         app.delete("/poi/{name}", PoiController::removePoi);
         app.get("/poi/tag/{tag}", PoiController::getPoisByTag);
         app.get("/poi/area", PoiController::getPoisInArea);
+        app.post("/audio", poiDbController::submitAudio);
+        app.get("/audio/{id}", poiDbController::getAudio);
+        app.delete("/poi", poiDbController::deletePois);
     }
 
     private static void getPois(Context ctx) {
@@ -51,4 +54,5 @@ public class PoiController {
         List<PoiResponse> resp = poiDbController.getPoisInArea(minLat, maxLat, minLon, maxLon);
         ctx.json(resp);
     }
+    
 }

@@ -17,11 +17,6 @@ export const MissionInfoPanel = () => {
     
     const [dropdown, toggleDropdown] = useState<boolean>(false)
     
-    //TODO: fetch from backend
-    useEffect(() => {
-    
-    })
-    
     const handleDropdown = () => {
         toggleDropdown(!dropdown)
     }

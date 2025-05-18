@@ -306,20 +306,20 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             onRadiusChange(newRadius);
         };
 
-        return (
-            <div className="bg-backplate rounded-2xl p-4 min-w-[220px] text-white border-[1.5px] border-light-purple shadow-lg flex flex-col items-center">
-                <div className="flex items-center mb-3">
+            return (
+                <div className="bg-backplate rounded-2xl p-4 min-w-[220px] text-white border-[1.5px] border-light-purple shadow-lg flex flex-col items-center">
+                    <div className="flex items-center mb-3">
                 <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => handleSetRadius(Math.max(minRadius, radius - 5))}>-</PrimaryButton>
-                <span className="mx-[18px] text-2xl">{radius}m</span>
+                    <span className="mx-[18px] text-2xl">{radius}m</span>
                 <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => handleSetRadius(Math.min(maxRadius, radius + 5))}>+</PrimaryButton>
-                </div>
-                <div className="flex gap-4 w-full justify-center">
-                <PrimaryButton style={{ flex: 1, background: 'transparent', border: '1.5px solid #9D89FF', color: '#9D89FF' }} onClick={onCancel}>Cancel</PrimaryButton>
+                    </div>
+                    <div className="flex gap-4 w-full justify-center">
+                    <PrimaryButton style={{ flex: 1, background: 'transparent', border: '1.5px solid #9D89FF', color: '#9D89FF' }} onClick={onCancel}>Cancel</PrimaryButton>
                 <PrimaryButton style={{ flex: 1 }} onClick={() => onConfirm(radius)}>Confirm</PrimaryButton>
                 </div>
-            </div>
-        );
-    }
+                </div>
+            );
+        }
 
 
     //This function is to be used when "Add POI" from the bottom menu is clicked.
@@ -358,7 +358,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                     <div key={i} className="label-row">{String.fromCharCode(90 - i)}</div>
                 ))}
             </div>
-            
+
             <div className="map-container">
                 <Map
                     {...viewState}
