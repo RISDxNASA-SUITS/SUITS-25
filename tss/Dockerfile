@@ -5,7 +5,7 @@ RUN apt-get update \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-COPY . .
+COPY .. .
 RUN chmod +x build.bat
 RUN ./build.bat
 RUN chmod +x server.exe
