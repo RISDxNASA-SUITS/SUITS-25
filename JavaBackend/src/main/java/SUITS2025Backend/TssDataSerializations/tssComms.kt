@@ -43,7 +43,7 @@ data class ErrorState(
     val pump_error: Boolean
 ) {
     companion object {
-        fun fromIntArray(values: IntArray): ErrorState {
+        fun fromIntArray(values: List<Int>): ErrorState {
             require(values.size == 3) { "Expected 3 values, got ${values.size}" }
             return ErrorState(
                 fan_error = values[0] == 1,
@@ -84,7 +84,7 @@ data class UIAState(
     val depress: Boolean
 ) {
     companion object {
-        fun fromIntArray(values: IntArray): UIAState {
+        fun fromIntArray(values: List<Int>): UIAState {
             require(values.size == 10) { "Expected 10 values, got ${values.size}" }
             return UIAState(
                 eva1_power = values[0] == 1,
@@ -191,21 +191,21 @@ data class TelemetryState(
 }
 
 data class SpecState(
-    val id:Int,
-    val sio2: Int,
-    val al2o3: Int,
-    val mno: Int,
-    val cao: Int,
-    val p2o3: Int,
-    val tio2: Int,
-    val feo: Int,
-    val mgo: Int,
-    val k2o: Int,
-    val other: Int
+    val id:Float,
+    val sio2: Float,
+    val al2o3: Float,
+    val mno: Float,
+    val cao: Float,
+    val p2o3: Float,
+    val tio2: Float,
+    val feo: Float,
+    val mgo: Float,
+    val k2o: Float,
+    val other: Float
 ) {
     companion object {
-        fun fromIntArray(values: IntArray): SpecState {
-            require(values.size == 11, { "Expected 10 values, got ${values.size}" })
+        fun fromIntArray(values: List<Float>): SpecState {
+            require(values.size == 11, { "Expected 11 values, got ${values.size}" })
             val specState = SpecState(
                 id = values[0],
                 sio2 = values[1],
@@ -219,10 +219,7 @@ data class SpecState(
                 k2o = values[9],
                 other = values[10]
             )
-            require(specState.sio2 + specState.al2o3 + specState.mno + specState.cao + specState.p2o3 +
-                    specState.tio2 + specState.feo + specState.mgo + specState.k2o + specState.other == 100) {
-                "Sum of components must be 100%"
-            }
+
             return specState
         }
     }
@@ -319,8 +316,15 @@ object TssComms {
     }
 
     fun getErrorState(ctx: Context) {
-        val errorState = ErrorState.fromIntArray(tss.getERRORStates())
-        ctx.json(errorState)
+        val ints = (14..16).map {
+            val pkt = tssKt.makeSendLidarPacket(it)
+            val recvBuffer = ByteBuffer.allocate(104)
+            recvBuffer.order(ByteOrder.BIG_ENDIAN)
+            tssKt.sendMessage(pkt,recvBuffer) {
+                it.getInt()
+            }
+        }
+        ctx.json(ErrorState.fromIntArray(ints))
     }
 
     fun getEv1IMUState(ctx: Context) {
@@ -351,7 +355,17 @@ object TssComms {
     }
 
     fun getUIAState(ctx: Context) {
-        val uiaState = UIAState.fromIntArray(tss.getUIAStates())
+        val ints = (48..57).map {
+            val pkt = tssKt.makeSendLidarPacket(it);
+            val recvBuffer = ByteBuffer.allocate(104);
+            recvBuffer.order(ByteOrder.BIG_ENDIAN)
+            tssKt.sendMessage(pkt, recvBuffer) {
+                it.getInt()
+            }
+
+
+        }
+        val uiaState = UIAState.fromIntArray(ints)
         ctx.json(uiaState)
     }
 
@@ -445,11 +459,27 @@ object TssComms {
 
 
     fun getSpecState(ctx: Context) {
-        val specState = SpecState.fromIntArray(tss.getEVA2SPECStates())
+        val intList = (31..41).map{
+            val pkt = tssKt.makeSendLidarPacket(it)
+            val buf = ByteBuffer.allocate(1024)
+            buf.order(ByteOrder.BIG_ENDIAN)
+            tssKt.sendMessage(pkt, buf){
+                it.getFloat()
+            }
+        }
+        val specState = SpecState.fromIntArray(intList)
         ctx.json(specState)
     }
     fun getSpec2State(ctx: Context) {
-        val specState = SpecState.fromIntArray(tss.getEVA2SPECStates())
+        val intList = (42..52).map{
+            val pkt = tssKt.makeSendLidarPacket(it)
+            val buf = ByteBuffer.allocate(1024)
+            buf.order(ByteOrder.BIG_ENDIAN)
+            tssKt.sendMessage(pkt, buf){
+                it.getFloat()
+            }
+        }
+        val specState = SpecState.fromIntArray(intList)
         ctx.json(specState)
     }
 
