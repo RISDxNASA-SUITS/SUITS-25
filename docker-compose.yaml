@@ -11,7 +11,7 @@ services:
     depends_on:
       - python-backend
       - java-backend
-      - c-backend
+
 
   python-backend:
     build: ./pythonbackend
@@ -23,19 +23,20 @@ services:
   java-backend:
     build: ./JavaBackend
     environment:
-      IP: "c-backend"
+      IP: "127.0.0.1"
+      RICE_TEAM_NUM: "2"
     ports:
       - "7070:7070"
 
-  c-backend:
-    build:
-      context: ./tss        # ← Dockerfile must live inside this dir
-      dockerfile: Dockerfile
-    command: ["./server.exe"]
-    # UDP service exposed to host & other containers
-    ports:
-      - "14141:14141/udp"
-    expose:
-      - "14141/udp"
+#  c-backend:
+#    build:
+#      context: ./tss        # ← Dockerfile must live inside this dir
+#      dockerfile: Dockerfile
+#    command: ["./server.exe"]
+#    # UDP service exposed to host & other containers
+#    ports:
+#      - "14141:14141/udp"
+#    expose:
+#      - "14141/udp"
 
 networks: {}               # default bridge is implicit; can omit entirely
