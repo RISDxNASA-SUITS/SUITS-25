@@ -5,7 +5,7 @@ import ControlPanel from "@/app/components/map-page/control-panel/ControlPanel";
 import MissionInfoPanel from "@/app/components/map-page/mission-info/MissionInfoPanel"
 import {useEffect, useRef, useState} from "react";
 
-type ControlPanelState = "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "AddVoiceNote"
+type ControlPanelState = "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "AddVoiceNote" | "AddHazard" | "SelectHazard"
 
 export const MapPage = ()=>{
     const [controlPanelState, setControlPanelState] = useState<ControlPanelState>("EvDetails")
@@ -26,7 +26,7 @@ export const MapPage = ()=>{
                 }
                 const res = await data.json();
                 
-                console.log(res.x, res.y);
+                // console.log(res.x, res.y);
                 
                 setRoverX(res.x || -95.08100506531964);
                 setRoverY(res.y || 29.56485541847833);

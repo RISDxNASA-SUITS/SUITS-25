@@ -17,7 +17,7 @@ const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGV
 
 type BasicMapProps = {
     roverCoords: { x: number; y: number };
-    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" | "AddTag") => void;
+    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "SelectHazard" | "AddHazard") => void;
     // selectedMarkerRef is problematic with declarative rendering. We'll rely on selectedPoiId from the store.
     // Consider removing or rethinking its purpose. For now, I'll leave it but comment out its direct uses if they conflict.
     selectedMarkerRef: RefObject<any>; // Type will change from mapboxgl.Marker
@@ -52,6 +52,8 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     const [tempPinType, setTempPinType] = useState<PinTypes | null>(null);
     const [hazardRadius, setHazardRadius] = useState(50); // Default hazard radius
     const [tempHazardPin, setTempHazardPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
+    
+    console.log(tempHazardPin);
 
     // For the expandable add menu
     const [addActive, toggleAddActive] = useState<boolean>(false);
@@ -59,8 +61,8 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     
     // Add these function definitions
     const prepareHazardAddition = () => {
+        setControlPanelState("AddHazard");
         setPoiButtonClickActive(false);
-        setControlPanelState("AddPin");
     };
 
     const preparePoiAddition = () => {
@@ -214,7 +216,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             addHazardPoi(newHazardPoi);
             setPoiNum(prev => prev + 1);
             selectPoi(newId);
-            setControlPanelState("EvDetails");
+            setControlPanelState("AddHazard");
             setNewPinLocation(null);
             setTempPinType(null);
             return;
@@ -456,7 +458,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             onClick={(e) => {
                                 e.originalEvent.stopPropagation();
                                 selectPoi(hazard.id);
-                                setControlPanelState("EvDetails");
+                                setControlPanelState("SelectHazard");
                             }}
                         >
                             <div
