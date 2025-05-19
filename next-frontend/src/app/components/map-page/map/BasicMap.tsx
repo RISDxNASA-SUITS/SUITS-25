@@ -4,11 +4,13 @@ import React, { useEffect, useState, RefObject, useCallback } from 'react';
 import { Map,Marker, Popup, ViewStateChangeEvent, MapMouseEvent } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css'; // Keep for base styles
 import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
-import { PoiStore, PinTypes, Poi } from "@/app/hooks/PoiStore";
+import { PoiStore, PinTypes, Poi, HazardPoi } from "@/app/hooks/PoiStore";
 import { nanoid } from "nanoid";
 import TertiaryButton from "@/app/components/ui/ui-buttons/TertiaryButton";
 import { Tooltip } from '../../ui/ui-buttons/Tooltip';
 import "../mapstyle.css"; // Keep custom styles
+import mapboxgl from 'mapbox-gl';
+import { createRoot } from 'react-dom/client';
 
 // Mapbox token (ensure this is the correct way to set it for react-map-gl, often passed as a prop)
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGVydSJ9.pIfFx8HCC58f_PzAUjALRQ';
@@ -45,6 +47,16 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     const [addActive, toggleAddActive] = useState<boolean>(false);
     const [poiButtonClickActive, setPoiButtonClickActive] = useState<boolean>(false);
 
+    // Add these function definitions
+    const prepareHazardAddition = () => {
+        setPoiButtonClickActive(false);
+        setControlPanelState("AddPin");
+    };
+
+    const preparePoiAddition = () => {
+        setPoiButtonClickActive(true);
+        setControlPanelState("AddPin");
+    };
 
     useEffect(() => {
         loadFromBackend();
@@ -88,13 +100,14 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     ) => {
         const newId = nanoid();
         if (type === 'hazard') {
-            const newHazardPoi = {
+            const newHazardPoi: HazardPoi = {
                 id: newId,
                 name: `${namePrefix} ${poiNum}`,
                 coords: { lng, lat },
                 tags: null,
                 type: 'hazard' as const,
                 radius: hazardRadius ?? 50,
+                marker: new mapboxgl.Marker() // Add the required marker property
             };
             addHazardPoi(newHazardPoi);
             setPoiNum(prev => prev + 1);
@@ -111,6 +124,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             coords: { lng, lat },
             tags: null,
             type: type,
+            marker: new mapboxgl.Marker(), // Add the required marker property
             ...additionalData,
         };
         addPoi(newPoi);
@@ -258,108 +272,6 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                 </div>
             );
         }
-
-        // React state for popup
-        let setPopupRadius: (r: number | ((r: number) => number)) => void = () => {};
-        let popupRadius = radius;
-        
-        function PopupWrapper() {
-            const [r, setR] = React.useState(radius);
-            const [label, setLabel] = React.useState(r > 100 ? "Large Crater" : "Small Crater");
-
-            setPopupRadius = setR;
-            popupRadius = r;
-
-            React.useEffect(() => { // Update marker size
-                hazardEl.style.width = hazardEl.style.height = `${r * 2}px`;
-            }, [r]);
-
-            React.useEffect(() => { //Update marker name
-                const labelInput = document.createElement("input");
-                labelInput.value = label;
-                labelInput.className = "absolute -top-8 left-1/2 transform -translate-x-1/2 bg-red-100/20 border border-red-500 text-sm font-semibold rounded-md px-2 py-[2px] backdrop-blur-sm text-center w-[120px]";
-                labelInput.oninput = (e: any) => {
-                    setLabel(e.target.value);
-                    hazardEl.setAttribute("data-hazard-label", e.target.value);
-                };
-
-                labelInput.onpointerdown = (e) => e.stopPropagation();
-                hazardEl.style.pointerEvents = 'auto';
-                hazardEl.appendChild(labelInput);
-
-                setTimeout(() => labelInput.focus(), 0);
-
-                return () => {hazardEl.removeChild(labelInput);};
-            }, []);
-
-            return <HazardRadiusPopup radius={r} setRadius={setR} onConfirm={onConfirm} onCancel={onCancel} />;
-        }
-
-        // Popup logic
-        const popup = new mapboxgl.Popup({ offset: -160, closeButton: false })
-            .setDOMContent(popupContainer);
-
-        // Add marker to map
-        const hazardMarker = new mapboxgl.Marker(hazardEl, { anchor: 'center' })
-            .setLngLat([lng, lat])
-            .setPopup(popup)
-            .addTo(map.current)
-            .togglePopup();
-
-        // Render popup
-        createRoot(popupContainer).render(<PopupWrapper />);
-
-        // Confirm/Cancel logic
-        function onConfirm() {
-            popup.remove();
-        }
-        function onCancel() {
-            hazardMarker.remove();
-        }
-    };
-
-    const togglePoiSelection = (selected: Boolean) => {
-        if (selectedMarkerRef.current?.getElement()) {
-            const element = selectedMarkerRef.current?.getElement();
-            if (selected) {
-                element.style.backgroundImage = 'url(/markers/selected-poi.svg)';
-            } else {
-                element.style.backgroundImage = 'url(/markers/default-poi.svg)';
-            }
-        }
-    };
-
-    //toggles add menu popup
-    const onAddClick = () => {
-        toggleAddActive(!addActive);
-
-        if (poiButtonActiveRef.current) {
-            setPoiButtonActive(false);
-
-            //get rid of any temp marker when the menu closes
-            if (tempMarkerRef.current){
-                tempMarkerRef.current.remove();
-            }
-        }
-    };
-
-    //add poi button click logic
-    const onPoiButtonClick = () => {
-
-        //get rid of any temp marker when toggled off
-        if (poiButtonActiveRef.current) {
-            if (tempMarkerRef.current){
-                tempMarkerRef.current.remove();
-            }
-
-            //remove the popup also
-            toggleAddActive(false);
-        }
-
-        //toggle when clicked
-        setPoiButtonActive(!poiButtonActiveRef.current);
-    };
-
 
     return (
         <div className="map-wrapper">

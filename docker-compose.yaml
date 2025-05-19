@@ -23,7 +23,7 @@ services:
   java-backend:
     build: ./JavaBackend
     environment:
-      IP: "127.0.0.1"
+      IP: "192.168.51.110"
       RICE_TEAM_NUM: "2"
     ports:
       - "7070:7070"
