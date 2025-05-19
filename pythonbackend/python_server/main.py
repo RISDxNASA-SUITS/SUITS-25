@@ -6,7 +6,7 @@ import struct
 import time
 from threading import Thread
 from queue import Queue
-from helper_folder.commands import (
+from commands import (
     TSS_HOST, TSS_PORT,
     LIDAR_CMD, BRAKE_CMD, THROTTLE_CMD, STEERING_CMD,
     ROVER_X_CMD, ROVER_Y_CMD, ROVER_ALT_CMD,

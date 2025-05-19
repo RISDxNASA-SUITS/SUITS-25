@@ -28,7 +28,7 @@ def navigate_to_point():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/scan', methods=['POST'])
+@app.route('/scan', methods=['GET', 'POST'])
 def scan_area():
     try:
         # Perform scan at current location
@@ -43,4 +43,4 @@ def scan_area():
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000) 
+    app.run(host='127.0.0.1', port=4000) 

@@ -1,5 +1,5 @@
 import time
-from helper_functions import euclidean_distance, get_lidar, get_telemetry, post_brakes, post_steering, post_throttle
+from .helper_functions import euclidean_distance, get_lidar, get_telemetry, post_brakes, post_steering, post_throttle
 import math
 
 class Navigator:

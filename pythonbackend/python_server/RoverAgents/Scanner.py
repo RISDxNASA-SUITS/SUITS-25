@@ -1,5 +1,5 @@
 import time
-from helper_functions import euclidean_distance, get_lidar, get_telemetry, post_brakes, post_steering, post_throttle
+from .helper_functions import euclidean_distance, get_lidar, get_telemetry, post_brakes, post_steering, post_throttle
 import math
 
 class Scanner:
@@ -174,6 +174,6 @@ def get_lidar_telemetry():
     heading = telemetry['heading']
     return {'lidar': lidar, 'current_position': current_position, 'heading': heading}
 
-test = Scanner()
-print(test.scan())
+# test = Scanner()
+# print(test.scan())
 
