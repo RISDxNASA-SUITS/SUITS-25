@@ -9,16 +9,19 @@ import {AddTag} from "@/app/components/map-page/control-panel/pin-details/descri
 import {AddVoiceNote} from "@/app/components/map-page/control-panel/pin-details/description/AddVoiceNote";
 import {PoiStore} from "@/app/hooks/PoiStore";
 import React, {RefObject, useRef, useState} from "react";
+import AddHazardPin from "@/app/components/map-page/control-panel/pin-details/AddHazardPin";
+import SelectHazardPin from "@/app/components/map-page/control-panel/pin-details/SelectHazardPin";
 
 type ControlPanelProps = {
     state: string;
-    panelState: (panel: "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "AddVoiceNote") => void;
+    panelState: (panel: "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "AddVoiceNote" | "AddHazard" | "SelectHazard") => void;
     selectedMarkerRef: React.RefObject<mapboxgl.Marker | null>;
 }
 
 export const ControlPanel = ({state, panelState, selectedMarkerRef}: ControlPanelProps ) => {
-    const {pois, selectedPoiId, selectPoi, addPoi, updatePoi} = PoiStore();
+    const {pois, hazardPois,selectedPoiId, selectPoi, addPoi, updatePoi} = PoiStore();
     const selectedPoi = pois.find(poi => poi.id === selectedPoiId);
+    const selectHazardPoi = hazardPois.find(poi => poi.id === selectedPoiId);
     
     const handleClose = () => {
         // Close popup if exists
@@ -69,6 +72,24 @@ export const ControlPanel = ({state, panelState, selectedMarkerRef}: ControlPane
                     onClose={handleClose}
                     setControlPanelState={panelState}
                 />
+            case "AddHazard":
+                return selectHazardPoi ? (
+                    <AddHazardPin
+                        poi={selectHazardPoi}
+                        onClose={handleClose}
+                        selectedMarkerRef={selectedMarkerRef}
+                        setControlPanelState={panelState}
+                    />
+                ) : null;
+            case "SelectHazard":
+                return selectHazardPoi ? (
+                    <SelectHazardPin
+                        poi={selectHazardPoi}
+                        onClose={handleClose}
+                        selectedMarkerRef={selectedMarkerRef}
+                        setControlPanelState={panelState}
+                    />
+                ) : null;
         }
     }
 

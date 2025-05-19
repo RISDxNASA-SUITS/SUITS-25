@@ -17,7 +17,7 @@ const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGV
 
 type BasicMapProps = {
     roverCoords: { x: number; y: number };
-    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" | "AddTag") => void;
+    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "SelectHazard" | "AddHazard") => void;
     // selectedMarkerRef is problematic with declarative rendering. We'll rely on selectedPoiId from the store.
     // Consider removing or rethinking its purpose. For now, I'll leave it but comment out its direct uses if they conflict.
     selectedMarkerRef: RefObject<any>; // Type will change from mapboxgl.Marker
@@ -113,8 +113,8 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     
     // Add these function definitions
     const prepareHazardAddition = () => {
+        setControlPanelState("AddHazard");
         setPoiButtonClickActive(false);
-        setControlPanelState("AddPin");
     };
 
     const preparePoiAddition = () => {
@@ -225,13 +225,14 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             moonCoords: { x, y },
             tags: null,
             type: type,
-            marker: new mapboxgl.Marker(), // Add the required marker property
+            audio_id: null,
+            // marker: new mapboxgl.Marker(), // Add the required marker property
             ...additionalData,
         };
         addPoi(newPoi);
         setPoiNum(prev => prev + 1);
         selectPoi(newId);
-        setControlPanelState("AddPin");
+        setControlPanelState("AddHazard");
         setNewPinLocation(null);
         setTempPinType(null);
     };
@@ -454,7 +455,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             onClick={(e) => {
                                 e.originalEvent.stopPropagation();
                                 selectPoi(hazard.id);
-                                setControlPanelState("EvDetails");
+                                setControlPanelState("SelectHazard");
                             }}
                         >
                             <div

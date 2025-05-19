@@ -5,7 +5,7 @@ import ControlPanel from "@/app/components/map-page/control-panel/ControlPanel";
 import MissionInfoPanel from "@/app/components/map-page/mission-info/MissionInfoPanel"
 import {useEffect, useRef, useState} from "react";
 
-type ControlPanelState = "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "AddVoiceNote"
+type ControlPanelState = "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "AddVoiceNote" | "AddHazard" | "SelectHazard"
 
 export const MapPage = ()=>{
     const [controlPanelState, setControlPanelState] = useState<ControlPanelState>("EvDetails")
