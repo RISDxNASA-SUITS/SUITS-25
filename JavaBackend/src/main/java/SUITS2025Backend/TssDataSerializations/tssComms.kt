@@ -192,36 +192,34 @@ data class TelemetryState(
 }
 
 data class SpecState(
-    val id:Float,
+    val id: Float,
     val sio2: Float,
-    val al2o3: Float,
-    val mno: Float,
-    val cao: Float,
-    val p2o3: Float,
     val tio2: Float,
+    val al2o3: Float,
     val feo: Float,
+    val mno: Float,
     val mgo: Float,
+    val cao: Float,
     val k2o: Float,
+    val p2o3: Float,
     val other: Float
 ) {
     companion object {
         fun fromIntArray(values: List<Float>): SpecState {
             require(values.size == 11, { "Expected 11 values, got ${values.size}" })
-            val specState = SpecState(
+            return SpecState(
                 id = values[0],
                 sio2 = values[1],
-                al2o3 = values[2],
-                mno = values[3],
-                cao = values[4],
-                p2o3 = values[5],
-                tio2 = values[6],
-                feo = values[7],
-                mgo = values[8],
-                k2o = values[9],
+                tio2 = values[2],
+                al2o3 = values[3],
+                feo = values[4],
+                mno = values[5],
+                mgo = values[6],
+                cao = values[7],
+                k2o = values[8],
+                p2o3 = values[9],
                 other = values[10]
             )
-
-            return specState
         }
     }
 }
@@ -480,6 +478,31 @@ object TssComms {
         }
         val specState = SpecState.fromIntArray(intList)
         ctx.json(specState)
+    }
+
+    fun getSpecStateBackend():SpecState{
+        val intList = (31..41).map{
+            val pkt = tssKt.makeSendLidarPacket(it)
+            val buf = ByteBuffer.allocate(1024)
+            buf.order(ByteOrder.BIG_ENDIAN)
+            tssKt.sendMessage(pkt, buf){
+                Thread.sleep(SLEEP_TIME)
+                it.getFloat()
+            }
+        }
+        return SpecState.fromIntArray(intList)
+    }
+    fun getSpecState2Backend():SpecState{
+        val intList = (42..52).map{
+            val pkt = tssKt.makeSendLidarPacket(it)
+            val buf = ByteBuffer.allocate(1024)
+            buf.order(ByteOrder.BIG_ENDIAN)
+            tssKt.sendMessage(pkt, buf){
+                Thread.sleep(SLEEP_TIME)
+                it.getFloat()
+            }
+        }
+        return SpecState.fromIntArray(intList)
     }
     fun getSpec2State(ctx: Context) {
         val intList = (42..52).map{

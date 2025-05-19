@@ -11,6 +11,7 @@ import java.io.File
 import io.javalin.http.UploadedFile
 
 
+
 object Pois : IntIdTable() {
     val name: Column<String> = varchar("name", 128).index()
     val x: Column<Double> = double("x")
