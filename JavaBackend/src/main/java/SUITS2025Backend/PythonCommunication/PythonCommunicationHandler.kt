@@ -66,12 +66,12 @@ object PythonCommunicationHandler {
         val address = InetAddress.getByName(ip)
         val bytes = sendPacket.array()
         val packet = DatagramPacket(bytes, bytes.size, address, port.toInt())
-        println("SENT to $ip:$port $address")
+        
         socket.send(packet)
 
         val recvPacket = DatagramPacket(recvBuffer.array(), recvBuffer.array().size)
         socket.receive(recvPacket)
-        println("Received packet length: ${recvPacket.length}")
+        
         val toCallback = ByteBuffer.wrap(recvPacket.data, 0, recvPacket.length)
         toCallback.getInt() // Timestamp
         toCallback.getInt() // Command No.
@@ -102,7 +102,7 @@ object PythonCommunicationHandler {
             val callBack: (ByteBuffer) -> String = { buff: ByteBuffer ->
                 // Thread.sleep(500)
                 var l = buff.getFloat()
-                println(l)
+                
                 l.toString()
             }
             retList.add(sendMessage(sendPacket, recvBuffer, callBack))
