@@ -241,7 +241,6 @@ export const PoiStore = create<PoiStore>((set,get) => ({
                 p.id === poiId ? { ...p, tags: {} } : p
             )
         })),
-<<<<<<< HEAD
     deletePoi: async (poiId: string | null) => {
         if (!poiId) return;
         await fetch(`/api/pois/${poiId}`, {
@@ -250,21 +249,3 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         get().loadFromBackend()
     }
 }));    
-=======
-    deletePoi: (poiId: string | null) =>
-        set((state) => ({
-            pois: state.pois.filter(p => p.id !== poiId),
-            selectedPoiId: state.selectedPoiId === poiId ? null : state.selectedPoiId
-        })),
-    deleteHazardPoi: (poiId: string | null) =>
-        set((state) => ({
-            hazardPois: state.hazardPois.filter(p => p.id !== poiId),
-            selectedPoiId: state.selectedPoiId === poiId ? null : state.selectedPoiId
-        })),
-    deleteLtvPoi: (poiId: string | null) =>
-        set((state) => ({
-            ltvPois: state.ltvPois.filter(p => p.id !== poiId),
-            selectedPoiId: state.selectedPoiId === poiId ? null : state.selectedPoiId
-        })),
-}));
->>>>>>> 08c66ca526215a20a1cc994ddc011f4de6c98357
