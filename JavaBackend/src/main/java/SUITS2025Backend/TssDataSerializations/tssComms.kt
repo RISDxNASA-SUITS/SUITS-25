@@ -5,6 +5,7 @@ import SUITS2025Backend.TSSCommunication
 import SUITS2025Backend.PythonCommunication.PythonCommunicationHandler
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import kotlinx.coroutines.*
 
 val SLEEP_TIME = 500L;
 
@@ -270,6 +271,7 @@ data class MissionState(
 object TssComms {
     val tss = TSSCommunication()
     val tssKt = PythonCommunicationHandler
+    private val bgScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     @JvmStatic
     fun setup(app:Javalin){
         app.get("/dcu/1", this::getEv1DcuState)
@@ -284,6 +286,8 @@ object TssComms {
         app.get("/evaStates", this::getMissionState)
         app.get("/spec/1", this::getSpecState)
         app.get("/spec/2", this::getSpec2State)
+        
+    
 
         return;
     }
@@ -531,5 +535,6 @@ object TssComms {
         val missionState = MissionState.fromIntArray(missionStateList)
         ctx.json(missionState)
     }
+
 
 }

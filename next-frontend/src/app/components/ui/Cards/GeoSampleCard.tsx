@@ -1,15 +1,25 @@
 import { useState } from "react";
 import SecondaryButton from "../ui-buttons/SecondaryButton";
+import { GeoResponse } from "@/app/api/geo-data/route";
 
 interface GeoSampleCardProps {
-    setControlPanelState: (state: "AddTag" |"AddVoiceNote" | "EvDetails") => void
+    setControlPanelState: (state: "AddTag" |"AddVoiceNote" | "EvDetails") => void;
+    sample: GeoResponse;
 }
 
-export const GeoSampleCard = ({setControlPanelState}: GeoSampleCardProps) => {
+export const GeoSampleCard = ({setControlPanelState, sample}: GeoSampleCardProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const handleExpand = () => {
         setIsExpanded(prev => !prev);
+    };
+
+    const formatTime = (date: Date) => {
+        return date.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+        });
     };
 
     return (
@@ -17,7 +27,7 @@ export const GeoSampleCard = ({setControlPanelState}: GeoSampleCardProps) => {
             {/* Header */}
             <div className="flex items-center p-3 justify-between gap-4">
                 <div className="flex gap-2">
-                    <p className="text-2xl font-bold">Sample 1</p>
+                    <p className="text-2xl font-bold">Sample {sample.id}</p>
                     <img src="/logo/flag.svg" className="w-8 h-8"/>
                 </div>
                 <button onClick={handleExpand}>
@@ -33,21 +43,16 @@ export const GeoSampleCard = ({setControlPanelState}: GeoSampleCardProps) => {
             <div className="flex p-3 pt-0 flex-col gap-2">
                 <div className="flex gap-2">
                     <img src="/logo/poi-stroke.svg" className="w-6 h-6"/>
-                    
-                    {/* poi coordinates go here */}
                     <p className="text-sm">--</p>                  
                 </div>
                 {/* info */}
                 <div className="flex pt-0 gap-2">
                     <div className="inline-flex px-3 py-1 justify-center items-center bg-white/10 rounded-3xl">
-                        Collected at 00:00
+                        Collected at {formatTime(new Date(sample.createdAt))}
                     </div>
-                    <div className="inline-flex px-3 py-1 justify-center items-center gap-1 bg-white/10 rounded-3xl">
-                        Close to POI A
-                    </div>
+                    
                 </div>
             </div>
-
 
             {/* Animated Expandable Section */}
             <div
@@ -67,10 +72,9 @@ export const GeoSampleCard = ({setControlPanelState}: GeoSampleCardProps) => {
                             <div className="grid grid-cols-2 divide-x-[.5px] divide-solid divide-white/50">
                                 <div className="p-1 flex gap-1">
                                     <p>SiO<small>2</small></p>
-                                    <p className="text-white/50">{`[<30%]`}</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>--</p>
+                                    <p>{sample.sio2.toFixed(2)}%</p>
                                 </div>
                             </div>
 
@@ -78,10 +82,9 @@ export const GeoSampleCard = ({setControlPanelState}: GeoSampleCardProps) => {
                             <div className="grid grid-cols-2 divide-x-[.5px] divide-solid divide-white/50">
                                 <div className="p-1 flex gap-1">
                                     <p>TiO<small>2</small></p>
-                                    <p className="text-white/50">{`[>10%]`}</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>--</p>
+                                    <p>{sample.tio2.toFixed(2)}%</p>
                                 </div>
                             </div>
 
@@ -89,10 +92,9 @@ export const GeoSampleCard = ({setControlPanelState}: GeoSampleCardProps) => {
                             <div className="grid grid-cols-2 divide-x-[.5px] divide-solid divide-white/50">
                                 <div className="p-1 flex gap-1">
                                     <p>Al<small>2</small>O<small>3</small></p>
-                                    <p className="text-white/50">{`[>25%]`}</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>--</p>
+                                    <p>{sample.al2o3.toFixed(2)}%</p>
                                 </div>
                             </div>
                             
@@ -100,10 +102,9 @@ export const GeoSampleCard = ({setControlPanelState}: GeoSampleCardProps) => {
                             <div className="grid grid-cols-2 divide-x-[.5px] divide-solid divide-white/50">
                                 <div className="p-1 flex gap-1">
                                     <p>FeO</p>
-                                    <p className="text-white/50">{`[>20%]`}</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>--</p>
+                                    <p>{sample.feo.toFixed(2)}%</p>
                                 </div>
                             </div>
 
@@ -111,10 +112,9 @@ export const GeoSampleCard = ({setControlPanelState}: GeoSampleCardProps) => {
                             <div className="grid grid-cols-2 divide-x-[.5px] divide-solid divide-white/50">
                                 <div className="p-1 flex gap-1">
                                     <p>MnO</p>
-                                    <p className="text-white/50">{`[>0.5%]`}</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>--</p>
+                                    <p>{sample.mno.toFixed(2)}%</p>
                                 </div>
                             </div>
 
@@ -127,10 +127,9 @@ export const GeoSampleCard = ({setControlPanelState}: GeoSampleCardProps) => {
                             <div className="grid grid-cols-2 divide-x-[.5px] divide-solid divide-white/50">
                                 <div className="p-1 flex gap-1">
                                     <p>MgO</p>
-                                    <p className="text-white/50">{`[<10%]`}</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>--</p>
+                                    <p>{sample.mgo.toFixed(2)}%</p>
                                 </div>
                             </div>
 
@@ -138,10 +137,9 @@ export const GeoSampleCard = ({setControlPanelState}: GeoSampleCardProps) => {
                             <div className="grid grid-cols-2 divide-x-[.5px] divide-solid divide-white/50">
                                 <div className="p-1 flex gap-1">
                                     <p>CaO</p>
-                                    <p className="text-white/50">{`[<5]`}</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>--</p>
+                                    <p>{sample.cao.toFixed(2)}%</p>
                                 </div>
                             </div>
 
@@ -149,10 +147,9 @@ export const GeoSampleCard = ({setControlPanelState}: GeoSampleCardProps) => {
                             <div className="grid grid-cols-2 divide-x-[.5px] divide-solid divide-white/50">
                                 <div className="p-1 flex gap-1">
                                     <p>K<small>2</small>O</p>
-                                    <p className="text-white/50">{`[>1%]`}</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>--</p>
+                                    <p>{sample.k2o.toFixed(2)}%</p>
                                 </div>
                             </div>
 
@@ -160,10 +157,9 @@ export const GeoSampleCard = ({setControlPanelState}: GeoSampleCardProps) => {
                             <div className="grid grid-cols-2 divide-x-[.5px] divide-solid divide-white/50">
                                 <div className="p-1 flex gap-1">
                                     <p>P<small>2</small>O<small>3</small></p>
-                                    <p className="text-white/50">{`[>1%]`}</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>--</p>
+                                    <p>{sample.p2o3.toFixed(2)}%</p>
                                 </div>
                             </div>
 
@@ -171,10 +167,9 @@ export const GeoSampleCard = ({setControlPanelState}: GeoSampleCardProps) => {
                             <div className="grid grid-cols-2 divide-x-[.5px] divide-solid divide-white/50">
                                 <div className="p-1 flex gap-1">
                                     <p>Other</p>
-                                    <p className="text-white/50">{`[>50%]`}</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>--</p>
+                                    <p>{sample.other.toFixed(2)}%</p>
                                 </div>
                             </div>
                                                                                     
