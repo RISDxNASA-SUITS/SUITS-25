@@ -3,19 +3,19 @@
 	"spec": {
 		"eva1": 
 		{
-            "name": "vesicular_basalt",
-            "id" : 2,
+            "name": "default_rock",
+            "id" : 0,
             "data": {
-                "SiO2": 36.89,
-                "TiO2": 2.44,
-                "Al2O3": 9.60,
-                "FeO": 14.52,
-                "MnO": 0.24,
-                "MgO": 5.30,
-                "CaO": 8.22,
-                "K2O": -0.13,
-                "P2O3": 0.29,
-                "other" : 22.63
+                "SiO2": 1,
+                "TiO2": 1,
+                "Al2O3": 1,
+                "FeO": 1,
+                "MnO": 1,
+                "MgO": 1,
+                "CaO": 1,
+                "K2O": 1,
+                "P2O3": 1,
+                "other" : 91 
             }
         },
 		"eva2": 

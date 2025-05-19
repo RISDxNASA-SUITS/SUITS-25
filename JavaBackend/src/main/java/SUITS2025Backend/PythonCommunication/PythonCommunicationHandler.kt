@@ -12,7 +12,7 @@ import java.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import org.jetbrains.exposed.sql.transactions.transaction
-import SUITS2025Backend.db.PoiDb.*
+import SUITS2025Backend.db.*
 data class returnData(val data:Float)
 data class lidarReturn(val data:List<Float>)
 
