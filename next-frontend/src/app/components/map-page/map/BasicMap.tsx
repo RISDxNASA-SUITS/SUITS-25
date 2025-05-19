@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, RefObject, useCallback } from 'react';
-// import { Map,Marker, Popup, ViewStateChangeEvent, MapMouseEvent } from 'react-map-gl/mapbox';
-import Map, { Marker, Popup } from 'react-map-gl';
-import type { ViewStateChangeEvent, MapMouseEvent } from 'react-map-gl';
+import { Map,Marker, Popup, ViewStateChangeEvent, MapMouseEvent } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css'; // Keep for base styles
 import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
 import { PoiStore, PinTypes, Poi, HazardPoi } from "@/app/hooks/PoiStore";
@@ -104,11 +102,14 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     const { pois, hazardPois, addPoi, addHazardPoi, selectPoi, selectedPoiId, loadFromBackend, updatePoi, updateHazardPoi, breadCrumbs } = PoiStore();
     const [poiNum, setPoiNum] = useState(1); // For default naming, might need better persistence
 
+    const pointA = convertMoonToEarth({ x: -5855.60, y: -10168.60 });
+    const pointB = convertMoonToEarth({ x: -5868.10, y: -10016.10 });
+    const pointC = convertMoonToEarth({ x: -5745.90, y: -9977.30 });
+
     const [newPinLocation, setNewPinLocation] = useState<{ lng: number; lat: number } | null>(null);
     const [tempPinType, setTempPinType] = useState<PinTypes | null>(null);
     const [hazardRadius, setHazardRadius] = useState(50); // Default hazard radius
     const [tempHazardPin, setTempHazardPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
-    console.log(pois, breadCrumbs,hazardPois)
 
     // For the expandable add menu
     const [addActive, toggleAddActive] = useState<boolean>(false);
@@ -127,10 +128,6 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
 
     useEffect(() => {
         loadFromBackend();
-        const interval =  setInterval(() => {
-            loadFromBackend();
-        }, 1000);
-        return () => clearInterval(interval);
     }, [loadFromBackend]);
 
     // This effect is no longer needed as markers are rendered declaratively
@@ -232,7 +229,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             moonCoords: { x, y },
             tags: null,
             type: type,
-           
+            marker: new mapboxgl.Marker(), // Add the required marker property
             ...additionalData,
         };
         addPoi(newPoi);
@@ -452,6 +449,76 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             />
                         </Marker>
                     ))}
+
+                    {/* Render LTV POI Points (A, B, C) */}
+                    <Marker longitude={pointA.lng} latitude={pointA.lat}>
+                        <div
+                            className={`
+                                bg-contain bg-no-repeat bg-center cursor-pointer
+                                sm:w-5m md:w-6 lg:w-7 sm:h-5 md:h-6 lg:h-7
+                            `}
+                            style={{ backgroundImage: 'url(/markers/selected-poi.svg)' }}
+                            title="Point A"
+                        />
+                    </Marker>
+                    <Popup
+                        longitude={pointA.lng}
+                        latitude={pointA.lat}
+                        anchor="bottom"
+                        offset={15}
+                        closeButton={false}
+                        closeOnClick={false}
+                        className="custom-final-popup z-20"
+                    >
+                        <div>POI A</div>
+                    </Popup>
+
+                    <Marker longitude={pointB.lng} latitude={pointB.lat}>
+                        <div
+                            className={`
+                                bg-contain bg-no-repeat bg-center cursor-pointer
+                                sm:w-5m md:w-6 lg:w-7 sm:h-5 md:h-6 lg:h-7
+                            `}
+                            style={{ backgroundImage: 'url(/markers/selected-poi.svg)' }}
+                            title="Point B"
+                        />
+                    </Marker>
+                    <Popup
+                        longitude={pointB.lng}
+                        latitude={pointB.lat}
+                        anchor="bottom"
+                        offset={15}
+                        closeButton={false}
+                        closeOnClick={false}
+                        className="custom-final-popup z-20"
+                    >
+                        <div>POI B</div>
+                    </Popup>
+
+                    <Marker longitude={pointC.lng} latitude={pointC.lat}>
+                        <div
+                            className={`
+                                bg-contain bg-no-repeat bg-center cursor-pointer
+                                sm:w-5m md:w-6 lg:w-7 sm:h-5 md:h-6 lg:h-7
+                            `}
+                            style={{ backgroundImage: 'url(/markers/selected-poi.svg)' }}
+                            title="Point C"
+                        />
+                    </Marker>
+                    <Popup
+                        longitude={pointC.lng}
+                        latitude={pointC.lat}
+                        anchor="bottom"
+                        offset={15}
+                        closeButton={false}
+                        closeOnClick={false}
+                        className="custom-final-popup z-20"
+                    >
+                        <div>POI C</div>
+                    </Popup>
+
+
+                    
                     {/* Render hazard POIs */}
                     {hazardPois.map(hazard => (
                         <Marker
@@ -478,17 +545,11 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                     {/* Render breadcrumb POIs */}
                     {breadCrumbs.map(breadcrumb => (
                         <Marker
-                            key={breadcrumb.id}
+                         
                             longitude={breadcrumb.coords.lng}
                             latitude={breadcrumb.coords.lat}
                         >
-                            <div
-                                className={`bg-purple-500 border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center`}
-                             
-                            >
-   <div className=" text-center text-white font-bold text-lg">!</div>
-                            </div>
-                         
+                            <div className="breadcrumb-marker-exclamation text-center text-white font-bold text-lg">!</div>
                         </Marker>
                     ))}
                     
