@@ -24,7 +24,7 @@ export async function POST(request: Request) {
             },
             body: JSON.stringify(body),
         });
-        console.log(await response.text());
+
         const data = await response.json();
         return NextResponse.json(data);
     } catch (error) {
