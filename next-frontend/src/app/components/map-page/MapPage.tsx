@@ -3,18 +3,44 @@
 import BasicMap from "@/app/components/map-page/map/BasicMap";
 import ControlPanel from "@/app/components/map-page/control-panel/ControlPanel";
 import MissionInfoPanel from "@/app/components/map-page/mission-info/MissionInfoPanel"
-import {useRef, useState} from "react";
-
-type MapPageProps = {
-    roverCoords: {x: number, y: number}
-}
+import {useEffect, useRef, useState} from "react";
 
 type ControlPanelState = "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "AddVoiceNote"
 
-export const MapPage = ({roverCoords}: MapPageProps)=>{
+export const MapPage = ()=>{
     const [controlPanelState, setControlPanelState] = useState<ControlPanelState>("EvDetails")
 
     const selectedMarkerRef = useRef<mapboxgl.Marker | null>(null);
+    
+    //rover coords
+    const [roverX,setRoverX] = useState<number>(0);
+    const [roverY, setRoverY] = useState<number>(0);
+    
+    useEffect(() => {
+        console.log(roverX, roverY);
+        const fetchRoverCoords = async() => {
+            try {
+                const data = await fetch('/api/map-page-stats');
+                if (!data.ok) {
+                    throw new Error("HTTP error: " + data.statusText);
+                }
+                const res = await data.json();
+                
+                console.log(res.x, res.y);
+                
+                setRoverX(res.x || -95.08100506531964);
+                setRoverY(res.y || 29.56485541847833);
+                
+            } catch (err) {
+                console.error('Error fetching rover coords data', err);
+            }
+        }
+        
+        fetchRoverCoords();
+        
+        const interval = setInterval(fetchRoverCoords, 1000);
+        return () => clearInterval(interval);
+    }, [roverX, roverY]);
 
     return (
         <div className="flex w-full h-screen bg-slate-800">
@@ -30,7 +56,7 @@ export const MapPage = ({roverCoords}: MapPageProps)=>{
                 <MissionInfoPanel/>
 
                 <BasicMap
-                    roverCoords={roverCoords}
+                    roverCoords={{x: roverX, y: roverY}}
                     setControlPanelState={setControlPanelState}
                     selectedMarkerRef={selectedMarkerRef}
                 />

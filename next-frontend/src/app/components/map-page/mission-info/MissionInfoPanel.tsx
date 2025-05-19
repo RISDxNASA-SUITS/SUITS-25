@@ -7,7 +7,6 @@ export const MissionInfoPanel = () => {
     const [timeToStation, setTimeToStation] = useState("00:00:00");
     const [prSpeed, setPrSpeed] = useState(0);
     const [prAngle, setPrAngle] = useState(0);
-    const [prDirection, setPrDirection] = useState("N");
 
     //dropdown row stats
     const [baseDistance, setBaseDistance] = useState("0.000 m");
@@ -18,7 +17,6 @@ export const MissionInfoPanel = () => {
     const [dropdown, toggleDropdown] = useState<boolean>(false)
     const [error, setError] = useState<string | null>(null);
 
-    //TODO: fetch from backend
     useEffect(() => {
         const fetchRoverTss = async() => {
             try {
@@ -28,7 +26,6 @@ export const MissionInfoPanel = () => {
                     throw new Error(`HTTP error! status: ${data.status}`);
                 }
                 const res = await data.json();
-                console.log(res);
                 
                 // Update state with the fetched data
                 setPrSpeed(res.speed || 0);
@@ -37,6 +34,7 @@ export const MissionInfoPanel = () => {
                 setPitch(`${res.pitch || 0}°`);
                 setRoll(`${res.roll || 0}°`);
                 setIncline(`${res.surfaceIncline || 0}°`);
+                setMissionTimer(res.ElapsedTime || 0);
                 
             } catch (e) {
                 console.error("Failed to fetch: ", e);
@@ -46,7 +44,7 @@ export const MissionInfoPanel = () => {
         
         fetchRoverTss();
         // Set up polling every 5 seconds
-        const interval = setInterval(fetchRoverTss, 5000);
+        const interval = setInterval(fetchRoverTss, 1000);
         return () => clearInterval(interval);
     },[])
 
@@ -91,7 +89,6 @@ export const MissionInfoPanel = () => {
                                 <p className={"text-l text-white"}>PR Angle/Direction</p>
                                 <div className={"flex flex-row items-center gap-4"}>
                                     <img src={"/logo/direction.svg"} alt="direction" className="h-7 w-7" />
-                                    <p className={"text-4xl font-bold text-white"}>{prAngle}° {prDirection}</p>
                                 </div>
                             </div>
                         </div>
