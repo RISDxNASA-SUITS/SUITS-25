@@ -20,21 +20,44 @@ const MixedGaugeCard = ({
   pressureUnits = "psi",
   pressureMin = 0,
   pressureMax = 1000,
-}: MixedGaugeCardProps) => (
-  <div className="bg-[#26233a] rounded-2xl p-8 w-[350px] flex flex-col gap-8">
-    <div className="flex flex-col items-center">
-      <CircularGauge currentValue={storageValue} label={storageLabel} />
+}: MixedGaugeCardProps) => {
+  return (
+    <div
+      className="rounded-2xl relative flex flex-col justify-center items-center"
+      style={{ width: 284, height: 276, backgroundColor: "#28233E" }}
+    >
+      {/* Circular Gauge */}
+      <div style={{ width: 268, height: 268 }}>
+        <CircularGauge
+          currentValue={storageValue}
+          minValue={0}
+          maxValue={100}
+          label={storageLabel}
+          units="%"
+          rectWidth={268}
+        />
+      </div>
+      {/* Line Gauge absolutely positioned at x:8, y:192 */}
+      <div
+        style={{
+          position: "absolute",
+          left: 8,
+          top: 192,
+          width: 268,
+        }}
+      >
+        <LineGauge
+          currentValue={pressureValue}
+          minValue={pressureMin}
+          maxValue={pressureMax}
+          label={pressureLabel}
+          units={pressureUnits}
+          widthPx={268}
+          backgroundWidthPx={252}
+        />
+      </div>
     </div>
-    <div>
-      <LineGauge
-        currentValue={pressureValue}
-        minValue={pressureMin}
-        maxValue={pressureMax}
-        label={pressureLabel}
-        units={pressureUnits}
-      />
-    </div>
-  </div>
-);
+  );
+};
 
 export default MixedGaugeCard;
