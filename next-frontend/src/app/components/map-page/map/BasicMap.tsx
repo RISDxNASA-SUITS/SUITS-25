@@ -29,7 +29,7 @@ type MapboxCoord = {
 };
 
 type MoonCoord = {
-    x: number;
+    x: number;  
     y: number;
 };
 
@@ -52,6 +52,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     const [tempPinType, setTempPinType] = useState<PinTypes | null>(null);
     const [hazardRadius, setHazardRadius] = useState(50); // Default hazard radius
     const [tempHazardPin, setTempHazardPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
+    const [tempHazardCategory, setTempHazardCategory] = useState<'warning' | 'caution'>('warning');
 
     // For the expandable add menu
     const [addActive, toggleAddActive] = useState<boolean>(false);
@@ -197,7 +198,8 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
         type: PinTypes,
         namePrefix: string,
         additionalData?: Partial<Poi>,
-        hazardRadius?: number
+        hazardRadius?: number,
+        hazardCategory?: 'warning' | 'caution'
     ) => {
         const newId = nanoid();
         if (type === 'hazard') {
@@ -209,6 +211,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                 tags: null,
                 type: 'hazard' as const,
                 radius: hazardRadius ?? 50,
+                hazardCategory: hazardCategory ?? 'warning',
                 audio_id: null,
                 // marker: new mapboxgl.Marker() // Add the required marker property
             };
@@ -462,13 +465,16 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             }}
                         >
                             <div
-                                className={`bg-crimson-red border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center`}
-                                style={{
-                                    width: `${hazard.radius}px`,
-                                    height: `${hazard.radius}px`,
-                                }}
+                            className={`
+                                ${hazard.hazardCategory === 'caution' ? 'bg-[#5e4331]' : 'bg-[#6e223d]'}
+                                border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center
+                            `}
+                            style={{
+                                width: `${hazard.radius}px`,
+                                height: `${hazard.radius}px`,
+                            }}
                             >
-                                <div className="hazard-marker-exclamation text-center text-white font-bold text-lg">!</div>
+                            <div className="hazard-marker-exclamation text-center text-white font-bold text-sm">!</div>
                             </div>
                         </Marker>
                     ))}
@@ -479,7 +485,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             latitude={tempHazardPin.lat}
                         >
                             <div
-                                className={`bg-crimson-red border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center opacity-70`}
+                                className={`${tempHazardCategory === 'caution' ? 'bg-[#5e4331]' : 'bg-[#6e223d]'} border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center opacity-70`}
                                 style={{
                                     width: `${tempHazardPin.radius}px`,
                                     height: `${tempHazardPin.radius}px`,

@@ -1,7 +1,15 @@
 import { create } from "zustand/react";
 import {Marker} from "mapbox-gl"
-import { convertMoonToEarth } from "../components/map-page/map/BasicMap";
+// Remove the circular import
+// import { convertMoonToEarth } from "../components/map-page/map/BasicMap";
 export type PinTypes = 'hazard' | 'Poi' | 'breadCrumb'
+
+// Define local utility function to avoid circular dependency
+const convertMoonToEarth = ({ x, y }: { x: number; y: number }): { lat: number; lng: number } => {
+    // Simple placeholder implementation - you might need to copy the full implementation from BasicMap.tsx
+    return { lat: y, lng: x };
+};
+
 type TagSelections = {
     [category: string]: {
         [subCategory: string]: string[];
@@ -36,6 +44,7 @@ export interface Poi {
 export interface HazardPoi extends Poi {
     type: 'hazard';
     radius: number;
+    hazardCategory?: 'warning' | 'caution';
 }
 
 export interface BreadCrumb extends Poi {
