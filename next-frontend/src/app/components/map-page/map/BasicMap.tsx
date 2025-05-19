@@ -23,6 +23,16 @@ type BasicMapProps = {
     selectedMarkerRef: RefObject<any>; // Type will change from mapboxgl.Marker
 }
 
+type MapboxCoord = {
+    lat: number;
+    lng: number;
+};
+
+type MoonCoord = {
+    x: number;
+    y: number;
+};
+
 // Initial viewport settings
 const initialViewState = {
     longitude: -95.081213,
@@ -46,7 +56,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     // For the expandable add menu
     const [addActive, toggleAddActive] = useState<boolean>(false);
     const [poiButtonClickActive, setPoiButtonClickActive] = useState<boolean>(false);
-
+    
     // Add these function definitions
     const prepareHazardAddition = () => {
         setPoiButtonClickActive(false);
@@ -66,9 +76,70 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     // useEffect(()=> {
     //     pois.forEach(x => x.addMarkerFromBackend()) // This method needs to be removed from Poi type or re-evaluated
     // }, [pois])
-
+    
+    function convertEarthToMoon(earth: MapboxCoord): MoonCoord {
+        // Earth (lat, lon) for 4 corners
+        const topLeft: MapboxCoord = { lat: 29.565142600082694, lng: -95.08176351207713 };
+        const topRight: MapboxCoord = { lat: 29.565142380800154, lng: -95.08066260052011 };
+        const bottomLeft: MapboxCoord = { lat: 29.564467668240866, lng: -95.08176413546131 };
+        const bottomRight: MapboxCoord = { lat: 29.564467418688906, lng: -95.0806628133406 };
+        
+        // Moon (x, y) for same corners
+        const moonTopLeft: MoonCoord = { x: -6550, y: -9750 };
+        const moonTopRight: MoonCoord = { x: -5450, y: -9750 };
+        const moonBottomLeft: MoonCoord = { x: -6550, y: -10450 };
+        const moonBottomRight: MoonCoord = { x: -5450, y: -10450 };
+        
+        // Convert lat/lon to normalized positions (u,v) between 0 and 1
+        const u = (earth.lng - topLeft.lng) / (topRight.lng - topLeft.lng);
+        const v = (earth.lat - topLeft.lat) / (bottomLeft.lat - topLeft.lat);
+        
+        // Interpolate Moon coordinates
+        const topX = moonTopLeft.x + u * (moonTopRight.x - moonTopLeft.x);
+        const topY = moonTopLeft.y + u * (moonTopRight.y - moonTopLeft.y);
+        const bottomX = moonBottomLeft.x + u * (moonBottomRight.x - moonBottomLeft.x);
+        const bottomY = moonBottomLeft.y + u * (moonBottomRight.y - moonBottomLeft.y);
+        
+        const moonX = topX + v * (bottomX - topX);
+        const moonY = topY + v * (bottomY - topY);
+        
+        return { x: moonX, y: moonY };
+    }
+    
+    function convertMoonToEarth(moon: MoonCoord): MapboxCoord {
+        // Earth (lat, lon) for 4 corners
+        const topLeft: MapboxCoord = { lat: 29.565142600082694, lng: -95.08176351207713 };
+        const topRight: MapboxCoord = { lat: 29.565142380800154, lng: -95.08066260052011 };
+        const bottomLeft: MapboxCoord = { lat: 29.564467668240866, lng: -95.08176413546131 };
+        const bottomRight: MapboxCoord = { lat: 29.564467418688906, lng: -95.0806628133406 };
+        
+        // Moon (x, y) for same corners
+        const moonTopLeft: MoonCoord = { x: -6550, y: -9750 };
+        const moonTopRight: MoonCoord = { x: -5450, y: -9750 };
+        const moonBottomLeft: MoonCoord = { x: -6550, y: -10450 };
+        const moonBottomRight: MoonCoord = { x: -5450, y: -10450 };
+        
+        // Convert MoonCoord to normalized (u, v)
+        const u = (moon.x - moonTopLeft.x) / (moonTopRight.x - moonTopLeft.x);
+        const v = (moon.y - moonTopLeft.y) / (moonBottomLeft.y - moonTopLeft.y);
+        
+        // Interpolate lat/lng
+        const topLng = topLeft.lng + u * (topRight.lng - topLeft.lng);
+        const topLat = topLeft.lat + u * (topRight.lat - topLeft.lat);
+        const bottomLng = bottomLeft.lng + u * (bottomRight.lng - bottomLeft.lng);
+        const bottomLat = bottomLeft.lat + u * (bottomRight.lat - bottomLeft.lat);
+        
+        const lng = topLng + v * (bottomLng - topLng);
+        const lat = topLat + v * (bottomLat - topLat);
+        
+        return { lat, lng };
+    }
+    
     const handleMapClick = useCallback((event: MapMouseEvent) => {
         const { lng, lat } = event.lngLat;
+        console.log("mapbox:" + lat, lng);
+        const moonCord = convertEarthToMoon({lat, lng});
+        console.log("moon:" + moonCord.y, moonCord.x);
         setNewPinLocation({ lng, lat });
         setTempPinType(null); // Reset temp pin type
         setControlPanelState("EvDetails");
@@ -76,7 +147,35 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
         selectPoi(null);
     }, [setControlPanelState, selectPoi]);
 
-
+    // Add this new component for the temporary marker
+    const TemporaryMarker = ({ lng, lat }: { lng: number; lat: number }) => (
+        <Marker
+            longitude={lng}
+            latitude={lat}
+        >
+            <div
+                className="w-2 h-2 sm:w-2 sm:h-2 md:w-3 md:h-3 lg:w-3 lg:h-3 xl:w-3 xl:h-3 bg-contain bg-no-repeat bg-center"
+                style={{ backgroundImage: 'url(/markers/marker.svg)' }}
+            />
+        </Marker>
+    );
+    
+    function renderRoverMarker({ x, y }: { x: number; y: number }) {
+        const roverCoords = convertMoonToEarth({x: x, y: y})
+        return (
+            <Marker
+                longitude={roverCoords.lng}
+                latitude={roverCoords.lat}
+            >
+                <div
+                    className="bg-contain bg-no-repeat bg-center cursor-pointer
+                                    lg:w-8 sm:h-6 md:h-7 lg:h-8"
+                    style={{backgroundImage: 'url(/markers/rover-marker.svg)'}}
+                />
+            </Marker>
+        )
+    }
+    
     const onPoiButtonClick = () => {
         setPoiButtonClickActive(!poiButtonClickActive);
         if (newPinLocation) {
@@ -93,6 +192,8 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     const addNewPinToStore = (
         lng: number,
         lat: number,
+        x: number,
+        y: number,
         type: PinTypes,
         namePrefix: string,
         additionalData?: Partial<Poi>,
@@ -104,6 +205,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                 id: newId,
                 name: `${namePrefix} ${poiNum}`,
                 coords: { lng, lat },
+                moonCoords: { x, y },
                 tags: null,
                 type: 'hazard' as const,
                 radius: hazardRadius ?? 50,
@@ -122,6 +224,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             id: newId,
             name: `${namePrefix} ${poiNum}`,
             coords: { lng, lat },
+            moonCoords: { x, y },
             tags: null,
             type: type,
             marker: new mapboxgl.Marker(), // Add the required marker property
@@ -137,11 +240,13 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
 
 
     const handleAddPoiFromPopup = (lng: number, lat: number) => {
-        addNewPinToStore(lng, lat, "Poi", "POI");
+        const moonCord = convertEarthToMoon({lat, lng});
+        addNewPinToStore(lng, lat, moonCord.x, moonCord.y, "Poi", "POI");
     };
 
     const handleAddHazardFromPopup = (lng: number, lat: number, radius: number) => {
-        addNewPinToStore(lng, lat, "hazard", "Hazard", undefined, radius);
+        const moonCord = convertEarthToMoon({lat, lng});
+        addNewPinToStore(lng, lat, moonCord.x, moonCord.y, "hazard", "Hazard", undefined, radius);
     };
     
     const onAddClick = () => {
@@ -152,7 +257,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             setNewPinLocation(null); // Clear any temp pin
         }
     };
-
+    
     const selectedPoiDetails = pois.find(p => p.id === selectedPoiId);
 
     // Function to render the popup for a new pin or selected POI
@@ -167,19 +272,23 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                         setTempPinType(null);
                         setTempHazardPin(null);
                     }}
-                    closeButton={true}
+                    closeButton={false}
                     closeOnClick={false}
                     anchor="bottom"
-                    offset={15}
+                    offset={5}
                 >
-                    <div className="p-2 bg-backplate rounded-md shadow-lg flex flex-col gap-2">
-                        <PrimaryButton onClick={() => {
+                    <div className="p-2 rounded-md shadow-lg flex flex-col gap-1">
+                        <PrimaryButton
+                            logo={"/logo/poi-stroke.svg"}
+                            onClick={() => {
                             handleAddPoiFromPopup(newPinLocation.lng, newPinLocation.lat);
                             setNewPinLocation(null);
                         }}>
                             +POI
                         </PrimaryButton>
-                        <PrimaryButton onClick={() => {
+                        <PrimaryButton
+                            logo={"/logo/poi-stroke.svg"}
+                            onClick={() => {
                             setTempPinType("hazard");
                             setHazardRadius(50);
                             setTempHazardPin({lng: newPinLocation.lng, lat: newPinLocation.lat, radius: 50});
@@ -228,7 +337,6 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             );
         }
 
-
         if (selectedPoiDetails) {
             return (
                 <Popup
@@ -236,8 +344,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                     latitude={selectedPoiDetails.coords.lat}
                     onClose={() => selectPoi(null)}
                     closeButton={false} // Assuming close is handled by selecting another or closing panel
-                    anchor="bottom-left"
-                    offset={16} // Adjust as needed
+                    offset={15}
                     className="custom-final-popup z-20" // Ensure z-index if needed
                 >
                     <div>{selectedPoiDetails.name}</div>
@@ -271,8 +378,8 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                 </div>
                 </div>
             );
-        }
-
+    }
+    
     return (
         <div className="map-wrapper">
             {/* Column labels */}
@@ -310,6 +417,11 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                     onClick={handleMapClick}
                     doubleClickZoom={false}
                 >
+                    {/* Add temporary marker when map is clicked */}
+                    {newPinLocation && !tempPinType && (
+                        <TemporaryMarker lng={newPinLocation.lng} lat={newPinLocation.lat} />
+                    )}
+
                     {/* Render normal POIs */}
                     {pois.map(poi => (
                         <Marker
@@ -348,7 +460,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             }}
                         >
                             <div
-                                className={`bg-red-500 border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center`}
+                                className={`bg-crimson-red border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center`}
                                 style={{
                                     width: `${hazard.radius}px`,
                                     height: `${hazard.radius}px`,
@@ -365,7 +477,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             latitude={tempHazardPin.lat}
                         >
                             <div
-                                className={`bg-red-500 border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center opacity-70`}
+                                className={`bg-crimson-red border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center opacity-70`}
                                 style={{
                                     width: `${tempHazardPin.radius}px`,
                                     height: `${tempHazardPin.radius}px`,
@@ -376,6 +488,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                         </Marker>
                     )}
                     {renderPopup()}
+                    {renderRoverMarker({x: roverCoords.x, y: roverCoords.y})}
                 </Map>
                 <div className="map-grid-overlay pointer-events-none" />
 
