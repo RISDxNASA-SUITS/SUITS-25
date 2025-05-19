@@ -99,7 +99,7 @@ const initialViewState = {
 
 const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: BasicMapProps) => {
     const [viewState, setViewState] = useState(initialViewState);
-    const { pois, hazardPois, ltvPois, addPoi, addHazardPoi, addLtvPoi, selectPoi, selectedPoiId, loadFromBackend, updatePoi, updateHazardPoi, updateLtvPoi, breadCrumbs } = PoiStore();
+    const { pois, hazardPois, ltvPois, addPoi, addHazardPoi, addLtvPoi, selectPoi, selectedPoiId, loadFromBackend,breadCrumbs } = PoiStore();
     const [poiNum, setPoiNum] = useState(1); // For default naming, might need better persistence
 
     const pointA = convertMoonToEarth({ x: -5855.60, y: -10168.60 });

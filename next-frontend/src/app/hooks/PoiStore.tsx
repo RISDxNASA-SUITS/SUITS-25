@@ -45,9 +45,9 @@ export interface Poi {
     // voiceNoteID?: number[];
 
     // voiceNotes?: VoiceNotes[];
-   
+
     type: PinTypes
-    audio_id: number | null;
+    audioId: number | null;
     description?: string;
     radius: number | null;
 }
@@ -97,34 +97,34 @@ interface PoiStore {
 
 const backendToFrontendPoi = (poi: poiBackend): Poi => {
     let parsedTags: TagSelections | null = null;
-    
+
     if (poi.tags) {
         const tagArray = poi.tags;
         parsedTags = {};
-        
+
         // Iterate through each category
         Object.entries(categories).forEach(([category, subCategories]) => {
             const categoryTags: { [key: string]: string[] } = {};
-            
+
             // Iterate through each subcategory
             Object.entries(subCategories).forEach(([subCategory, values]) => {
                 // Filter values that exist in the tag array
-                const matchingValues = values.filter(value => 
+                const matchingValues = values.filter(value =>
                     tagArray.includes(value)
                 );
-                
+
                 // Only add the subcategory if it has matching values
                 if (matchingValues.length > 0) {
                     categoryTags[subCategory] = matchingValues;
                 }
             });
-            
+
             // Only add the category if it has any subcategories with values
             if (Object.keys(categoryTags).length > 0) {
                 parsedTags[category] = categoryTags;
             }
         });
-        
+
         // If no tags were matched, set to null
         if (Object.keys(parsedTags).length === 0) {
             parsedTags = null;
@@ -132,13 +132,13 @@ const backendToFrontendPoi = (poi: poiBackend): Poi => {
     }
 
     return {
-        id: poi.id,    
+        id: poi.id,
         name: poi.name,
         coords: convertMoonToEarth({x: poi.x, y: poi.y}),
         moonCoords: { x: poi.x, y: poi.y },
         tags: parsedTags,
         type: poi.type as PinTypes,
-        audio_id: poi.audio_id,
+        audioId: poi.audioId,
         description: poi.description,
         radius: poi.radius
     }
@@ -152,7 +152,7 @@ const frontendToBackendPoi = (poi: Poi): poiBackend => {
         y: poi.moonCoords.y,
         tags: [],
         type: poi.type,
-        audioId: poi.audio_id,
+        audioId: poi.audioId,
         description: poi.description || "",
         radius: poi.radius
     }
@@ -176,7 +176,7 @@ export const PoiStore = create<PoiStore>((set,get) => ({
     },
     addPoi: async (poi: Poi) => {
         const backendPoi = frontendToBackendPoi(poi)
-        
+
         await fetch('/api/pois', {
             method: "POST",
             headers: {
@@ -209,7 +209,7 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         })
         get().loadFromBackend()
     },
-    
+
     updateTag: (poiId, category, subCategory, label) =>
         set((state) => {
             const poi = state.pois.find(p => p.id === poiId);
@@ -248,4 +248,4 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         })
         get().loadFromBackend()
     }
-}));    
+}));
