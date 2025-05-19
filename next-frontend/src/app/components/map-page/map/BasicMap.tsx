@@ -17,7 +17,7 @@ const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGV
 
 type BasicMapProps = {
     roverCoords: { x: number; y: number };
-    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" | "AddTag") => void;
+    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "SelectHazard" | "AddHazard") => void;
     // selectedMarkerRef is problematic with declarative rendering. We'll rely on selectedPoiId from the store.
     // Consider removing or rethinking its purpose. For now, I'll leave it but comment out its direct uses if they conflict.
     selectedMarkerRef: RefObject<any>; // Type will change from mapboxgl.Marker
@@ -42,33 +42,55 @@ const initialViewState = {
     bearing: 0,
     padding: {top: 0, bottom: 0, left: 0, right: 0}
 };
+
+const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: BasicMapProps) => {
+    const [viewState, setViewState] = useState(initialViewState);
+
+    const { pois, hazardPois, ltvPois, addPoi, addHazardPoi, addLtvPoi, selectPoi, selectedPoiId, loadFromBackend, updatePoi, updateHazardPoi, updateLtvPoi, breadCrumbs } = PoiStore();
+
+    const [poiNum, setPoiNum] = useState(1); // For default naming, might need better persistence
+
+    const pointA = convertMoonToEarth({ x: -5855.60, y: -10168.60 });
+    const pointB = convertMoonToEarth({ x: -5868.10, y: -10016.10 });
+    const pointC = convertMoonToEarth({ x: -5745.90, y: -9977.30 });
+
+    const [newPinLocation, setNewPinLocation] = useState<{ lng: number; lat: number } | null>(null);
+    const [tempPinType, setTempPinType] = useState<PinTypes | null>(null);
+    const [hazardRadius, setHazardRadius] = useState(50); // Default hazard radius
+    const [tempHazardPin, setTempHazardPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
+    const [tempLtvPin, setTempLtvPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
+    console.log(pois, breadCrumbs,hazardPois, ltvPois);
+
+    // For the expandable add menu
+    const [addActive, toggleAddActive] = useState<boolean>(false);
+    const [poiButtonClickActive, setPoiButtonClickActive] = useState<boolean>(false);
+    
+    // Add these function definitions
+    const prepareHazardAddition = () => {
+        setControlPanelState("AddHazard");
+        setPoiButtonClickActive(false);
+    };
+
+    const prepareLtvAddition = () => {
+        setPoiButtonClickActive(false);
+        setControlPanelState("AddPin");
+    };
+
+    const preparePoiAddition = () => {
+        setPoiButtonClickActive(true);
+        setControlPanelState("AddPin");
+    };
+
+    useEffect(() => {
+        loadFromBackend();
+    }, [loadFromBackend]);
+
+    // This effect is no longer needed as markers are rendered declaratively
+    // useEffect(()=> {
+    //     pois.forEach(x => x.addMarkerFromBackend()) // This method needs to be removed from Poi type or re-evaluated
     // }, [pois])
-    export function convertMoonToEarth(moon: MoonCoord): MapboxCoord {
-        // Moon (x, y) for 4 corners
-        const topLeft: MoonCoord = { x: -6550, y: -9750 };
-        const topRight: MoonCoord = { x: -5450, y: -9750 };
-        const bottomLeft: MoonCoord = { x: -6550, y: -10450 };
-        const bottomRight: MoonCoord = { x: -5450, y: -10450 };
-
-        const mapTopLeft: MapboxCoord = { lat: 29.565142600082694, lng: -95.08176351207713 };
-        const mapTopRight: MapboxCoord = { lat: 29.565142380800154, lng: -95.08066260052011 };
-        const mapBottomLeft: MapboxCoord = { lat: 29.564467668240866, lng: -95.08176413546131 };
-        const mapBottomRight: MapboxCoord = { lat: 29.564467418688906, lng: -95.0806628133406 };
-
-        const u = (moon.x - topLeft.x) / (topRight.x - topLeft.x);
-        const v = (moon.y - topLeft.y) / (bottomLeft.y - topLeft.y);
-
-        const topX = mapTopLeft.lng + u * (mapTopRight.lng - mapTopLeft.lng);
-        const topY = mapTopLeft.lat + u * (mapTopRight.lat - mapTopLeft.lat);
-        const bottomX = mapBottomLeft.lng + u * (mapBottomRight.lng - mapBottomLeft.lng);
-        const bottomY = mapBottomLeft.lat + u * (mapBottomRight.lat - mapBottomLeft.lat);
-
-        const earthX = topX + v * (bottomX - topX);
-        const earthY = topY + v * (bottomY - topY);
-
-        return {lat: earthY, lng: earthX}
-    }
-    export function convertEarthToMoon(earth: MapboxCoord): MoonCoord {
+    
+    function convertEarthToMoon(earth: MapboxCoord): MoonCoord {
         // Earth (lat, lon) for 4 corners
         const topLeft: MapboxCoord = { lat: 29.565142600082694, lng: -95.08176351207713 };
         const topRight: MapboxCoord = { lat: 29.565142380800154, lng: -95.08066260052011 };
@@ -96,53 +118,35 @@ const initialViewState = {
         
         return { x: moonX, y: moonY };
     }
-
-const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: BasicMapProps) => {
-    const [viewState, setViewState] = useState(initialViewState);
-    const { pois, hazardPois, ltvPois, addPoi, addHazardPoi, addLtvPoi, selectPoi, selectedPoiId, loadFromBackend, updatePoi, updateHazardPoi, updateLtvPoi, breadCrumbs } = PoiStore();
-    const [poiNum, setPoiNum] = useState(1); // For default naming, might need better persistence
-
-    const pointA = convertMoonToEarth({ x: -5855.60, y: -10168.60 });
-    const pointB = convertMoonToEarth({ x: -5868.10, y: -10016.10 });
-    const pointC = convertMoonToEarth({ x: -5745.90, y: -9977.30 });
-
-    const [newPinLocation, setNewPinLocation] = useState<{ lng: number; lat: number } | null>(null);
-    const [tempPinType, setTempPinType] = useState<PinTypes | null>(null);
-    const [hazardRadius, setHazardRadius] = useState(50); // Default hazard radius
-    const [tempHazardPin, setTempHazardPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
-    const [tempLtvPin, setTempLtvPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
-    console.log(pois, breadCrumbs,hazardPois, ltvPois);
-
-    // For the expandable add menu
-    const [addActive, toggleAddActive] = useState<boolean>(false);
-    const [poiButtonClickActive, setPoiButtonClickActive] = useState<boolean>(false);
     
-    // Add these function definitions
-    const prepareHazardAddition = () => {
-        setPoiButtonClickActive(false);
-        setControlPanelState("AddPin");
-    };
-
-    const prepareLtvAddition = () => {
-        setPoiButtonClickActive(false);
-        setControlPanelState("AddPin");
-    };
-
-    const preparePoiAddition = () => {
-        setPoiButtonClickActive(true);
-        setControlPanelState("AddPin");
-    };
-
-    useEffect(() => {
-        loadFromBackend();
-    }, [loadFromBackend]);
-
-    // This effect is no longer needed as markers are rendered declaratively
-    // useEffect(()=> {
-    //     pois.forEach(x => x.addMarkerFromBackend()) // This method needs to be removed from Poi type or re-evaluated
-    // }, [pois])
-    
-  
+    function convertMoonToEarth(moon: MoonCoord): MapboxCoord {
+        // Earth (lat, lon) for 4 corners
+        const topLeft: MapboxCoord = { lat: 29.565142600082694, lng: -95.08176351207713 };
+        const topRight: MapboxCoord = { lat: 29.565142380800154, lng: -95.08066260052011 };
+        const bottomLeft: MapboxCoord = { lat: 29.564467668240866, lng: -95.08176413546131 };
+        const bottomRight: MapboxCoord = { lat: 29.564467418688906, lng: -95.0806628133406 };
+        
+        // Moon (x, y) for same corners
+        const moonTopLeft: MoonCoord = { x: -6550, y: -9750 };
+        const moonTopRight: MoonCoord = { x: -5450, y: -9750 };
+        const moonBottomLeft: MoonCoord = { x: -6550, y: -10450 };
+        const moonBottomRight: MoonCoord = { x: -5450, y: -10450 };
+        
+        // Convert MoonCoord to normalized (u, v)
+        const u = (moon.x - moonTopLeft.x) / (moonTopRight.x - moonTopLeft.x);
+        const v = (moon.y - moonTopLeft.y) / (moonBottomLeft.y - moonTopLeft.y);
+        
+        // Interpolate lat/lng
+        const topLng = topLeft.lng + u * (topRight.lng - topLeft.lng);
+        const topLat = topLeft.lat + u * (topRight.lat - topLeft.lat);
+        const bottomLng = bottomLeft.lng + u * (bottomRight.lng - bottomLeft.lng);
+        const bottomLat = bottomLeft.lat + u * (bottomRight.lat - bottomLeft.lat);
+        
+        const lng = topLng + v * (bottomLng - topLng);
+        const lat = topLat + v * (bottomLat - topLat);
+        
+        return { lat, lng };
+    }
     
     const handleMapClick = useCallback((event: MapMouseEvent) => {
         const { lng, lat } = event.lngLat;
@@ -219,11 +223,12 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                 type: 'hazard' as const,
                 radius: hazardRadius ?? 50,
                 audio_id: null,
+                // marker: new mapboxgl.Marker() // Add the required marker property
             };
             addHazardPoi(newHazardPoi);
             setPoiNum(prev => prev + 1);
             selectPoi(newId);
-            setControlPanelState("EvDetails");
+            setControlPanelState("AddHazard");
             setNewPinLocation(null);
             setTempPinType(null);
             return;
@@ -254,7 +259,8 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             moonCoords: { x, y },
             tags: null,
             type: type,
-            marker: new mapboxgl.Marker(), // Add the required marker property
+            audio_id: null,
+            // marker: new mapboxgl.Marker(), // Add the required marker property
             ...additionalData,
         };
         addPoi(newPoi);
@@ -567,7 +573,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             onClick={(e) => {
                                 e.originalEvent.stopPropagation();
                                 selectPoi(hazard.id);
-                                setControlPanelState("EvDetails");
+                                setControlPanelState("SelectHazard");
                             }}
                         >
                             <div
@@ -581,6 +587,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             </div>
                         </Marker>
                     ))}
+
                     {/* Render breadcrumb POIs */}
                     {breadCrumbs.map(breadcrumb => (
                         <Marker
@@ -622,6 +629,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                         </Marker>
                     ))}
                     
+
                     {/* Show temporary hazard marker while adjusting radius */}
                     {tempHazardPin && (
                         <Marker

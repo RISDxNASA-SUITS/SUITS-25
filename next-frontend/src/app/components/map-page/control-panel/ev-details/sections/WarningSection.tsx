@@ -6,6 +6,7 @@ interface ErrorState {
   fan_error: ErrorItem;
   oxy_error: ErrorItem;
   pump_error: ErrorItem;
+
 }
 
 interface ErrorItem {
@@ -22,6 +23,8 @@ export default function WarningSection() {
     pump_error: { isErr: false, desc: "", name: "" },
   });
 
+  const [battery, setBattery] = useState<number>(0);
+
   useEffect(() => {
     let isMounted = true;
     const loadData = async () => {
@@ -31,6 +34,8 @@ export default function WarningSection() {
         if (isMounted) {
           setWarnings(data);
         }
+
+        
       } catch (err) {
         console.error("Failed to fetch warnings:", err);
         if (isMounted) {
@@ -43,6 +48,19 @@ export default function WarningSection() {
     return () => {
       clearInterval(interval);
       isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchBattery = async () => {
+      const data = await fetch('/api/warning-stats');
+      const res = await data.json();
+      setBattery(res.batteryLevel);
+    };
+    fetchBattery();
+    const interval = setInterval(fetchBattery, 1000);
+    return () => {
+      clearInterval(interval);
     };
   }, []);
 
@@ -67,6 +85,9 @@ export default function WarningSection() {
         ))
       ) : (
         <p>No warnings</p>
+      )}
+      {battery < 99 && (
+        <WarningCard warningName="Battery Failure" description = "Abort now: Point of No Return" />
       )}
     </div>
   );
