@@ -9,7 +9,10 @@ import java.net.InetAddress
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
-
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import org.jetbrains.exposed.sql.transactions.transaction
+import SUITS2025Backend.db.PoiDb.*
 data class returnData(val data:Float)
 data class lidarReturn(val data:List<Float>)
 
@@ -18,9 +21,45 @@ object PythonCommunicationHandler {
     private const val BRAKE_CMD = 1107
     private const val THROTTLE_CMD = 1109
     private const val STEERING_CMD = 1110
+    val bgScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    
+    data class Position(val x: Float, val y: Float)
 
     @JvmStatic
-    fun setup(app: Javalin) {
+    fun setup(app: Javalin) {   
+        val channel = Channel<Position>()
+        bgScope.launch {
+            var lastXY = Position(0f, 0f)
+            
+
+            while(true){
+                val telem:PrTelemetry = getTelemetry();
+                val newPos = Position(telem.currentPosX, telem.currentPosY)
+                if (newPos != lastXY){
+                    channel.send(newPos)
+                    lastXY = newPos
+                }
+                delay(2000)
+            }
+        }
+
+        bgScope.launch {
+            while(true){
+                val pos = channel.receive()
+                transaction {
+                    Poi.new {
+                        name = "breadCrumb"
+                        x = pos.x.toDouble()
+                        y = pos.y.toDouble()
+                        tags = ""
+                        description = ""
+                        type = "breadCrumb"
+                    }
+                }
+
+                
+            }
+        }
         app.get("/lidar", this::getLidar)
         app.post("/brakes", this::postBrakes)
         app.post("/throttle", this::postThrottle)

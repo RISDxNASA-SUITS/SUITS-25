@@ -1,6 +1,6 @@
 import { create } from "zustand/react";
 import {Marker} from "mapbox-gl"
-export type PinTypes = 'hazard' | 'Poi'
+export type PinTypes = 'hazard' | 'Poi' | 'breadCrumb'
 type TagSelections = {
     [category: string]: {
         [subCategory: string]: string[];
@@ -34,9 +34,14 @@ export interface HazardPoi extends Poi {
     radius: number;
 }
 
+export interface BreadCrumb extends Poi {
+    type: 'breadCrumb';
+}
+
 interface PoiStore {
     pois: Poi[];
     hazardPois: HazardPoi[];
+    breadCrumbs: BreadCrumb[];
     selectedPoiId: string | null;
     addPoi: (poi: Poi) => void;
     addHazardPoi: (hazardPoi: HazardPoi) => void;
@@ -53,12 +58,16 @@ interface PoiStore {
 export const PoiStore = create<PoiStore>((set) => ({
     pois: [],
     hazardPois: [],
+    breadCrumbs: [],
     selectedPoiId: null,
     loadFromBackend: async () => {
-        await fetch("")
-        const pois:Poi[] = []
-        const hazardPois:HazardPoi[] = []
-        set({pois:pois, hazardPois:hazardPois})
+        const data = await fetch("/api/pois")
+        const json = await data.json()
+
+        const pois:Poi[] = json.filter((poi:Poi) => poi.type !== "breadCrumb" && poi.type !== 'hazard')
+        const hazardPois:HazardPoi[] = json.pois.filter((poi:Poi) => poi.type === 'hazard')
+        const breadCrumbs:BreadCrumb[] = json.pois.filter((poi:Poi) => poi.type === 'breadCrumb')
+        set({pois:pois, hazardPois:hazardPois, breadCrumbs:breadCrumbs})
     },
     addPoi: (poi: Poi) => set((state) => ({
         pois: [...state.pois, poi],

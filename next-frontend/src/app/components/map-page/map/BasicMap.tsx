@@ -35,7 +35,7 @@ const initialViewState = {
 
 const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: BasicMapProps) => {
     const [viewState, setViewState] = useState(initialViewState);
-    const { pois, hazardPois, addPoi, addHazardPoi, selectPoi, selectedPoiId, loadFromBackend, updatePoi, updateHazardPoi } = PoiStore();
+    const { pois, hazardPois, addPoi, addHazardPoi, selectPoi, selectedPoiId, loadFromBackend, updatePoi, updateHazardPoi, breadCrumbs } = PoiStore();
     const [poiNum, setPoiNum] = useState(1); // For default naming, might need better persistence
 
     const [newPinLocation, setNewPinLocation] = useState<{ lng: number; lat: number } | null>(null);

@@ -1,7 +1,7 @@
 
 {
 	"error": {
-		"fan_error": false,
+		"fan_error": true,
 		"oxy_error": false,
 		"pump_error": false
 	}
