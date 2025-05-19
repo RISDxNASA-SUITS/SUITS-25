@@ -29,23 +29,25 @@ object PythonCommunicationHandler {
     fun setup(app: Javalin) {   
         val channel = Channel<Position>()
         bgScope.launch {
-            var lastXY = Position(0f, 0f)
+            var lastXY = Position(1f, 0f)
             
 
             while(true){
                 val telem:PrTelemetry = getTelemetry();
                 val newPos = Position(telem.currentPosX, telem.currentPosY)
+                println(newPos)
                 if (newPos != lastXY){
                     channel.send(newPos)
                     lastXY = newPos
                 }
-                delay(2000)
+                delay(10_000)
             }
         }
 
         bgScope.launch {
             while(true){
                 val pos = channel.receive()
+                println("WE HVAE RECEVIED $pos")
                 transaction {
                     Poi.new {
                         name = "breadCrumb"

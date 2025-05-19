@@ -46,7 +46,7 @@
 ) {
     companion object {
         fun fromStringList(values: List<String>): PrTelemetry {
-            println(values)
+            
             require(values.size == 43) { "Expected 44 values, got ${values.size}" }
 
             var i = 0

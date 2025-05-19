@@ -23,7 +23,7 @@ public class PoiController {
 
     private static void getPois(Context ctx) {
         List<PoiResponse> resp = poiDbController.getPois();
-        System.out.println(resp);
+        
         ctx.json(resp);
     }
 
