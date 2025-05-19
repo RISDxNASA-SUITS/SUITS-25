@@ -25,12 +25,19 @@ export const Editpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}:
     //initial input field state
     const [showInitialInput, setInitialShowInput] = useState<boolean>(true);
 
-    const { recordings } = useAudioStore();
 
-    const {updatePoi, clearTags, deletePoi} = PoiStore();
+
+    const {updatePoi, clearTags, deletePoi, selectedPoiId, pois} = PoiStore();
+
+    //voice note IDs from currently selected POI
+    const recordingIDs = poi.voiceNoteID;
+
+    // // all recordings from the AudioStore
+    // const { recordings } = useAudioStore();
+
 
     const handleSave = () => {
-        poi.name = inputValue;
+        updatePoi(poi.id, { name: initialInputValue });
 
         selectedMarkerRef.current?.getPopup()?.setHTML(`${poi.name}`);
 
@@ -61,24 +68,11 @@ export const Editpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}:
                     <div className={"flex text-2xl font-medium gap-2 items-center"}>
                         {!showInput && (
                             <>
-                                <button className={"underline"} onClick={() => setShowInput(true)}>Edit</button>
+                                <p>Edit</p>
                                 <p>{poi.name}</p>
                             </>
                         )}
-
-                        {showInput && (
-                            <div>
-                                <input
-                                    type={"text"}
-                                    value={inputValue}
-                                    onChange={(e) => {
-                                        setInputValue(e.target.value)
-                                        updatePoi(poi.id, {name: poi.name});
-                                    }}
-                                    className={"flex items-center rounded-lg bg-white-10 w-full"}/>
-                            </div>
-                        )}
-
+                        
                         <p className={"text-sm"}>({poi.coords.lat.toFixed(4)}, {poi.coords.lng.toFixed(4)})</p>
                     </div>
                     {/*Close button*/}
@@ -92,11 +86,11 @@ export const Editpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}:
                     value={initialInputValue}
                     onChange={(e) => {
                         setInitialInputValue(e.target.value)
-
-                        //ui does not reflect the update to the name
-                        updatePoi(poi.id, {name: poi.name});
                     }}
-                    onBlur={() => setInitialShowInput(false)}
+                    onBlur={() => {
+                        updatePoi(poi.id, { name: initialInputValue });
+                        setInitialShowInput(false);
+                    }}
                     className="rounded-lg bg-white-10 px-3 py-1 text-center border border-gray-300"
                     autoFocus
                     />
@@ -155,8 +149,8 @@ export const Editpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}:
                     <p className={"text-2xl font-bold"}>Voice Notes</p>
 
                     {/* map all recordings from zustand store to the notePreview card */}
-                    {recordings.map(item => (
-                        <NotePreview date={item.date} title={item.name} key={item.id}></NotePreview>
+                    {recordingIDs?.map(item => (
+                        <NotePreview date="test" title={`${item}`} key={item}></NotePreview>
                     ))}
 
                     <SecondaryButton logo={"/logo/add.svg"} onClick={() => setControlPanelState("AddVoiceNote")}

@@ -4,11 +4,13 @@ import React, { useEffect, useState, RefObject, useCallback } from 'react';
 import { Map,Marker, Popup, ViewStateChangeEvent, MapMouseEvent } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css'; // Keep for base styles
 import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
-import { PoiStore, PinTypes, Poi } from "@/app/hooks/PoiStore";
+import { PoiStore, PinTypes, Poi, HazardPoi } from "@/app/hooks/PoiStore";
 import { nanoid } from "nanoid";
 import TertiaryButton from "@/app/components/ui/ui-buttons/TertiaryButton";
 import { Tooltip } from '../../ui/ui-buttons/Tooltip';
 import "../mapstyle.css"; // Keep custom styles
+import mapboxgl from 'mapbox-gl';
+import { createRoot } from 'react-dom/client';
 
 // Mapbox token (ensure this is the correct way to set it for react-map-gl, often passed as a prop)
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGVydSJ9.pIfFx8HCC58f_PzAUjALRQ';
@@ -55,6 +57,16 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     const [addActive, toggleAddActive] = useState<boolean>(false);
     const [poiButtonClickActive, setPoiButtonClickActive] = useState<boolean>(false);
 
+    // Add these function definitions
+    const prepareHazardAddition = () => {
+        setPoiButtonClickActive(false);
+        setControlPanelState("AddPin");
+    };
+
+    const preparePoiAddition = () => {
+        setPoiButtonClickActive(true);
+        setControlPanelState("AddPin");
+    };
 
     useEffect(() => {
         loadFromBackend();
@@ -144,7 +156,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     ) => {
         const newId = nanoid();
         if (type === 'hazard') {
-            const newHazardPoi = {
+            const newHazardPoi: HazardPoi = {
                 id: newId,
                 name: `${namePrefix} ${poiNum}`,
                 coords: { lng, lat },
@@ -152,6 +164,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                 tags: null,
                 type: 'hazard' as const,
                 radius: hazardRadius ?? 50,
+                marker: new mapboxgl.Marker() // Add the required marker property
             };
             addHazardPoi(newHazardPoi);
             setPoiNum(prev => prev + 1);
@@ -169,6 +182,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             moonCoords: { x, y },
             tags: null,
             type: type,
+            marker: new mapboxgl.Marker(), // Add the required marker property
             ...additionalData,
         };
         addPoi(newPoi);
@@ -320,28 +334,6 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                 </div>
             );
         }
-
-
-    //This function is to be used when "Add POI" from the bottom menu is clicked.
-    //It prepares the state for a map click to place a POI.
-    const preparePoiAddition = () => {
-        setPoiButtonClickActive(true); // Enable map click for POI
-        setNewPinLocation(null);   // Clear any previous temporary pin
-        setTempPinType("Poi");     // Set the type we intend to add
-        toggleAddActive(false);    // Close the expandable menu
-        setControlPanelState("EvDetails"); // Or a state like "PlacingPin"
-    };
-
-    //This function is to be used when "Add Hazard" from the bottom menu is clicked.
-    //It prepares the state for a map click to place a Hazard.
-    const prepareHazardAddition = () => {
-        setPoiButtonClickActive(true); // Enable map click for Hazard
-        setNewPinLocation(null);    // Clear any previous temporary pin
-        setTempPinType("hazard");   // Set the type we intend to add
-        toggleAddActive(false);     // Close the expandable menu
-        setControlPanelState("EvDetails"); // Or a state like "PlacingPin"
-    };
-
 
     return (
         <div className="map-wrapper">
