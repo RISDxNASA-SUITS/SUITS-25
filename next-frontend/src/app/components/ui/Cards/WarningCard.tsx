@@ -1,3 +1,5 @@
+"use client";
+
 interface TaskCardProps {
     warningName: string;
     description: string;

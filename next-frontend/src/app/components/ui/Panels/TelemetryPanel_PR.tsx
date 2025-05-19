@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import HorizontalTextGaugeCard from "../Cards/HorizontalTextGaugeCard";
 import MultiGaugeCard from "../Cards/MultiGaugeCard";

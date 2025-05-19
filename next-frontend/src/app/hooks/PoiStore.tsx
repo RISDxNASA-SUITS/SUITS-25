@@ -2,7 +2,7 @@ import { create } from "zustand/react";
 import {Marker} from "mapbox-gl"
 import { convertMoonToEarth } from "../components/map-page/map/BasicMap";
 import { nanoid } from "nanoid";
-export type PinTypes = 'hazard' | 'Poi' | 'breadCrumb'
+export type PinTypes = 'hazard' | 'Poi' | 'breadCrumb' | 'ltv';
 
 type TagSelections = {
     [category: string]: {
@@ -61,6 +61,10 @@ export interface BreadCrumb extends Poi {
     type: 'breadCrumb';
 }
 
+export interface LtvPoi extends Poi {
+    type: 'ltv';
+}
+
 type poiBackend = {
     id: string | undefined;
     name: string;
@@ -77,13 +81,26 @@ interface PoiStore {
     pois: Poi[];
     hazardPois: HazardPoi[];
     breadCrumbs: BreadCrumb[];
+    ltvPois: LtvPoi[];
     selectedPoiId: string | null;
     addPoi: (poi: Poi) => void;
     addHazardPoi: (hazardPoi: HazardPoi) => void;
+    addLtvPoi: (ltvPoi: LtvPoi) => void;
     selectPoi: (poiId: string | null) => void;
+<<<<<<< HEAD
     updateTag: (poiId: string | null, category: string, subCategory: string, label: string) => void;
     clearTags: (poiId: string) => void;
     deletePoi: (poiId: string | null) => void;
+=======
+    updatePoi: (poiId: string, update: Partial<Poi>) => void;
+    updateHazardPoi: (poiId: string, update: Partial<HazardPoi>) => void;
+    updateLtvPoi: (poiId: string, update: Partial<LtvPoi>) => void;
+    updateTag: (poiId: string | null, category: string, subCategory: string, label: string) => void;
+    clearTags: (poiId: string) => void;
+    deletePoi: (poiId: string | null) => void;
+    deleteHazardPoi: (poiId: string | null) => void;
+    deleteLtvPoi: (poiId: string | null) => void;
+>>>>>>> 08c66ca526215a20a1cc994ddc011f4de6c98357
     loadFromBackend: () => void
     addVoiceNote: (poiId:number, voiceNote:Number) => void
 }
@@ -93,7 +110,7 @@ const backendToFrontendPoi = (poi: poiBackend): Poi => {
     let parsedTags: TagSelections | null = null;
     
     if (poi.tags) {
-        const tagArray = poi.tags
+        const tagArray = poi.tags;
         parsedTags = {};
         
         // Iterate through each category
@@ -156,15 +173,22 @@ export const PoiStore = create<PoiStore>((set,get) => ({
     pois: [],
     hazardPois: [],
     breadCrumbs: [],
+    ltvPois: [],
     selectedPoiId: null,
     loadFromBackend: async () => {
         const data = await fetch('/api/pois')
         let json = await data.json()
+<<<<<<< HEAD
         json = json.data.map((poi: poiBackend) => backendToFrontendPoi(poi))
         const pois:Poi[] = json.filter((poi:Poi) => poi.type !== "breadCrumb" && poi.type !== 'hazard')
+=======
+        json = json.map((poi: poiBackend) => backendToFrontendPoi(poi))
+        const pois:Poi[] = json.filter((poi:Poi) => poi.type !== "breadCrumb" && poi.type !== 'hazard' && poi.type !== 'ltv')
+>>>>>>> 08c66ca526215a20a1cc994ddc011f4de6c98357
         const hazardPois:HazardPoi[] = json.filter((poi:Poi) => poi.type === 'hazard')
         const breadCrumbs:BreadCrumb[] = json.filter((poi:Poi) => poi.type === 'breadCrumb')
-        set({pois:pois, hazardPois:hazardPois, breadCrumbs:breadCrumbs})
+        const ltvPois:LtvPoi[] = json.filter((poi:Poi) => poi.type === 'ltv')
+        set({pois:pois, hazardPois:hazardPois, breadCrumbs:breadCrumbs, ltvPois:ltvPois})
     },
     addPoi: async (poi: Poi) => {
         const backendPoi = frontendToBackendPoi(poi)
@@ -188,6 +212,7 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         })
         get().loadFromBackend()
     },
+<<<<<<< HEAD
     selectPoi: (poiId: string | null) => set(() => ({
         selectedPoiId: poiId
     })),
@@ -202,6 +227,34 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         get().loadFromBackend()
     },
     
+=======
+    addHazardPoi: (hazardPoi: HazardPoi) => set((state) => ({
+        hazardPois: [...state.hazardPois, hazardPoi],
+        selectedPoiId: hazardPoi.id
+    })),
+    addLtvPoi: (ltvPoi: LtvPoi) => set((state) => ({
+        ltvPois: [...state.ltvPois, ltvPoi],
+        selectedPoiId: ltvPoi.id
+    })),
+    selectPoi: (poiId: string | null) => set(() => ({
+        selectedPoiId: poiId
+    })),
+    updatePoi: (poiId, update) => set((state) => ({
+        pois: state.pois.map((poi) =>
+            poi.id === poiId ? { ...poi, ...update } : poi
+        )
+    })),
+    updateHazardPoi: (poiId, update) => set((state) => ({
+        hazardPois: state.hazardPois.map((hazardPoi) =>
+            hazardPoi.id === poiId ? { ...hazardPoi, ...update } : hazardPoi
+        )
+    })),
+    updateLtvPoi: (poiId, update) => set((state) => ({
+        ltvPois: state.ltvPois.map((ltvPoi) =>
+            ltvPoi.id === poiId ? { ...ltvPoi, ...update } : ltvPoi
+        )
+    })),
+>>>>>>> 08c66ca526215a20a1cc994ddc011f4de6c98357
     updateTag: (poiId, category, subCategory, label) =>
         set((state) => {
             const poi = state.pois.find(p => p.id === poiId);
@@ -233,6 +286,7 @@ export const PoiStore = create<PoiStore>((set,get) => ({
                 p.id === poiId ? { ...p, tags: {} } : p
             )
         })),
+<<<<<<< HEAD
     deletePoi: async (poiId: string | null) => {
         if (!poiId) return;
         await fetch(`/api/pois/${poiId}`, {
@@ -241,3 +295,21 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         get().loadFromBackend()
     }
 }));    
+=======
+    deletePoi: (poiId: string | null) =>
+        set((state) => ({
+            pois: state.pois.filter(p => p.id !== poiId),
+            selectedPoiId: state.selectedPoiId === poiId ? null : state.selectedPoiId
+        })),
+    deleteHazardPoi: (poiId: string | null) =>
+        set((state) => ({
+            hazardPois: state.hazardPois.filter(p => p.id !== poiId),
+            selectedPoiId: state.selectedPoiId === poiId ? null : state.selectedPoiId
+        })),
+    deleteLtvPoi: (poiId: string | null) =>
+        set((state) => ({
+            ltvPois: state.ltvPois.filter(p => p.id !== poiId),
+            selectedPoiId: state.selectedPoiId === poiId ? null : state.selectedPoiId
+        })),
+}));
+>>>>>>> 08c66ca526215a20a1cc994ddc011f4de6c98357
