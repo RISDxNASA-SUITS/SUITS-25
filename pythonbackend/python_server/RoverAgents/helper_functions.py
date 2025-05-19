@@ -9,7 +9,7 @@ from commands import (
 )
 from main import Pipeline
 from typing import Tuple, List, Dict
-from Node import Node
+# from Node import Node
 import requests
 import json
 
@@ -111,16 +111,16 @@ def path_function(point_a : Point, point_b : Point) -> float:
     A-star Cost Function between two points. Currently simple Euclidean function
     '''
     return euclidean_distance(point_a, point_b)
-def trace_path(final_node : Node) -> List[Point]:
-    '''
-    Traces the path leading from the first node in a tree to the final node in the tree
-    '''
-    path = []
-    cur_node = final_node
-    while cur_node is not None:
-        path.append(cur_node.position)
-        cur_node = cur_node.parent_node
-    return path[::-1]
+# def trace_path(final_node : Node) -> List[Point]:
+#     '''
+#     Traces the path leading from the first node in a tree to the final node in the tree
+#     '''
+#     path = []
+#     cur_node = final_node
+#     while cur_node is not None:
+#         path.append(cur_node.position)
+#         cur_node = cur_node.parent_node
+#     return path[::-1]
 
 
 def obstacle_path_distance(obstacle : Point, path_start : Point, path_end : Point) -> float:

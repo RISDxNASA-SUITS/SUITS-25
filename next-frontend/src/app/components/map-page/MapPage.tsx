@@ -26,12 +26,11 @@ export const MapPage = ()=>{
                 if (!data.ok) {
                     throw new Error("HTTP error: " + data.statusText);
                 }
-                const res = await data.json();
-                
+                const res = await data.json(); 
+                                console.log("res" + JSON.stringify(res));
 
-                
-                setRoverX(res.x || -95.08100506531964);
-                setRoverY(res.y || 29.56485541847833);
+                setRoverX(res.currentPosX || -95.08100506531964);
+                setRoverY(res.currentPosY || 29.56485541847833);
                 
             } catch (err) {
                 console.error('Error fetching rover coords data', err);
