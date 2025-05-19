@@ -1,5 +1,5 @@
 import time
-from helper_functions import euclidean_distance, get_lidar, get_telemetry, post_brakes, post_steering, post_throttle
+from .helper_functions import euclidean_distance, get_lidar, get_telemetry, post_brakes, post_steering, post_throttle
 import math
 
 class Navigator:
@@ -7,6 +7,7 @@ class Navigator:
         self.angle = angle
         self.wall_threshold = wall_threshold
         self.forward = 1
+        self.end_tolerance = 20
         self.start = None
         self.end = None
         self.wall_found = False
@@ -43,7 +44,7 @@ class Navigator:
                 telemetry = get_telemetry()
             current_position = [telemetry['currentPosX'], telemetry['currentPosY']]
             distance_from_base = euclidean_distance(current_position, end)
-            if distance_from_base < 10:
+            if distance_from_base < self.end_tolerance:
                 post_throttle(0)
                 post_steering(0)
                 return True
@@ -84,14 +85,14 @@ class Navigator:
                     print("Forward")
                     self.wall_following('forward')
                 elif min(lidar[0], lidar[1], lidar[5], lidar[7]) <= self.wall_threshold and min(lidar[0], lidar[1], lidar[5], lidar[7]) < min(lidar[3], lidar[4], lidar[6], lidar[8]):
-                    if min(lidar[0], lidar[1], lidar[5], lidar[7]) <= 0.5*self.wall_threshold:
+                    if min(lidar[0], lidar[1], lidar[5], lidar[7]) <= 0.7*self.wall_threshold:
                         post_steering(-1)
                         post_throttle(-30)
                         time.sleep(2)
                         post_throttle(0)
                     self.wall_following('left')
                 elif min(lidar[3], lidar[4], lidar[6], lidar[8]) <= self.wall_threshold:
-                    if min(lidar[3], lidar[4], lidar[6], lidar[8]) <= 0.5*self.wall_threshold:
+                    if min(lidar[3], lidar[4], lidar[6], lidar[8]) <= 0.7*self.wall_threshold:
                         post_steering(1)
                         post_throttle(-30)
                         time.sleep(2)
@@ -154,14 +155,12 @@ class Navigator:
             post_throttle(30)
             time.sleep(0.4)
             post_throttle(0)
-            time.sleep(0.4)
         elif strategy == 'right':
             print("Right")
             post_steering(-1)
             post_throttle(30)
             time.sleep(0.4)
             post_throttle(0)
-            time.sleep(0.4)
         else:
             print("Forward")
             post_throttle(0)
@@ -184,7 +183,7 @@ class Navigator:
             post_throttle(-35)
             time.sleep(3)
             post_throttle(0)
-            time.sleep(0.5)
+            time.sleep(0.3)
             get_lidar_resp = get_lidar()
             diff2 = 0
             diff2_abs = 0

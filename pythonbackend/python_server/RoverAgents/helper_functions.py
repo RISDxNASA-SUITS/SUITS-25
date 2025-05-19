@@ -15,7 +15,7 @@ import json
 
 Point = Tuple[float, float]
 BASE_URL = "http://localhost:7070"
-pipeline = Pipeline(TSS_HOST, TSS_PORT)
+# pipeline = Pipeline(TSS_HOST, TSS_PORT)
 
 def get_lidar():
     try:

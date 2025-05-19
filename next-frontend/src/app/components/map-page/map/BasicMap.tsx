@@ -99,7 +99,7 @@ const initialViewState = {
 
 const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: BasicMapProps) => {
     const [viewState, setViewState] = useState(initialViewState);
-    const { pois, hazardPois, ltvPois, addPoi, addHazardPoi, addLtvPoi, selectPoi, selectedPoiId, loadFromBackend,breadCrumbs } = PoiStore();
+    const { pois, hazardPois, ltvPois, addLtvPoi,  addPoi, addHazardPoi, selectPoi, selectedPoiId, loadFromBackend, updatePoi, updateHazardPoi,breadCrumbs } = PoiStore();
     const [poiNum, setPoiNum] = useState(1); // For default naming, might need better persistence
 
     const pointA = convertMoonToEarth({ x: -5855.60, y: -10168.60 });
@@ -112,6 +112,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     const [tempHazardPin, setTempHazardPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
     const [tempLtvPin, setTempLtvPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
     console.log(pois, breadCrumbs,hazardPois, ltvPois);
+        const [tempHazardCategory, setTempHazardCategory] = useState<'warning' | 'caution'>('warning');
 
     // For the expandable add menu
     const [addActive, toggleAddActive] = useState<boolean>(false);
@@ -145,9 +146,65 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     // useEffect(()=> {
     //     pois.forEach(x => x.addMarkerFromBackend()) // This method needs to be removed from Poi type or re-evaluated
     // }, [pois])
-
-
-
+    
+    function convertEarthToMoon(earth: MapboxCoord): MoonCoord {
+        // Earth (lat, lon) for 4 corners
+        const topLeft: MapboxCoord = { lat: 29.565142600082694, lng: -95.08176351207713 };
+        const topRight: MapboxCoord = { lat: 29.565142380800154, lng: -95.08066260052011 };
+        const bottomLeft: MapboxCoord = { lat: 29.564467668240866, lng: -95.08176413546131 };
+        const bottomRight: MapboxCoord = { lat: 29.564467418688906, lng: -95.0806628133406 };
+        
+        // Moon (x, y) for same corners
+        const moonTopLeft: MoonCoord = { x: -6550, y: -9750 };
+        const moonTopRight: MoonCoord = { x: -5450, y: -9750 };
+        const moonBottomLeft: MoonCoord = { x: -6550, y: -10450 };
+        const moonBottomRight: MoonCoord = { x: -5450, y: -10450 };
+        
+        // Convert lat/lon to normalized positions (u,v) between 0 and 1
+        const u = (earth.lng - topLeft.lng) / (topRight.lng - topLeft.lng);
+        const v = (earth.lat - topLeft.lat) / (bottomLeft.lat - topLeft.lat);
+        
+        // Interpolate Moon coordinates
+        const topX = moonTopLeft.x + u * (moonTopRight.x - moonTopLeft.x);
+        const topY = moonTopLeft.y + u * (moonTopRight.y - moonTopLeft.y);
+        const bottomX = moonBottomLeft.x + u * (moonBottomRight.x - moonBottomLeft.x);
+        const bottomY = moonBottomLeft.y + u * (moonBottomRight.y - moonBottomLeft.y);
+        
+        const moonX = topX + v * (bottomX - topX);
+        const moonY = topY + v * (bottomY - topY);
+        
+        return { x: moonX, y: moonY };
+    }
+    
+    function convertMoonToEarth(moon: MoonCoord): MapboxCoord {
+        // Earth (lat, lon) for 4 corners
+        const topLeft: MapboxCoord = { lat: 29.565142600082694, lng: -95.08176351207713 };
+        const topRight: MapboxCoord = { lat: 29.565142380800154, lng: -95.08066260052011 };
+        const bottomLeft: MapboxCoord = { lat: 29.564467668240866, lng: -95.08176413546131 };
+        const bottomRight: MapboxCoord = { lat: 29.564467418688906, lng: -95.0806628133406 };
+        
+        // Moon (x, y) for same corners
+        const moonTopLeft: MoonCoord = { x: -6550, y: -9750 };
+        const moonTopRight: MoonCoord = { x: -5450, y: -9750 };
+        const moonBottomLeft: MoonCoord = { x: -6550, y: -10450 };
+        const moonBottomRight: MoonCoord = { x: -5450, y: -10450 };
+        
+        // Convert MoonCoord to normalized (u, v)
+        const u = (moon.x - moonTopLeft.x) / (moonTopRight.x - moonTopLeft.x);
+        const v = (moon.y - moonTopLeft.y) / (moonBottomLeft.y - moonTopLeft.y);
+        
+        // Interpolate lat/lng
+        const topLng = topLeft.lng + u * (topRight.lng - topLeft.lng);
+        const topLat = topLeft.lat + u * (topRight.lat - topLeft.lat);
+        const bottomLng = bottomLeft.lng + u * (bottomRight.lng - bottomLeft.lng);
+        const bottomLat = bottomLeft.lat + u * (bottomRight.lat - bottomLeft.lat);
+        
+        const lng = topLng + v * (bottomLng - topLng);
+        const lat = topLat + v * (bottomLat - topLat);
+        
+        return { lat, lng };
+    }
+    
     const handleMapClick = useCallback((event: MapMouseEvent) => {
         const { lng, lat } = event.lngLat;
         console.log("mapbox:" + lat, lng);
@@ -210,7 +267,8 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
         type: PinTypes,
         namePrefix: string,
         additionalData?: Partial<Poi>,
-        hazardRadius?: number
+        hazardRadius?: number,
+        hazardCategory?: 'warning' | 'caution'
     ) => {
         const newId = nanoid();
         if (type === 'hazard') {
@@ -222,7 +280,9 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                 tags: null,
                 type: 'hazard' as const,
                 radius: hazardRadius ?? 50,
+                hazardCategory: hazardCategory ?? 'warning',
                 audio_id: null,
+                // marker: new mapboxgl.Marker() // Add the required marker property
             };
             addHazardPoi(newHazardPoi);
             setPoiNum(prev => prev + 1);
@@ -576,11 +636,14 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             }}
                         >
                             <div
-                                className={`bg-crimson-red border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center`}
-                                style={{
-                                    width: `${hazard.radius}px`,
-                                    height: `${hazard.radius}px`,
-                                }}
+                            className={`
+                                ${hazard.hazardCategory === 'caution' ? 'bg-[#5e4331]' : 'bg-[#6e223d]'}
+                                border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center
+                            `}
+                            style={{
+                                width: `${hazard.radius}px`,
+                                height: `${hazard.radius}px`,
+                            }}
                             >
                                 <div className="hazard-marker-exclamation text-center text-white font-bold text-lg">!</div>
                             </div>
@@ -634,7 +697,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             latitude={tempHazardPin.lat}
                         >
                             <div
-                                className={`bg-crimson-red border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center opacity-70`}
+                                className={`${tempHazardCategory === 'caution' ? 'bg-[#5e4331]' : 'bg-[#6e223d]'} border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center opacity-70`}
                                 style={{
                                     width: `${tempHazardPin.radius}px`,
                                     height: `${tempHazardPin.radius}px`,

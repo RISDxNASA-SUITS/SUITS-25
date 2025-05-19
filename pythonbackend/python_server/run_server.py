@@ -14,7 +14,7 @@ if __name__ == '__main__':
         # Run the Flask app
         app.run(
             host='127.0.0.1',  # localhost
-            port=5000,
+            port=4000,
             debug=True  # Enable debug mode for development
         )
     except Exception as e:
