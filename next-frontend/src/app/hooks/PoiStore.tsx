@@ -49,6 +49,7 @@ export interface Poi {
     type: PinTypes
     audio_id: number | null;
     description?: string;
+    radius: number | null;
 }
 
 export interface HazardPoi extends Poi {
@@ -61,14 +62,15 @@ export interface BreadCrumb extends Poi {
 }
 
 type poiBackend = {
-    id: string;
+    id: string | undefined;
     name: string;
     x: number;
     y: number;
-    tags: string;
+    tags: String[];
     description: string;
     type: string;
-    audio_id: number | null;
+    audioId: number | null;
+    radius: number | null;
 }
 
 interface PoiStore {
@@ -79,14 +81,13 @@ interface PoiStore {
     addPoi: (poi: Poi) => void;
     addHazardPoi: (hazardPoi: HazardPoi) => void;
     selectPoi: (poiId: string | null) => void;
-    updatePoi: (poiId: string, update: Partial<Poi>) => void;
-    updateHazardPoi: (poiId: string, update: Partial<HazardPoi>) => void;
     updateTag: (poiId: string | null, category: string, subCategory: string, label: string) => void;
     clearTags: (poiId: string) => void;
     deletePoi: (poiId: string | null) => void;
-    deleteHazardPoi: (poiId: string | null) => void;
     loadFromBackend: () => void
+    addVoiceNote: (poiId:number, voiceNote:Number) => void
 }
+
 
 const backendToFrontendPoi = (poi: poiBackend): Poi => {
     let parsedTags: TagSelections | null = null;
@@ -125,39 +126,41 @@ const backendToFrontendPoi = (poi: poiBackend): Poi => {
     }
 
     return {
-        id: nanoid(),
+        id: poi.id,    
         name: poi.name,
         coords: convertMoonToEarth({x: poi.x, y: poi.y}),
         moonCoords: { x: poi.x, y: poi.y },
         tags: parsedTags,
         type: poi.type as PinTypes,
         audio_id: poi.audio_id,
-        description: poi.description
+        description: poi.description,
+        radius: poi.radius
     }
 }
 
 const frontendToBackendPoi = (poi: Poi): poiBackend => {
     return {
-        id: poi.id,
+        id:undefined,
         name: poi.name,
         x: poi.moonCoords.x,
         y: poi.moonCoords.y,
-        tags: poi.tags ? JSON.stringify(poi.tags) : "",
+        tags: [],
         type: poi.type,
-        audio_id: poi.audio_id,
-        description: poi.description || ""
+        audioId: poi.audio_id,
+        description: poi.description || "",
+        radius: poi.radius
     }
 }
 
-export const PoiStore = create<PoiStore>((set) => ({
+export const PoiStore = create<PoiStore>((set,get) => ({
     pois: [],
     hazardPois: [],
     breadCrumbs: [],
     selectedPoiId: null,
     loadFromBackend: async () => {
-        const data = await fetch("/api/pois")
+        const data = await fetch('/api/pois')
         let json = await data.json()
-        json = json.map((poi: poiBackend) => backendToFrontendPoi(poi))
+        json = json.data.map((poi: poiBackend) => backendToFrontendPoi(poi))
         const pois:Poi[] = json.filter((poi:Poi) => poi.type !== "breadCrumb" && poi.type !== 'hazard')
         const hazardPois:HazardPoi[] = json.filter((poi:Poi) => poi.type === 'hazard')
         const breadCrumbs:BreadCrumb[] = json.filter((poi:Poi) => poi.type === 'breadCrumb')
@@ -165,35 +168,40 @@ export const PoiStore = create<PoiStore>((set) => ({
     },
     addPoi: async (poi: Poi) => {
         const backendPoi = frontendToBackendPoi(poi)
-        const data = await fetch("/api/pois", {
+        
+        await fetch('/api/pois', {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(backendPoi)
         })
-        set((state) => ({
-            pois: [...state.pois, poi],
-            selectedPoiId: poi.id
-        }))
+        get().loadFromBackend()
     },
-    addHazardPoi: (hazardPoi: HazardPoi) => set((state) => ({
-        hazardPois: [...state.hazardPois, hazardPoi],
-        selectedPoiId: hazardPoi.id
-    })),
+    addHazardPoi: async (hazardPoi: HazardPoi) => {
+        await fetch('/api/pois', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(frontendToBackendPoi(hazardPoi))
+        })
+        get().loadFromBackend()
+    },
     selectPoi: (poiId: string | null) => set(() => ({
         selectedPoiId: poiId
     })),
-    updatePoi: (poiId, update) => set((state) => ({
-        pois: state.pois.map((poi) =>
-            poi.id === poiId ? { ...poi, ...update } : poi
-        )
-    })),
-    updateHazardPoi: (poiId, update) => set((state) => ({
-        hazardPois: state.hazardPois.map((hazardPoi) =>
-            hazardPoi.id === poiId ? { ...hazardPoi, ...update } : hazardPoi
-        )
-    })),
+    addVoiceNote: async (poiId:number, voiceNote:Number) => {
+        await fetch('/api/pois/voice-note', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({poiId, voiceNote})
+        })
+        get().loadFromBackend()
+    },
+    
     updateTag: (poiId, category, subCategory, label) =>
         set((state) => {
             const poi = state.pois.find(p => p.id === poiId);
@@ -225,14 +233,11 @@ export const PoiStore = create<PoiStore>((set) => ({
                 p.id === poiId ? { ...p, tags: {} } : p
             )
         })),
-    deletePoi: (poiId: string | null) =>
-        set((state) => ({
-            pois: state.pois.filter(p => p.id !== poiId),
-            selectedPoiId: state.selectedPoiId === poiId ? null : state.selectedPoiId
-        })),
-    deleteHazardPoi: (poiId: string | null) =>
-        set((state) => ({
-            hazardPois: state.hazardPois.filter(p => p.id !== poiId),
-            selectedPoiId: state.selectedPoiId === poiId ? null : state.selectedPoiId
-        })),
-}));
+    deletePoi: async (poiId: string | null) => {
+        if (!poiId) return;
+        await fetch(`/api/pois/${poiId}`, {
+            method: "DELETE",
+        })
+        get().loadFromBackend()
+    }
+}));    
