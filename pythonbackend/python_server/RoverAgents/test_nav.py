@@ -5,7 +5,7 @@ test_Nav.end = [-5868.10, -10016.10]
 A = [-5855.60, -10168.60]
 B = [-5868.10, -10016.10]
 C = [-5745.90, -9977.30]
-# test_Nav.follow_path(A)
+test_Nav.follow_path(A)
 print("A finished")
 test_Nav.follow_path(B)
 print("B finished")
