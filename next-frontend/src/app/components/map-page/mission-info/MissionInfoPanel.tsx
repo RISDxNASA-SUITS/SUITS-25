@@ -16,11 +16,39 @@ export const MissionInfoPanel = () => {
     const [incline, setIncline] = useState("10°");
 
     const [dropdown, toggleDropdown] = useState<boolean>(false)
+    const [error, setError] = useState<string | null>(null);
 
     //TODO: fetch from backend
     useEffect(() => {
-
-    })
+        const fetchRoverTss = async() => {
+            try {
+                setError(null);
+                const data = await fetch(`/api/map-page-stats`);
+                if (!data.ok) {
+                    throw new Error(`HTTP error! status: ${data.status}`);
+                }
+                const res = await data.json();
+                console.log(res);
+                
+                // Update state with the fetched data
+                setPrSpeed(res.speed || 0);
+                setPrAngle(res.heading || 0);
+                setBaseDistance(`${(res.distanceFromBase || 0).toFixed(3)} m`);
+                setPitch(`${res.pitch || 0}°`);
+                setRoll(`${res.roll || 0}°`);
+                setIncline(`${res.surfaceIncline || 0}°`);
+                
+            } catch (e) {
+                console.error("Failed to fetch: ", e);
+                setError(e instanceof Error ? e.message : "Failed to fetch rover data");
+            }
+        }
+        
+        fetchRoverTss();
+        // Set up polling every 5 seconds
+        const interval = setInterval(fetchRoverTss, 5000);
+        return () => clearInterval(interval);
+    },[])
 
     const handleDropdown = () => {
         toggleDropdown(!dropdown)
@@ -31,7 +59,11 @@ export const MissionInfoPanel = () => {
 
             {/* button and dropdown container */}
             <div className="flex w-full items-start gap-6 p-6">
-
+                {error && (
+                    <div className="absolute top-0 left-0 right-0 bg-red-500 text-white p-2 text-center">
+                        Error: {error}
+                    </div>
+                )}
                 {/* full dropdown container */}
                 <div className="flex flex-col w-full gap-6 justify-start">
 
