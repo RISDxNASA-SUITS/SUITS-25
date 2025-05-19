@@ -87,20 +87,9 @@ interface PoiStore {
     addHazardPoi: (hazardPoi: HazardPoi) => void;
     addLtvPoi: (ltvPoi: LtvPoi) => void;
     selectPoi: (poiId: string | null) => void;
-<<<<<<< HEAD
     updateTag: (poiId: string | null, category: string, subCategory: string, label: string) => void;
     clearTags: (poiId: string) => void;
     deletePoi: (poiId: string | null) => void;
-=======
-    updatePoi: (poiId: string, update: Partial<Poi>) => void;
-    updateHazardPoi: (poiId: string, update: Partial<HazardPoi>) => void;
-    updateLtvPoi: (poiId: string, update: Partial<LtvPoi>) => void;
-    updateTag: (poiId: string | null, category: string, subCategory: string, label: string) => void;
-    clearTags: (poiId: string) => void;
-    deletePoi: (poiId: string | null) => void;
-    deleteHazardPoi: (poiId: string | null) => void;
-    deleteLtvPoi: (poiId: string | null) => void;
->>>>>>> 08c66ca526215a20a1cc994ddc011f4de6c98357
     loadFromBackend: () => void
     addVoiceNote: (poiId:number, voiceNote:Number) => void
 }
@@ -178,13 +167,8 @@ export const PoiStore = create<PoiStore>((set,get) => ({
     loadFromBackend: async () => {
         const data = await fetch('/api/pois')
         let json = await data.json()
-<<<<<<< HEAD
         json = json.data.map((poi: poiBackend) => backendToFrontendPoi(poi))
         const pois:Poi[] = json.filter((poi:Poi) => poi.type !== "breadCrumb" && poi.type !== 'hazard')
-=======
-        json = json.map((poi: poiBackend) => backendToFrontendPoi(poi))
-        const pois:Poi[] = json.filter((poi:Poi) => poi.type !== "breadCrumb" && poi.type !== 'hazard' && poi.type !== 'ltv')
->>>>>>> 08c66ca526215a20a1cc994ddc011f4de6c98357
         const hazardPois:HazardPoi[] = json.filter((poi:Poi) => poi.type === 'hazard')
         const breadCrumbs:BreadCrumb[] = json.filter((poi:Poi) => poi.type === 'breadCrumb')
         const ltvPois:LtvPoi[] = json.filter((poi:Poi) => poi.type === 'ltv')
@@ -212,7 +196,6 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         })
         get().loadFromBackend()
     },
-<<<<<<< HEAD
     selectPoi: (poiId: string | null) => set(() => ({
         selectedPoiId: poiId
     })),
@@ -227,34 +210,6 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         get().loadFromBackend()
     },
     
-=======
-    addHazardPoi: (hazardPoi: HazardPoi) => set((state) => ({
-        hazardPois: [...state.hazardPois, hazardPoi],
-        selectedPoiId: hazardPoi.id
-    })),
-    addLtvPoi: (ltvPoi: LtvPoi) => set((state) => ({
-        ltvPois: [...state.ltvPois, ltvPoi],
-        selectedPoiId: ltvPoi.id
-    })),
-    selectPoi: (poiId: string | null) => set(() => ({
-        selectedPoiId: poiId
-    })),
-    updatePoi: (poiId, update) => set((state) => ({
-        pois: state.pois.map((poi) =>
-            poi.id === poiId ? { ...poi, ...update } : poi
-        )
-    })),
-    updateHazardPoi: (poiId, update) => set((state) => ({
-        hazardPois: state.hazardPois.map((hazardPoi) =>
-            hazardPoi.id === poiId ? { ...hazardPoi, ...update } : hazardPoi
-        )
-    })),
-    updateLtvPoi: (poiId, update) => set((state) => ({
-        ltvPois: state.ltvPois.map((ltvPoi) =>
-            ltvPoi.id === poiId ? { ...ltvPoi, ...update } : ltvPoi
-        )
-    })),
->>>>>>> 08c66ca526215a20a1cc994ddc011f4de6c98357
     updateTag: (poiId, category, subCategory, label) =>
         set((state) => {
             const poi = state.pois.find(p => p.id === poiId);
