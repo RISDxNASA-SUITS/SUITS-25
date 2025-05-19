@@ -19,7 +19,7 @@ export const MapPage = ()=>{
     console.log(controlPanelState);
     
     useEffect(() => {
-        console.log(roverX, roverY);
+        console.log(roverX, roverY, "ARE ROVER COORDS");
         const fetchRoverCoords = async() => {
             try {
                 const data = await fetch('/api/map-page-stats');
@@ -28,7 +28,7 @@ export const MapPage = ()=>{
                 }
                 const res = await data.json();
                 
-                // console.log(res.x, res.y);
+
                 
                 setRoverX(res.x || -95.08100506531964);
                 setRoverY(res.y || 29.56485541847833);

@@ -20,6 +20,7 @@ object Pois : IntIdTable() {
     val description: Column<String> = varchar("description", 400)
     val type: Column<String> = varchar("type", 128)
     val audio =  reference("audio_id", Audios).nullable()
+    val radius = double("radius").nullable()
 }
 
 object Audios : IntIdTable(){
@@ -43,6 +44,8 @@ data class AudioResponse(
     val id:Int,
 )
 
+data class PoiResponseJson(val data:List<PoiResponse>)
+
 class Poi(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<Poi>(Pois)
 
@@ -53,9 +56,11 @@ class Poi(id: EntityID<Int>) : IntEntity(id) {
     var description by Pois.description
     var type by Pois.type
     var audio by Audio.optionalReferencedOn(Pois.audio)
+    var radius by Pois.radius
 
     fun asResponse(): PoiResponse {
         return PoiResponse(
+            this.id.value,
             this.name,
             this.x,
             this.y,
@@ -63,18 +68,21 @@ class Poi(id: EntityID<Int>) : IntEntity(id) {
             this.description,
             this.type,
             this.audio?.id?.value,
+            this.radius
         )
     }
 }
 
 data class PoiResponse(
+    var id: Int?,
     var name: String,
     var x: Double,
     var y: Double,
     var tags: List<String>,
     var description: String,
     var type: String,
-    var audioId: Int?
+    var audioId: Int?,
+    var radius :Double?
 )
 
 class PoiDbController {
@@ -84,6 +92,20 @@ class PoiDbController {
         transaction {
             SchemaUtils.create(Pois, Audios)
         }
+    }
+    
+    data class AddVoiceNoteRequest(
+        val poiId: Int,
+        val voiceNote: Int
+    )
+    fun addVoiceNote(ctx: Context){
+        val req = ctx.bodyAsClass(AddVoiceNoteRequest::class.java)
+        transaction {
+            Poi.findById(req.poiId) ?.let {
+                it.audio = Audio.findById(req.voiceNote)  
+            }
+        }
+        ctx.result("Voice note added")
     }
 
     fun addPoi(poi: PoiResponse) {
@@ -98,15 +120,17 @@ class PoiDbController {
                 audio = poi.audioId?.let { id ->
                     transaction { Audio.findById(id) }
                 }
+                radius = poi.radius
             }
 
         }
     }
-
-    fun getPois(): List<PoiResponse> {
-        return transaction {
+    
+    fun getPois(): PoiResponseJson{
+        val list = transaction {
             Poi.all().map { it.asResponse() }
         }
+        return PoiResponseJson(list)
     }
 
     fun deletePoi(name: String) {
@@ -114,6 +138,7 @@ class PoiDbController {
             Poi.find { Pois.name eq name }.forEach { it.delete() }
         }
     }
+
 
     fun getPoisByTag(tag: String): List<PoiResponse> {
         return transaction {
@@ -184,6 +209,13 @@ class PoiDbController {
         transaction {
             Pois.deleteAll()
             Audios.deleteAll()
+        }
+        return ctx.result("Successfully deleted POI")
+    }
+    fun deletePoi(ctx: Context): Context{
+        val id = ctx.pathParam("id").toInt()
+        transaction {
+            Poi.findById(id)?.delete()
         }
         return ctx.result("Successfully deleted POI")
     }

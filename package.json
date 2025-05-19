@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "axios": "^1.9.0",
+    "react-use-audio-recorder": "^0.4.2",
+    "react-map-gl": "^8.0.4",
     "react-semicircle-progressbar": "^1.1.0"
   }
 }
