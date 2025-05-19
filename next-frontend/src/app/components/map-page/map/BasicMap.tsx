@@ -42,12 +42,64 @@ const initialViewState = {
     bearing: 0,
     padding: {top: 0, bottom: 0, left: 0, right: 0}
 };
+    // }, [pois])
+    export function convertMoonToEarth(moon: MoonCoord): MapboxCoord {
+        // Moon (x, y) for 4 corners
+        const topLeft: MoonCoord = { x: -6550, y: -9750 };
+        const topRight: MoonCoord = { x: -5450, y: -9750 };
+        const bottomLeft: MoonCoord = { x: -6550, y: -10450 };
+        const bottomRight: MoonCoord = { x: -5450, y: -10450 };
+
+        const mapTopLeft: MapboxCoord = { lat: 29.565142600082694, lng: -95.08176351207713 };
+        const mapTopRight: MapboxCoord = { lat: 29.565142380800154, lng: -95.08066260052011 };
+        const mapBottomLeft: MapboxCoord = { lat: 29.564467668240866, lng: -95.08176413546131 };
+        const mapBottomRight: MapboxCoord = { lat: 29.564467418688906, lng: -95.0806628133406 };
+
+        const u = (moon.x - topLeft.x) / (topRight.x - topLeft.x);
+        const v = (moon.y - topLeft.y) / (bottomLeft.y - topLeft.y);
+
+        const topX = mapTopLeft.lng + u * (mapTopRight.lng - mapTopLeft.lng);
+        const topY = mapTopLeft.lat + u * (mapTopRight.lat - mapTopLeft.lat);
+        const bottomX = mapBottomLeft.lng + u * (mapBottomRight.lng - mapBottomLeft.lng);
+        const bottomY = mapBottomLeft.lat + u * (mapBottomRight.lat - mapBottomLeft.lat);
+
+        const earthX = topX + v * (bottomX - topX);
+        const earthY = topY + v * (bottomY - topY);
+
+        return {lat: earthY, lng: earthX}
+    }
+    export function convertEarthToMoon(earth: MapboxCoord): MoonCoord {
+        // Earth (lat, lon) for 4 corners
+        const topLeft: MapboxCoord = { lat: 29.565142600082694, lng: -95.08176351207713 };
+        const topRight: MapboxCoord = { lat: 29.565142380800154, lng: -95.08066260052011 };
+        const bottomLeft: MapboxCoord = { lat: 29.564467668240866, lng: -95.08176413546131 };
+        const bottomRight: MapboxCoord = { lat: 29.564467418688906, lng: -95.0806628133406 };
+
+        // Moon (x, y) for same corners
+        const moonTopLeft: MoonCoord = { x: -6550, y: -9750 };
+        const moonTopRight: MoonCoord = { x: -5450, y: -9750 };
+        const moonBottomLeft: MoonCoord = { x: -6550, y: -10450 };
+        const moonBottomRight: MoonCoord = { x: -5450, y: -10450 };
+
+        // Convert lat/lon to normalized positions (u,v) between 0 and 1
+        const u = (earth.lng - topLeft.lng) / (topRight.lng - topLeft.lng);
+        const v = (earth.lat - topLeft.lat) / (bottomLeft.lat - topLeft.lat);
+
+        // Interpolate Moon coordinates
+        const topX = moonTopLeft.x + u * (moonTopRight.x - moonTopLeft.x);
+        const topY = moonTopLeft.y + u * (moonTopRight.y - moonTopLeft.y);
+        const bottomX = moonBottomLeft.x + u * (moonBottomRight.x - moonBottomLeft.x);
+        const bottomY = moonBottomLeft.y + u * (moonBottomRight.y - moonBottomLeft.y);
+
+        const moonX = topX + v * (bottomX - topX);
+        const moonY = topY + v * (bottomY - topY);
+
+        return { x: moonX, y: moonY };
+    }
 
 const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: BasicMapProps) => {
     const [viewState, setViewState] = useState(initialViewState);
-
     const { pois, hazardPois, ltvPois, addPoi, addHazardPoi, addLtvPoi, selectPoi, selectedPoiId, loadFromBackend, updatePoi, updateHazardPoi, updateLtvPoi, breadCrumbs } = PoiStore();
-
     const [poiNum, setPoiNum] = useState(1); // For default naming, might need better persistence
 
     const pointA = convertMoonToEarth({ x: -5855.60, y: -10168.60 });
@@ -64,7 +116,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     // For the expandable add menu
     const [addActive, toggleAddActive] = useState<boolean>(false);
     const [poiButtonClickActive, setPoiButtonClickActive] = useState<boolean>(false);
-    
+
     // Add these function definitions
     const prepareHazardAddition = () => {
         setControlPanelState("AddHazard");
@@ -83,71 +135,19 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
 
     useEffect(() => {
         loadFromBackend();
+        const timeout = setInterval(() => {
+            loadFromBackend();
+        }, 1000);
+        return () => clearInterval(timeout);
     }, [loadFromBackend]);
 
     // This effect is no longer needed as markers are rendered declaratively
     // useEffect(()=> {
     //     pois.forEach(x => x.addMarkerFromBackend()) // This method needs to be removed from Poi type or re-evaluated
     // }, [pois])
-    
-    function convertEarthToMoon(earth: MapboxCoord): MoonCoord {
-        // Earth (lat, lon) for 4 corners
-        const topLeft: MapboxCoord = { lat: 29.565142600082694, lng: -95.08176351207713 };
-        const topRight: MapboxCoord = { lat: 29.565142380800154, lng: -95.08066260052011 };
-        const bottomLeft: MapboxCoord = { lat: 29.564467668240866, lng: -95.08176413546131 };
-        const bottomRight: MapboxCoord = { lat: 29.564467418688906, lng: -95.0806628133406 };
-        
-        // Moon (x, y) for same corners
-        const moonTopLeft: MoonCoord = { x: -6550, y: -9750 };
-        const moonTopRight: MoonCoord = { x: -5450, y: -9750 };
-        const moonBottomLeft: MoonCoord = { x: -6550, y: -10450 };
-        const moonBottomRight: MoonCoord = { x: -5450, y: -10450 };
-        
-        // Convert lat/lon to normalized positions (u,v) between 0 and 1
-        const u = (earth.lng - topLeft.lng) / (topRight.lng - topLeft.lng);
-        const v = (earth.lat - topLeft.lat) / (bottomLeft.lat - topLeft.lat);
-        
-        // Interpolate Moon coordinates
-        const topX = moonTopLeft.x + u * (moonTopRight.x - moonTopLeft.x);
-        const topY = moonTopLeft.y + u * (moonTopRight.y - moonTopLeft.y);
-        const bottomX = moonBottomLeft.x + u * (moonBottomRight.x - moonBottomLeft.x);
-        const bottomY = moonBottomLeft.y + u * (moonBottomRight.y - moonBottomLeft.y);
-        
-        const moonX = topX + v * (bottomX - topX);
-        const moonY = topY + v * (bottomY - topY);
-        
-        return { x: moonX, y: moonY };
-    }
-    
-    function convertMoonToEarth(moon: MoonCoord): MapboxCoord {
-        // Earth (lat, lon) for 4 corners
-        const topLeft: MapboxCoord = { lat: 29.565142600082694, lng: -95.08176351207713 };
-        const topRight: MapboxCoord = { lat: 29.565142380800154, lng: -95.08066260052011 };
-        const bottomLeft: MapboxCoord = { lat: 29.564467668240866, lng: -95.08176413546131 };
-        const bottomRight: MapboxCoord = { lat: 29.564467418688906, lng: -95.0806628133406 };
-        
-        // Moon (x, y) for same corners
-        const moonTopLeft: MoonCoord = { x: -6550, y: -9750 };
-        const moonTopRight: MoonCoord = { x: -5450, y: -9750 };
-        const moonBottomLeft: MoonCoord = { x: -6550, y: -10450 };
-        const moonBottomRight: MoonCoord = { x: -5450, y: -10450 };
-        
-        // Convert MoonCoord to normalized (u, v)
-        const u = (moon.x - moonTopLeft.x) / (moonTopRight.x - moonTopLeft.x);
-        const v = (moon.y - moonTopLeft.y) / (moonBottomLeft.y - moonTopLeft.y);
-        
-        // Interpolate lat/lng
-        const topLng = topLeft.lng + u * (topRight.lng - topLeft.lng);
-        const topLat = topLeft.lat + u * (topRight.lat - topLeft.lat);
-        const bottomLng = bottomLeft.lng + u * (bottomRight.lng - bottomLeft.lng);
-        const bottomLat = bottomLeft.lat + u * (bottomRight.lat - bottomLeft.lat);
-        
-        const lng = topLng + v * (bottomLng - topLng);
-        const lat = topLat + v * (bottomLat - topLat);
-        
-        return { lat, lng };
-    }
-    
+
+
+
     const handleMapClick = useCallback((event: MapMouseEvent) => {
         const { lng, lat } = event.lngLat;
         console.log("mapbox:" + lat, lng);
@@ -172,7 +172,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             />
         </Marker>
     );
-    
+
     function renderRoverMarker({ x, y }: { x: number; y: number }) {
         const roverCoords = convertMoonToEarth({x: x, y: y})
         return (
@@ -188,7 +188,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             </Marker>
         )
     }
-    
+
     const onPoiButtonClick = () => {
         setPoiButtonClickActive(!poiButtonClickActive);
         if (newPinLocation) {
@@ -200,7 +200,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             toggleAddActive(false);
         }
     };
-    
+
     // Generic function to add a new POI
     const addNewPinToStore = (
         lng: number,
@@ -223,7 +223,6 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                 type: 'hazard' as const,
                 radius: hazardRadius ?? 50,
                 audio_id: null,
-                // marker: new mapboxgl.Marker() // Add the required marker property
             };
             addHazardPoi(newHazardPoi);
             setPoiNum(prev => prev + 1);
@@ -286,7 +285,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
         const moonCord = convertEarthToMoon({lat, lng});
         addNewPinToStore(lng, lat, moonCord.x, moonCord.y, "ltv", "LTV");
     };
-    
+
     const onAddClick = () => {
         const newAddActiveState = !addActive;
         toggleAddActive(newAddActiveState);
@@ -295,7 +294,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             setNewPinLocation(null); // Clear any temp pin
         }
     };
-    
+
     const selectedPoiDetails = pois.find(p => p.id === selectedPoiId);
 
     // Function to render the popup for a new pin or selected POI
@@ -400,7 +399,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
         }
         return null;
     };
-    
+
     // Hazard Radius Popup Component (can be moved to a separate file)
     function HazardRadiusPopup({ initialRadius, onRadiusChange, onConfirm, onCancel }: { initialRadius: number, onRadiusChange: (radius: number) => void, onConfirm: (radius: number) => void, onCancel: () => void}) {
         const [radius, setRadius] = useState(initialRadius);
@@ -426,7 +425,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                 </div>
             );
     }
-    
+
     return (
         <div className="map-wrapper">
             {/* Column labels */}
@@ -563,7 +562,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                     </Popup>
 
 
-                    
+
                     {/* Render hazard POIs */}
                     {hazardPois.map(hazard => (
                         <Marker
@@ -587,11 +586,10 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             </div>
                         </Marker>
                     ))}
-
                     {/* Render breadcrumb POIs */}
                     {breadCrumbs.map(breadcrumb => (
                         <Marker
-                         
+
                             longitude={breadcrumb.coords.lng}
                             latitude={breadcrumb.coords.lat}
                         >
@@ -607,11 +605,11 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                         >
                             <div
                                 className={`bg-purple-500 border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center`}
-                             
+
                             >
    <div className=" text-center text-white font-bold text-lg">!</div>
                             </div>
-                         
+
                         </Marker>
                     ))}
                     {/* Render LTV POIs */}
@@ -628,7 +626,6 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             </div>
                         </Marker>
                     ))}
-                    
 
                     {/* Show temporary hazard marker while adjusting radius */}
                     {tempHazardPin && (
@@ -656,7 +653,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                 {/* These can largely remain the same, but their onClick handlers might change */}
                 <div className="absolute bottom-8 right-4 flex flex-col gap-2 items-end z-10">
                     {/* Draw Path */}
-                    <PrimaryButton 
+                    <PrimaryButton
                         logo={"/logo/edit-white.svg"}
                         logoClassName={"w-8 h-8"}
                         className={`
@@ -679,7 +676,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             className={"p-4 relative hover:bg-another-purple rounded-xl"}
                             onClick={onAddClick} // Toggles the add menu
                         />
-                        
+
                         {/* popup section - add POI & add Hazard & add LTV*/}
                         <div className={`transition-all duration-300 ease-in-out overflow-hidden
                             ${addActive ? `opacity-100 mx-4 overflow-visible`: `opacity-0 w-0 pointer-events-none ml-0`} flex justify-center items-center gap-4`}>
@@ -707,16 +704,16 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                 {/* ZoomIn & ZoomOut*/}
                 <div className="absolute bottom-8 left-6 z-10">
                     <div className="flex flex-col items-center justify-center border border-light-purple rounded-xl bg-light-purple/20 backdrop-blur-sm overflow-hidden">
-                         <TertiaryButton 
-                            onClick={() => setViewState(v => ({...v, zoom: Math.min(22, v.zoom + 1), longitude: v.longitude, latitude: v.latitude, pitch: v.pitch, bearing: v.bearing, padding: v.padding}))} 
-                            logo="/logo/zoom-in.svg" 
-                            className="rounded-none p-3" 
+                         <TertiaryButton
+                            onClick={() => setViewState(v => ({...v, zoom: Math.min(22, v.zoom + 1), longitude: v.longitude, latitude: v.latitude, pitch: v.pitch, bearing: v.bearing, padding: v.padding}))}
+                            logo="/logo/zoom-in.svg"
+                            className="rounded-none p-3"
                         />
                         <div className="w-8 h-px bg-light-purple opacity-50" />
-                        <TertiaryButton 
+                        <TertiaryButton
                             onClick={() => setViewState(v => ({...v, zoom: Math.max(0, v.zoom - 1), longitude: v.longitude, latitude: v.latitude, pitch: v.pitch, bearing: v.bearing, padding: v.padding}))}
-                            logo="/logo/zoom-out.svg" 
-                            className="rounded-none p-3" 
+                            logo="/logo/zoom-out.svg"
+                            className="rounded-none p-3"
                         />
                     </div>
                 </div>
