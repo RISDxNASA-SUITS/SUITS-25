@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useState, RefObject, useCallback } from 'react';
-import { Map,Marker, Popup, ViewStateChangeEvent, MapMouseEvent } from 'react-map-gl/mapbox';
+// import { Map,Marker, Popup, ViewStateChangeEvent, MapMouseEvent } from 'react-map-gl/mapbox';
+import Map, { Marker, Popup } from 'react-map-gl';
+import type { ViewStateChangeEvent, MapMouseEvent } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css'; // Keep for base styles
 import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
 import { PoiStore, PinTypes, Poi, HazardPoi } from "@/app/hooks/PoiStore";

@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import CircularGauge from "../Gauges/CircularGauge";
 import LineGauge from "../Gauges/LineGauge";
