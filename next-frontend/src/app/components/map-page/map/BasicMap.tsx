@@ -589,7 +589,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                     {/* Render breadcrumb POIs */}
                     {breadCrumbs.map(breadcrumb => (
                         <Marker
-
+                            key={breadcrumb.id}
                             longitude={breadcrumb.coords.lng}
                             latitude={breadcrumb.coords.lat}
                         >
