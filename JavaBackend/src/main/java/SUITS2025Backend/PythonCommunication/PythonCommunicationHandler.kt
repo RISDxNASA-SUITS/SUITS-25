@@ -9,184 +9,191 @@ import java.net.InetAddress
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import org.jetbrains.exposed.sql.transactions.transaction
+import SUITS2025Backend.db.*
 data class returnData(val data:Float)
-data class lidarReturn(val data:List<Float>);
-sealed class RoverCommand {
-    open fun communicate(): Any {
-        throw NotImplementedError("communicate() not implemented")
-    }
+data class lidarReturn(val data:List<Float>)
 
-    open fun communicate(input: Float): Any {
-        return communicate()
-    }
+object PythonCommunicationHandler {
+    private const val LIDAR_CMD = 172
+    private const val BRAKE_CMD = 1107
+    private const val THROTTLE_CMD = 1109
+    private const val STEERING_CMD = 1110
+    val bgScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    
+    data class Position(val x: Float, val y: Float)
 
+    @JvmStatic
+    fun setup(app: Javalin) {   
+        val channel = Channel<Position>()
+        bgScope.launch {
+            var lastXY = Position(0f, 0f)
+            
+
+            while(true){
+                val telem:PrTelemetry = getTelemetry();
+                val newPos = Position(telem.currentPosX, telem.currentPosY)
+                if (newPos != lastXY){
+                    channel.send(newPos)
+                    lastXY = newPos
+                }
+                delay(2000)
+            }
+        }
+
+        bgScope.launch {
+            while(true){
+                val pos = channel.receive()
+                transaction {
+                    Poi.new {
+                        name = "breadCrumb"
+                        x = pos.x.toDouble()
+                        y = pos.y.toDouble()
+                        tags = ""
+                        description = ""
+                        type = "breadCrumb"
+                    }
+                }
+
+                
+            }
+        }
+        app.get("/lidar", this::getLidar)
+        app.post("/brakes", this::postBrakes)
+        app.post("/throttle", this::postThrottle)
+        app.post("/steering", this::postSteering)
+        app.get("/telemetry", this::getTelem)
+    }
 
     fun makeSendCommandPacket(commandNumber: Int, input: Float): ByteBuffer {
-        val buffer = ByteBuffer.allocate(12);
+        val buffer = ByteBuffer.allocate(12)
         buffer.order(ByteOrder.BIG_ENDIAN)
         val timeStamp = Date().time.toInt()
-        buffer.putInt(timeStamp);
-        buffer.putInt(commandNumber);
-        buffer.putFloat(input);
-        return buffer;
+        buffer.putInt(timeStamp)
+        buffer.putInt(commandNumber)
+        buffer.putFloat(input)
+        return buffer
     }
 
     fun makeSendLidarPacket(commandNumber: Int): ByteBuffer {
-        val buffer = ByteBuffer.allocate(8);
+        val buffer = ByteBuffer.allocate(8)
         buffer.order(ByteOrder.BIG_ENDIAN)
         val timeStamp = Date().time.toInt()
-        buffer.putInt(timeStamp);
-        buffer.putInt(commandNumber);
-        return buffer;
+        buffer.putInt(timeStamp)
+        buffer.putInt(commandNumber)
+        return buffer
     }
 
-    fun sendMessageNoReturn(sendPacket:ByteBuffer) {
+   fun sendMessageNoReturn(sendPacket: ByteBuffer) {
         val socket = DatagramSocket()
-        val ip = System.getenv("IP") ?: "127.0.0.1"
+        val ip = "127.0.0.1"
+        // val ip =  "192.168.51.110"
         val port = System.getenv("PORT") ?: "14141"
         val address = InetAddress.getByName(ip)
         val bytes = sendPacket.array()
         val packet = DatagramPacket(bytes, bytes.size, address, port.toInt())
-        socket.send(packet);
+        socket.send(packet)
     }
-    fun <T> sendMessage(sendPacket: ByteBuffer, recvBuffer: ByteBuffer, callBack: (ByteBuffer) -> T, toReturn: Boolean =true): T {
+
+   fun <T> sendMessage(sendPacket: ByteBuffer, recvBuffer: ByteBuffer, callBack: (ByteBuffer) -> T): T {
         val socket = DatagramSocket()
-        val ip = System.getenv("IP") ?: "127.0.0.1"
+        // val ip =  "192.168.51.110"
+        val ip = "127.0.0.1"
         val port = System.getenv("PORT") ?: "14141"
         val address = InetAddress.getByName(ip)
         val bytes = sendPacket.array()
         val packet = DatagramPacket(bytes, bytes.size, address, port.toInt())
-        socket.send(packet);
+        
+        socket.send(packet)
 
         val recvPacket = DatagramPacket(recvBuffer.array(), recvBuffer.array().size)
         socket.receive(recvPacket)
-        println("Received packet length: ${recvPacket.length}")
+        
         val toCallback = ByteBuffer.wrap(recvPacket.data, 0, recvPacket.length)
         toCallback.getInt() // Timestamp
         toCallback.getInt() // Command No.
-        return callBack(toCallback);
-
+        return callBack(toCallback)
     }
 
-    data object Lidar : RoverCommand() {
-        override fun communicate(): List<Float> {
-            val returnList:MutableList<Float> = mutableListOf()
-            (172..184).map {
-                val recvBuffer = ByteBuffer.allocate(104)
-                recvBuffer.order(ByteOrder.BIG_ENDIAN)
-                val sendPacket = makeSendLidarPacket(it);
-                val callBack: (ByteBuffer) -> Float = { buff: ByteBuffer ->
-
+    fun getLidar(): List<Float> {
+        return (arrayOf(LIDAR_CMD)).map {
+            val recvBuffer = ByteBuffer.allocate(104)
+            recvBuffer.order(ByteOrder.BIG_ENDIAN)
+            val sendPacket = makeSendLidarPacket(it)
+            val callBack: (ByteBuffer) -> List<Float> = { buff: ByteBuffer ->
+                (1..13).map {
+                    
+                    
                     buff.getFloat()
                 }
-                returnList.add(sendMessage(sendPacket,recvBuffer,callBack))
-            };
-
-
-
-            return returnList;
-
-
-        }
-    }
-
-    data object Telemetry : RoverCommand() {
-        override fun communicate(): PrTelemetry {
-            val retList:MutableList<String> = mutableListOf()
-            (124..171).forEach {
-                val recvBuffer = ByteBuffer.allocate(104)
-                val sendPacket = makeSendLidarPacket(it);
-                val callBack: (ByteBuffer) -> String = { buff: ByteBuffer ->
-                    buff.getFloat().toString()
-                }
-                retList.add(sendMessage(sendPacket,recvBuffer,callBack))
             }
-
-        return PrTelemetry.fromStringList(retList);
-        }
+            sendMessage(sendPacket, recvBuffer, callBack)
+        }.flatten()
     }
 
-    data object Brakes : RoverCommand() {
-        override fun communicate(brakeInput: Float): Int {
-            val commandNum = 1107
-            val sendPacket = makeSendCommandPacket(commandNum, brakeInput)
-
-            sendMessageNoReturn(sendPacket)
-            return 1;
+    fun getTelemetry(): PrTelemetry {
+        val retList: MutableList<String> = mutableListOf()
+        (124..166).forEach {
+            val recvBuffer = ByteBuffer.allocate(104)
+            val sendPacket = makeSendLidarPacket(it)
+            val callBack: (ByteBuffer) -> String = { buff: ByteBuffer ->
+                // Thread.sleep(500)
+                var l = buff.getFloat()
+                
+                l.toString()
+            }
+            retList.add(sendMessage(sendPacket, recvBuffer, callBack))
         }
+        return PrTelemetry.fromStringList(retList)
     }
 
-    data object Throttle : RoverCommand() {
-        override fun communicate(throttleInput: Float): Int {
-            val commandNum = 1109
-            val sendPacket = makeSendCommandPacket(commandNum, throttleInput)
-
-            sendMessageNoReturn(sendPacket)
-            return 1
-
-        }
+    fun setBrakes(brakeInput: Float): Int {
+        val sendPacket = makeSendCommandPacket(BRAKE_CMD, brakeInput)
+        sendMessageNoReturn(sendPacket)
+        return 1
     }
 
-    object Steering : RoverCommand() {
-        override fun communicate(input: Float): Float {
-            val commandNum = 1110
-            val sendPacket = makeSendCommandPacket(commandNum, input)
+    fun setThrottle(throttleInput: Float): Int {
+        val sendPacket = makeSendCommandPacket(THROTTLE_CMD, throttleInput)
+        sendMessageNoReturn(sendPacket)
+        return 1
+    }
 
-            sendMessageNoReturn(sendPacket);
-            return 1.0f
-        }
+    fun setSteering(input: Float): Float {
+        val sendPacket = makeSendCommandPacket(STEERING_CMD, input)
+        sendMessageNoReturn(sendPacket)
+        return 1.0f
+    }
+
+    // HTTP endpoint handlers
+    private fun getLidar(ctx: Context) {
+        val lidar = getLidar()
+        ctx.json(lidarReturn(lidar))
+    }
+
+    private fun postBrakes(ctx: Context) {
+        val brakes = setBrakes(ctx.bodyAsClass(BrakesRequest::class.java).brakeInput)
+        ctx.json(brakes)
+    }
+
+    private fun postThrottle(ctx: Context) {
+        val throttle = setThrottle(ctx.bodyAsClass(ThrottleRequest::class.java).throttleInput)
+        ctx.json(throttle)
+    }
+
+    private fun postSteering(ctx: Context) {
+        val steering = setSteering(ctx.bodyAsClass(SteeringRequest::class.java).steeringInput)
+        ctx.json(steering)
+    }
+
+    private fun getTelem(ctx: Context) {
+        ctx.json(getTelemetry())
     }
 }
 
-    /**
-     * Communication
-     *
-     * This section handles rover communication commands including:
-     * - Telemetry: Gets rover telemetry data (command 120)
-     * - Brakes: Controls rover brakes (command 1107)
-     * - Throttle: Controls rover throttle (command 1109)
-     * - Steering: Controls rover steering (command 1110)
-     */
-
-    data class BrakesRequest(val brakeInput: Float)
-    data class ThrottleRequest(val throttleInput: Float)
-    data class SteeringRequest(val steeringInput: Float)
-
-
-    object PythonCommunicationHandler {
-        @JvmStatic
-        fun setup(app: Javalin) {
-            app.get("/lidar", this::getLidar)
-            app.post("/brakes", this::postBrakes)
-            app.post("/throttle", this::postThrottle)
-            app.post("/steering", this::postSteering)
-            app.get("/telemetry", this::getTelem)
-        }
-
-        private fun getLidar(ctx: Context) {
-            val lidar = RoverCommand.Lidar.communicate()
-
-            ctx.json(lidarReturn(lidar))
-        }
-
-        private fun postBrakes(ctx: Context) {
-            val brakes = RoverCommand.Brakes.communicate(ctx.bodyAsClass(BrakesRequest::class.java).brakeInput)
-            ctx.json(brakes)
-        }
-
-        private fun postThrottle(ctx: Context) {
-            val throttle = RoverCommand.Throttle.communicate(ctx.bodyAsClass(ThrottleRequest::class.java).throttleInput)
-            ctx.json(throttle)
-        }
-
-        private fun postSteering(ctx: Context) {
-            val steering = RoverCommand.Steering.communicate(ctx.bodyAsClass(SteeringRequest::class.java).steeringInput)
-            ctx.json(steering)
-        }
-        private fun getTelem(ctx: Context) {
-            ctx.json(RoverCommand.Telemetry.communicate())
-        }
-
-
-    }
+data class BrakesRequest(val brakeInput: Float)
+data class ThrottleRequest(val throttleInput: Float)
+data class SteeringRequest(val steeringInput: Float)
 

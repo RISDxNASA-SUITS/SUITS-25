@@ -13,8 +13,9 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import SUITS2025Backend.PoiList.PoiController;
 import SUITS2025Backend.TaskList.TaskController;
 import SUITS2025Backend.PythonCommunication.PythonCommunicationHandler;
+import SUITS2025Backend.TssDataSerializations.TssComms;
 import io.javalin.Javalin;
-
+import SUITS2025Backend.db.GeoDbController;
 public class Server {
     public static void main(String[] args) {
         ObjectMapper mapper = new ObjectMapper();
@@ -70,5 +71,7 @@ public class Server {
         TaskController.setup(app);
         PoiController.setup(app);
         PythonCommunicationHandler.setup(app);
+        TssComms.setup(app);
+        GeoDbController.setup(app);
     }
 }

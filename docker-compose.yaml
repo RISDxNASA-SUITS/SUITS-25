@@ -1,50 +1,42 @@
-﻿version: '3.9'
+﻿version: "3.9"
 
 services:
   nextjs-frontend:
-    build:
-      context: ./next-frontend
-      dockerfile: Dockerfile
+    build: ./next-frontend
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=development
+      # Only used by Next.js server‑side calls, not browser JS!
+      NEXT_PUBLIC_IP: "java-backend:7070"
     depends_on:
       - python-backend
       - java-backend
-      - c-backend
+
 
   python-backend:
-    build:
-      context: ./pythonbackend
-      dockerfile: Dockerfile
+    build: ./pythonbackend
+    environment:
+      POETRY_VIRTUALENVS_CREATE: "false"
     ports:
       - "8000:8000"
-    environment:
-      - POETRY_VIRTUALENVS_CREATE=false
-
 
   java-backend:
-    build:
-      context: ./JavaBackend
-      dockerfile: Dockerfile
+    build: ./JavaBackend
+    environment:
+      IP: "192.168.51.110"
+      RICE_TEAM_NUM: "2"
     ports:
       - "7070:7070"
-    environment:
-      IP: c-backend
 
+#  c-backend:
+#    build:
+#      context: ./tss        # ← Dockerfile must live inside this dir
+#      dockerfile: Dockerfile
+#    command: ["./server.exe"]
+#    # UDP service exposed to host & other containers
+#    ports:
+#      - "14141:14141/udp"
+#    expose:
+#      - "14141/udp"
 
-
-  c-backend:
-    build:
-      context: ./tss
-      dockerfile: ../Dockerfile
-    expose:
-      - "14141/udp"
-    ports:
-      - "14141:14141"
-    command: ["./server.exe"]
-
-networks:
-  default:
-    driver: bridge
+networks: {}               # default bridge is implicit; can omit entirely

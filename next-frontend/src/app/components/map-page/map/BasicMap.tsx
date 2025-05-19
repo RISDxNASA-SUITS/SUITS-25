@@ -1,336 +1,383 @@
 "use client";
 
-import React, {useRef, useEffect, useState, RefObject} from 'react';
-import mapboxgl, {Marker, Popup} from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import React, { useEffect, useState, RefObject, useCallback } from 'react';
+import { Map,Marker, Popup, ViewStateChangeEvent, MapMouseEvent } from 'react-map-gl/mapbox';
+import 'mapbox-gl/dist/mapbox-gl.css'; // Keep for base styles
 import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
-import { PoiStore } from "@/app/hooks/PoiStore";
-import { createRoot } from "react-dom/client";
-import "../mapstyle.css";
-import {nanoid} from "nanoid";
+import { PoiStore, PinTypes, Poi, HazardPoi } from "@/app/hooks/PoiStore";
+import { nanoid } from "nanoid";
 import TertiaryButton from "@/app/components/ui/ui-buttons/TertiaryButton";
 import { Tooltip } from '../../ui/ui-buttons/Tooltip';
+import "../mapstyle.css"; // Keep custom styles
+import mapboxgl from 'mapbox-gl';
+import { createRoot } from 'react-dom/client';
 
-// Set your Mapbox access token
-// mapboxgl.accessToken = 'pk.eyJ1IjoieHplcm84NjQiLCJhIjoiY2xmbW9wZ3BzMDQzaTN3cDUwcWplcGF6byJ9.PR0YiT3S05lotgY12AwWEQ';
-
-//Mapbox token draft
-mapboxgl.accessToken = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGVydSJ9.pIfFx8HCC58f_PzAUjALRQ';
-
-//Mapbox token publish
-// mapboxgl.accessToken = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGVydSJ9.pIfFx8HCC58f_PzAUjALRQ';
+// Mapbox token (ensure this is the correct way to set it for react-map-gl, often passed as a prop)
+const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGVydSJ9.pIfFx8HCC58f_PzAUjALRQ';
 
 type BasicMapProps = {
-    roverCoords: {x: number, y: number};
+    roverCoords: { x: number; y: number };
     setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" | "AddTag") => void;
-    selectedMarkerRef: RefObject<mapboxgl.Marker | null>;
+    // selectedMarkerRef is problematic with declarative rendering. We'll rely on selectedPoiId from the store.
+    // Consider removing or rethinking its purpose. For now, I'll leave it but comment out its direct uses if they conflict.
+    selectedMarkerRef: RefObject<any>; // Type will change from mapboxgl.Marker
 }
 
-const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicMapProps) => {
-    //TODO: Make this work with rover x,y coordinates, mock up the conversion for now
-    const mapContainer = useRef<HTMLDivElement>(null);
-    const map = useRef<mapboxgl.Map | null>(null);
-    const [markers, setMarkers] = useState<Marker[]>([]);
-    let [poiNum, setPoiNum] = useState(1);
-    const { pois, addPoi, selectPoi, selectedPoiId, updatePoi } = PoiStore();
-    const poiButtonActiveRef = useRef<boolean>(false);
-    const [buttonActive, setButtonActive] = useState<boolean>(false);
-    const setPoiButtonActive = (value: boolean) => {
-        poiButtonActiveRef.current = value;
-        setButtonActive(value)
-    };
-    const tempMarkerRef = useRef<Marker | null>(null);
-    const markerMap = new Map<HTMLElement, { id: string, marker: Marker }>();
+type MapboxCoord = {
+    lat: number;
+    lng: number;
+};
 
-    //toggle the expanded add menu
+type MoonCoord = {
+    x: number;
+    y: number;
+};
+
+// Initial viewport settings
+const initialViewState = {
+    longitude: -95.081213,
+    latitude: 29.564795,
+    zoom: 18.8,
+    pitch: 0,
+    bearing: 0,
+    padding: {top: 0, bottom: 0, left: 0, right: 0}
+};
+    // }, [pois])
+    export function convertMoonToEarth(moon: MoonCoord): MapboxCoord {
+        // Moon (x, y) for 4 corners
+        const topLeft: MoonCoord = { x: -6550, y: -9750 };
+        const topRight: MoonCoord = { x: -5450, y: -9750 };
+        const bottomLeft: MoonCoord = { x: -6550, y: -10450 };
+        const bottomRight: MoonCoord = { x: -5450, y: -10450 };
+
+        const mapTopLeft: MapboxCoord = { lat: 29.565142600082694, lng: -95.08176351207713 };
+        const mapTopRight: MapboxCoord = { lat: 29.565142380800154, lng: -95.08066260052011 };
+        const mapBottomLeft: MapboxCoord = { lat: 29.564467668240866, lng: -95.08176413546131 };
+        const mapBottomRight: MapboxCoord = { lat: 29.564467418688906, lng: -95.0806628133406 };
+
+        const u = (moon.x - topLeft.x) / (topRight.x - topLeft.x);
+        const v = (moon.y - topLeft.y) / (bottomLeft.y - topLeft.y);
+
+        const topX = mapTopLeft.lng + u * (mapTopRight.lng - mapTopLeft.lng);
+        const topY = mapTopLeft.lat + u * (mapTopRight.lat - mapTopLeft.lat);
+        const bottomX = mapBottomLeft.lng + u * (mapBottomRight.lng - mapBottomLeft.lng);
+        const bottomY = mapBottomLeft.lat + u * (mapBottomRight.lat - mapBottomLeft.lat);
+
+        const earthX = topX + v * (bottomX - topX);
+        const earthY = topY + v * (bottomY - topY);
+
+        return {lat: earthY, lng: earthX}
+    }
+    export function convertEarthToMoon(earth: MapboxCoord): MoonCoord {
+        // Earth (lat, lon) for 4 corners
+        const topLeft: MapboxCoord = { lat: 29.565142600082694, lng: -95.08176351207713 };
+        const topRight: MapboxCoord = { lat: 29.565142380800154, lng: -95.08066260052011 };
+        const bottomLeft: MapboxCoord = { lat: 29.564467668240866, lng: -95.08176413546131 };
+        const bottomRight: MapboxCoord = { lat: 29.564467418688906, lng: -95.0806628133406 };
+        
+        // Moon (x, y) for same corners
+        const moonTopLeft: MoonCoord = { x: -6550, y: -9750 };
+        const moonTopRight: MoonCoord = { x: -5450, y: -9750 };
+        const moonBottomLeft: MoonCoord = { x: -6550, y: -10450 };
+        const moonBottomRight: MoonCoord = { x: -5450, y: -10450 };
+        
+        // Convert lat/lon to normalized positions (u,v) between 0 and 1
+        const u = (earth.lng - topLeft.lng) / (topRight.lng - topLeft.lng);
+        const v = (earth.lat - topLeft.lat) / (bottomLeft.lat - topLeft.lat);
+        
+        // Interpolate Moon coordinates
+        const topX = moonTopLeft.x + u * (moonTopRight.x - moonTopLeft.x);
+        const topY = moonTopLeft.y + u * (moonTopRight.y - moonTopLeft.y);
+        const bottomX = moonBottomLeft.x + u * (moonBottomRight.x - moonBottomLeft.x);
+        const bottomY = moonBottomLeft.y + u * (moonBottomRight.y - moonBottomLeft.y);
+        
+        const moonX = topX + v * (bottomX - topX);
+        const moonY = topY + v * (bottomY - topY);
+        
+        return { x: moonX, y: moonY };
+    }
+
+const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: BasicMapProps) => {
+    const [viewState, setViewState] = useState(initialViewState);
+    const { pois, hazardPois, addPoi, addHazardPoi, selectPoi, selectedPoiId, loadFromBackend, updatePoi, updateHazardPoi, breadCrumbs } = PoiStore();
+    const [poiNum, setPoiNum] = useState(1); // For default naming, might need better persistence
+
+    const [newPinLocation, setNewPinLocation] = useState<{ lng: number; lat: number } | null>(null);
+    const [tempPinType, setTempPinType] = useState<PinTypes | null>(null);
+    const [hazardRadius, setHazardRadius] = useState(50); // Default hazard radius
+    const [tempHazardPin, setTempHazardPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
+
+    // For the expandable add menu
     const [addActive, toggleAddActive] = useState<boolean>(false);
-
-    useEffect(() => {
-        if (map.current) return;
-        if (!mapContainer.current) return;
-
-        map.current = new mapboxgl.Map({
-            container: mapContainer.current,
-            //map style draft
-            style: 'mapbox://styles/dkimh/cm9k7yru7008601s617bl7zmh/draft',
-
-            //map style publish
-            // style: 'mapbox://styles/dkimh/cm9k7yru7008601s617bl7zmh',
-            center: [-95.081213, 29.564795],
-            zoom: 18.8,
-        });
-
-        // Listen for map clicks to add markers
-        map.current.on('click', (e: mapboxgl.MapMouseEvent) => {
-            if (tempMarkerRef.current){
-                tempMarkerRef.current.remove();
-            }
-
-            //deselect all marker
-            togglePoiSelection(false);
-
-            // select marker
-            const target = e.originalEvent.target;
-            if (target instanceof Element) {
-                const markerElement = target.closest('.mapboxgl-marker');
-                if (markerElement instanceof HTMLElement) {
-                    const match = markerMap.get(markerElement);
-                    if (match) {
-                        selectedMarkerRef.current = match.marker;
-                        togglePoiSelection(true);
-                        setControlPanelState("SelectPin");
-                        selectPoi(match.id);
-                        return;
-                    }
-                }
-            }
-
-            //add temp marker
-            const {lng, lat} = e.lngLat;
-            addMarker(lng, lat);
-
-        });
-
-    }, [poiButtonActiveRef.current]);
-
-    const addMarker = (lng: number, lat: number) => {
-        if (!map.current) return;
-
-        // custom marker
-        const markerElement = document.createElement("div");
-        markerElement.className = 'w-2 h-2 sm:w-2 sm:h-2 md:w-3 md:h-3 lg:w-3 lg:h-3 xl:w-3 xl:h-3 bg-contain bg-no-repeat bg-center';
-        markerElement.style.backgroundImage = 'url(/markers/marker.svg)';
-
-        // popup container
-        const popupContainer = document.createElement("div");
-
-        const popup = new mapboxgl.Popup({ offset: 12, closeButton: false })
-            .setDOMContent(popupContainer);
-
-        const marker = new mapboxgl.Marker(markerElement)
-            .setLngLat([lng, lat])
-            .setPopup(popup)
-            .addTo(map.current)
-            .togglePopup();
-
-        createRoot(popupContainer).render(
-            <>
-                <PrimaryButton active={buttonActive} logo={"/logo/poi-stroke.svg"} onClick={() => addPoiMarker(marker, lng, lat)}>
-                    +POI
-                </PrimaryButton>
-                <PrimaryButton active={buttonActive} logo={"/logo/poi-stroke.svg"} onClick={() => addHazardMarker(marker, lng, lat)}>
-                    +Hazard
-                </PrimaryButton>
-            </>
-        );
-
-        // Save marker to state
-        tempMarkerRef.current = marker;
-        setMarkers(prevMarkers => [...prevMarkers, marker]);
-        setPoiButtonActive(false);
-
-        setControlPanelState("EvDetails");
-    };
-
-    // const clearAllMarkers = () => {
-    //     // Remove all markers from the map
-    //     markers.forEach((marker) => marker.remove());
-    //     setMarkers([]); // Clear marker state
-    //
-    //     // Optional: Clear markers from your POI store
-    //     clearPois();
-    // };
-
-    const addPoiMarker = (marker: Marker, lng: number, lat: number) => {
-        if (!map.current) return;
-
-        marker?.getPopup()?.remove();
-        marker?.remove();
-
-        const poiMarkerElement = document.createElement("div");
-        poiMarkerElement.className = 'bg-no-repeat bg-contain bg-center sm:w-5m md:w-6 lg:w-7 sm:h-5 md:h-6 lg:h-7';
-        poiMarkerElement.style.backgroundImage = 'url(/markers/selected-poi.svg)';
-
-        const popupContainer = document.createElement("div");
-
-        const popup = new mapboxgl.Popup({
-            className: 'custom-final-popup',
-            closeButton: false,
-            offset: 16,
-        }).setDOMContent(popupContainer).setHTML(`<div>POI ${poiNum}</div>`);
-
-
-        const poiMarker = new mapboxgl.Marker(poiMarkerElement)
-            .setLngLat([lng, lat])
-            .setPopup(popup)
-            .addTo(map.current)
-            .togglePopup();
-
-        const id = nanoid();
-
-        //hashmap referring marker element
-        markerMap.set(poiMarkerElement, { id, marker: poiMarker });
-        addPoi({
-            id: id,
-            name: `POI ${poiNum}`,
-            coords: { lng, lat },
-            tags: null,
-        });
-        selectPoi(id);
-
-        selectedMarkerRef.current = poiMarker;
-        // selectedMarkerRef.current.popup = popup;
-
-        setPoiNum(poiNum++);
+    const [poiButtonClickActive, setPoiButtonClickActive] = useState<boolean>(false);
+    
+    // Add these function definitions
+    const prepareHazardAddition = () => {
+        setPoiButtonClickActive(false);
         setControlPanelState("AddPin");
     };
 
-    const addHazardMarker = (marker: Marker, lng: number, lat: number) => {
-        if (!map.current) return;
+    const preparePoiAddition = () => {
+        setPoiButtonClickActive(true);
+        setControlPanelState("AddPin");
+    };
 
-        marker?.getPopup()?.remove();
-        marker?.remove();
+    useEffect(() => {
+        loadFromBackend();
+    }, [loadFromBackend]);
 
-        // Default radius in meters
-        let radius = 50;
-        const minRadius = 10;
-        const maxRadius = 200;
+    // This effect is no longer needed as markers are rendered declaratively
+    // useEffect(()=> {
+    //     pois.forEach(x => x.addMarkerFromBackend()) // This method needs to be removed from Poi type or re-evaluated
+    // }, [pois])
+    
+  
+    
+    const handleMapClick = useCallback((event: MapMouseEvent) => {
+        const { lng, lat } = event.lngLat;
+        console.log("mapbox:" + lat, lng);
+        const moonCord = convertEarthToMoon({lat, lng});
+        console.log("moon:" + moonCord.y, moonCord.x);
+        setNewPinLocation({ lng, lat });
+        setTempPinType(null); // Reset temp pin type
+        setControlPanelState("EvDetails");
+        // Deselect any selected POI
+        selectPoi(null);
+    }, [setControlPanelState, selectPoi]);
 
-        // Create hazard marker element
-        const hazardEl = document.createElement("div");
-        hazardEl.className = 'hazard-marker';
-        hazardEl.style.width = hazardEl.style.height = `${radius * 2}px`;
-        hazardEl.style.position = 'absolute';
-        hazardEl.style.transform = 'translate(-50%, -50%)'; 
+    // Add this new component for the temporary marker
+    const TemporaryMarker = ({ lng, lat }: { lng: number; lat: number }) => (
+        <Marker
+            longitude={lng}
+            latitude={lat}
+        >
+            <div
+                className="w-2 h-2 sm:w-2 sm:h-2 md:w-3 md:h-3 lg:w-3 lg:h-3 xl:w-3 xl:h-3 bg-contain bg-no-repeat bg-center"
+                style={{ backgroundImage: 'url(/markers/marker.svg)' }}
+            />
+        </Marker>
+    );
+    
+    function renderRoverMarker({ x, y }: { x: number; y: number }) {
+        const roverCoords = convertMoonToEarth({x: x, y: y})
+        return (
+            <Marker
+                longitude={roverCoords.lng}
+                latitude={roverCoords.lat}
+            >
+                <div
+                    className="bg-contain bg-no-repeat bg-center cursor-pointer
+                                    lg:w-8 sm:h-6 md:h-7 lg:h-8"
+                    style={{backgroundImage: 'url(/markers/rover-marker.svg)'}}
+                />
+            </Marker>
+        )
+    }
+    
+    const onPoiButtonClick = () => {
+        setPoiButtonClickActive(!poiButtonClickActive);
+        if (newPinLocation) {
+            setNewPinLocation(null); // Clear temp pin if button is toggled off
+        }
+        if (!poiButtonClickActive) { // If turning on
+            toggleAddActive(true); // Ensure menu is open
+        } else { // If turning off
+            toggleAddActive(false);
+        }
+    };
+    
+    // Generic function to add a new POI
+    const addNewPinToStore = (
+        lng: number,
+        lat: number,
+        x: number,
+        y: number,
+        type: PinTypes,
+        namePrefix: string,
+        additionalData?: Partial<Poi>,
+        hazardRadius?: number
+    ) => {
+        const newId = nanoid();
+        if (type === 'hazard') {
+            const newHazardPoi: HazardPoi = {
+                id: newId,
+                name: `${namePrefix} ${poiNum}`,
+                coords: { lng, lat },
+                moonCoords: { x, y },
+                tags: null,
+                type: 'hazard' as const,
+                radius: hazardRadius ?? 50,
+                audio_id: null,
+            };
+            addHazardPoi(newHazardPoi);
+            setPoiNum(prev => prev + 1);
+            selectPoi(newId);
+            setControlPanelState("EvDetails");
+            setNewPinLocation(null);
+            setTempPinType(null);
+            return;
+        }
+        // Normal POI
+        const newPoi: Poi = {
+            id: newId,
+            name: `${namePrefix} ${poiNum}`,
+            coords: { lng, lat },
+            moonCoords: { x, y },
+            tags: null,
+            type: type,
+            marker: new mapboxgl.Marker(), // Add the required marker property
+            ...additionalData,
+        };
+        addPoi(newPoi);
+        setPoiNum(prev => prev + 1);
+        selectPoi(newId);
+        setControlPanelState("AddPin");
+        setNewPinLocation(null);
+        setTempPinType(null);
+    };
 
 
-        // Exclamation mark
-        const exclamation = document.createElement("div");
-        exclamation.className = 'hazard-marker-exclamation';
-        exclamation.innerText = '!';
-        hazardEl.appendChild(exclamation);
+    const handleAddPoiFromPopup = (lng: number, lat: number) => {
+        const moonCord = convertEarthToMoon({lat, lng});
+        addNewPinToStore(lng, lat, moonCord.x, moonCord.y, "Poi", "POI");
+    };
 
-        // Popup container
-        const popupContainer = document.createElement("div");
+    const handleAddHazardFromPopup = (lng: number, lat: number, radius: number) => {
+        const moonCord = convertEarthToMoon({lat, lng});
+        addNewPinToStore(lng, lat, moonCord.x, moonCord.y, "hazard", "Hazard", undefined, radius);
+    };
+    
+    const onAddClick = () => {
+        const newAddActiveState = !addActive;
+        toggleAddActive(newAddActiveState);
+        if (!newAddActiveState) { // If closing the menu
+            setPoiButtonClickActive(false); // Deactivate POI button mode
+            setNewPinLocation(null); // Clear any temp pin
+        }
+    };
+    
+    const selectedPoiDetails = pois.find(p => p.id === selectedPoiId);
 
-        // React popup for radius control
-        function HazardRadiusPopup({ onConfirm, onCancel, radius, setRadius }: any) {
+    // Function to render the popup for a new pin or selected POI
+    const renderPopup = () => {
+        if (newPinLocation && !tempPinType) { // Temporary pin placed, show options
             return (
-                <div className="bg-backplate rounded-2xl p-4 min-w-[220px] text-white border-[1.5px] border-light-purple shadow-lg flex flex-col items-center">
-                    <div className="flex items-center mb-3">
-                    <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => setRadius((r: number) => Math.max(minRadius, r - 5))}>-</PrimaryButton>
-                    <span className="mx-[18px] text-2xl">{radius}m</span>
-                    <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => setRadius((r: number) => Math.min(maxRadius, r + 5))}>+</PrimaryButton>
+                <Popup
+                    longitude={newPinLocation.lng}
+                    latitude={newPinLocation.lat}
+                    onClose={() => {
+                        setNewPinLocation(null);
+                        setTempPinType(null);
+                        setTempHazardPin(null);
+                    }}
+                    closeButton={false}
+                    closeOnClick={false}
+                    anchor="bottom"
+                    offset={5}
+                >
+                    <div className="p-2 rounded-md shadow-lg flex flex-col gap-1">
+                        <PrimaryButton
+                            logo={"/logo/poi-stroke.svg"}
+                            onClick={() => {
+                            handleAddPoiFromPopup(newPinLocation.lng, newPinLocation.lat);
+                            setNewPinLocation(null);
+                        }}>
+                            +POI
+                        </PrimaryButton>
+                        <PrimaryButton
+                            logo={"/logo/poi-stroke.svg"}
+                            onClick={() => {
+                            setTempPinType("hazard");
+                            setHazardRadius(50);
+                            setTempHazardPin({lng: newPinLocation.lng, lat: newPinLocation.lat, radius: 50});
+                        }}>
+                            +Hazard
+                        </PrimaryButton>
                     </div>
-                    <div className="flex gap-4 w-full justify-center">
-                    <PrimaryButton style={{ flex: 1, background: 'transparent', border: '1.5px solid #9D89FF', color: '#9D89FF' }} onClick={onCancel}>Cancel</PrimaryButton>
-                    <PrimaryButton style={{ flex: 1 }} onClick={onConfirm}>Confirm</PrimaryButton>
-                    </div>
-                </div>
+                </Popup>
+            );
+        } else if (newPinLocation && tempPinType === "hazard") {
+            // Show hazard radius controls
+            return (
+                <Popup
+                    longitude={newPinLocation.lng}
+                    latitude={newPinLocation.lat}
+                    onClose={() => {
+                        setNewPinLocation(null);
+                        setTempPinType(null);
+                        setTempHazardPin(null);
+                    }}
+                    closeButton={true}
+                    closeOnClick={false}
+                    anchor="bottom"
+                    offset={15}
+                    className="min-w-[250px]"
+                >
+                    <HazardRadiusPopup
+                        initialRadius={hazardRadius}
+                        onRadiusChange={(radius) => {
+                            setHazardRadius(radius);
+                            setTempHazardPin((prev) => prev ? {...prev, radius} : prev);
+                        }}
+                        onConfirm={(radius) => {
+                            handleAddHazardFromPopup(newPinLocation.lng, newPinLocation.lat, radius);
+                            setNewPinLocation(null);
+                            setTempPinType(null);
+                            setTempHazardPin(null);
+                        }}
+                        onCancel={() => {
+                            setNewPinLocation(null);
+                            setTempPinType(null);
+                            setTempHazardPin(null);
+                        }}
+                    />
+                </Popup>
             );
         }
 
-        // React state for popup
-        let setPopupRadius: (r: number | ((r: number) => number)) => void = () => {};
-        let popupRadius = radius;
-        
-        function PopupWrapper() {
-            const [r, setR] = React.useState(radius);
-            const [label, setLabel] = React.useState(r > 100 ? "Large Crater" : "Small Crater");
-
-            setPopupRadius = setR;
-            popupRadius = r;
-
-            React.useEffect(() => { // Update marker size
-                hazardEl.style.width = hazardEl.style.height = `${r * 2}px`;
-            }, [r]);
-
-            React.useEffect(() => { //Update marker name
-                const labelInput = document.createElement("input");
-                labelInput.value = label;
-                labelInput.className = "absolute -top-8 left-1/2 transform -translate-x-1/2 bg-red-100/20 border border-red-500 text-sm font-semibold rounded-md px-2 py-[2px] backdrop-blur-sm text-center w-[120px]";
-                labelInput.oninput = (e: any) => {
-                    setLabel(e.target.value);
-                    hazardEl.setAttribute("data-hazard-label", e.target.value);
-                };
-
-                labelInput.onpointerdown = (e) => e.stopPropagation();
-                hazardEl.style.pointerEvents = 'auto';
-                hazardEl.appendChild(labelInput);
-
-                setTimeout(() => labelInput.focus(), 0);
-
-                return () => {hazardEl.removeChild(labelInput);};
-            }, []);
-
-            return <HazardRadiusPopup radius={r} setRadius={setR} onConfirm={onConfirm} onCancel={onCancel} />;
+        if (selectedPoiDetails) {
+            return (
+                <Popup
+                    longitude={selectedPoiDetails.coords.lng}
+                    latitude={selectedPoiDetails.coords.lat}
+                    onClose={() => selectPoi(null)}
+                    closeButton={false} // Assuming close is handled by selecting another or closing panel
+                    offset={15}
+                    className="custom-final-popup z-20" // Ensure z-index if needed
+                >
+                    <div>{selectedPoiDetails.name}</div>
+                </Popup>
+            );
         }
-
-        // Popup logic
-        const popup = new mapboxgl.Popup({ offset: -160, closeButton: false })
-            .setDOMContent(popupContainer);
-
-        // Add marker to map
-        const hazardMarker = new mapboxgl.Marker(hazardEl, { anchor: 'center' })
-            .setLngLat([lng, lat])
-            .setPopup(popup)
-            .addTo(map.current)
-            .togglePopup();
-
-        // Render popup
-        createRoot(popupContainer).render(<PopupWrapper />);
-
-        // Confirm/Cancel logic
-        function onConfirm() {
-            popup.remove();
-        }
-        function onCancel() {
-            hazardMarker.remove();
-        }
+        return null;
     };
+    
+    // Hazard Radius Popup Component (can be moved to a separate file)
+    function HazardRadiusPopup({ initialRadius, onRadiusChange, onConfirm, onCancel }: { initialRadius: number, onRadiusChange: (radius: number) => void, onConfirm: (radius: number) => void, onCancel: () => void}) {
+        const [radius, setRadius] = useState(initialRadius);
+        const minRadius = 10;
+        const maxRadius = 200;
 
-    const togglePoiSelection = (selected: Boolean) => {
-        if (selectedMarkerRef.current?.getElement()) {
-            const element = selectedMarkerRef.current?.getElement();
-            if (selected) {
-                element.style.backgroundImage = 'url(/markers/selected-poi.svg)';
-            } else {
-                element.style.backgroundImage = 'url(/markers/default-poi.svg)';
-            }
-        }
-    };
+        const handleSetRadius = (newRadius: number) => {
+            setRadius(newRadius);
+            onRadiusChange(newRadius);
+        };
 
-    //toggles add menu popup
-    const onAddClick = () => {
-        toggleAddActive(!addActive);
-
-        if (poiButtonActiveRef.current) {
-            setPoiButtonActive(false);
-
-            //get rid of any temp marker when the menu closes
-            if (tempMarkerRef.current){
-                tempMarkerRef.current.remove();
-            }
-        }
-    };
-
-    //add poi button click logic
-    const onPoiButtonClick = () => {
-
-        //get rid of any temp marker when toggled off
-        if (poiButtonActiveRef.current) {
-            if (tempMarkerRef.current){
-                tempMarkerRef.current.remove();
-            }
-
-            //remove the popup also
-            toggleAddActive(false);
-        }
-
-        //toggle when clicked
-        setPoiButtonActive(!poiButtonActiveRef.current);
-    };
-
+            return (
+                <div className="bg-backplate rounded-2xl p-4 min-w-[220px] text-white border-[1.5px] border-light-purple shadow-lg flex flex-col items-center">
+                    <div className="flex items-center mb-3">
+                <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => handleSetRadius(Math.max(minRadius, radius - 5))}>-</PrimaryButton>
+                    <span className="mx-[18px] text-2xl">{radius}m</span>
+                <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => handleSetRadius(Math.min(maxRadius, radius + 5))}>+</PrimaryButton>
+                    </div>
+                    <div className="flex gap-4 w-full justify-center">
+                    <PrimaryButton style={{ flex: 1, background: 'transparent', border: '1.5px solid #9D89FF', color: '#9D89FF' }} onClick={onCancel}>Cancel</PrimaryButton>
+                <PrimaryButton style={{ flex: 1 }} onClick={() => onConfirm(radius)}>Confirm</PrimaryButton>
+                </div>
+                </div>
+            );
+    }
+    
     return (
         <div className="map-wrapper">
             {/* Column labels */}
@@ -347,12 +394,115 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
                 ))}
             </div>
 
-            {/* Map + grid overlay */}
             <div className="map-container">
-                <div ref={mapContainer} className="mapbox-container" />
+                <Map
+                    {...viewState}
+                    onMove={(evt: ViewStateChangeEvent) => {
+                        const vs = evt.viewState;
+                        setViewState({
+                            ...vs,
+                            padding: {
+                                top: vs.padding?.top ?? 0,
+                                bottom: vs.padding?.bottom ?? 0,
+                                left: vs.padding?.left ?? 0,
+                                right: vs.padding?.right ?? 0,
+                            }
+                        });
+                    }}
+                    mapboxAccessToken={MAPBOX_TOKEN}
+                    style={{ width: '100%', height: '100%' }}
+                    mapStyle="mapbox://styles/dkimh/cm9k7yru7008601s617bl7zmh/draft"
+                    onClick={handleMapClick}
+                    doubleClickZoom={false}
+                >
+                    {/* Add temporary marker when map is clicked */}
+                    {newPinLocation && !tempPinType && (
+                        <TemporaryMarker lng={newPinLocation.lng} lat={newPinLocation.lat} />
+                    )}
+
+                    {/* Render normal POIs */}
+                    {pois.map(poi => (
+                        <Marker
+                            key={poi.id}
+                            longitude={poi.coords.lng}
+                            latitude={poi.coords.lat}
+                            onClick={(e) => {
+                                e.originalEvent.stopPropagation();
+                                selectPoi(poi.id);
+                                setControlPanelState("SelectPin");
+                            }}
+                        >
+                            <div
+                                className={`
+                                    bg-contain bg-no-repeat bg-center cursor-pointer
+                                    sm:w-5m md:w-6 lg:w-7 sm:h-5 md:h-6 lg:h-7
+                                `}
+                                style={{
+                                    backgroundImage: poi.id === selectedPoiId
+                                        ? 'url(/markers/selected-poi.svg)'
+                                        : 'url(/markers/default-poi.svg)',
+                                }}
+                            />
+                        </Marker>
+                    ))}
+                    {/* Render hazard POIs */}
+                    {hazardPois.map(hazard => (
+                        <Marker
+                            key={hazard.id}
+                            longitude={hazard.coords.lng}
+                            latitude={hazard.coords.lat}
+                            onClick={(e) => {
+                                e.originalEvent.stopPropagation();
+                                selectPoi(hazard.id);
+                                setControlPanelState("EvDetails");
+                            }}
+                        >
+                            <div
+                                className={`bg-crimson-red border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center`}
+                                style={{
+                                    width: `${hazard.radius}px`,
+                                    height: `${hazard.radius}px`,
+                                }}
+                            >
+                                <div className="hazard-marker-exclamation text-center text-white font-bold text-lg">!</div>
+                            </div>
+                        </Marker>
+                    ))}
+                    {/* Render breadcrumb POIs */}
+                    {breadCrumbs.map(breadcrumb => (
+                        <Marker
+                         
+                            longitude={breadcrumb.coords.lng}
+                            latitude={breadcrumb.coords.lat}
+                        >
+                            <div className="breadcrumb-marker-exclamation text-center text-white font-bold text-lg">!</div>
+                        </Marker>
+                    ))}
+                    
+                    {/* Show temporary hazard marker while adjusting radius */}
+                    {tempHazardPin && (
+                        <Marker
+                            longitude={tempHazardPin.lng}
+                            latitude={tempHazardPin.lat}
+                        >
+                            <div
+                                className={`bg-crimson-red border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center opacity-70`}
+                                style={{
+                                    width: `${tempHazardPin.radius}px`,
+                                    height: `${tempHazardPin.radius}px`,
+                                }}
+                            >
+                                <div className="hazard-marker-exclamation text-center text-white font-bold text-lg">!</div>
+                            </div>
+                        </Marker>
+                    )}
+                    {renderPopup()}
+                    {renderRoverMarker({x: roverCoords.x, y: roverCoords.y})}
+                </Map>
                 <div className="map-grid-overlay pointer-events-none" />
 
-                {/* Add Marker Menu */}
+                {/* UI Elements: Add Marker Menu, Zoom Controls */}
+                {/* These can largely remain the same, but their onClick handlers might change */}
                 <div className="absolute bottom-8 right-4 flex flex-col gap-2 items-end z-10">
                     {/* Draw Path */}
                     <PrimaryButton 
@@ -376,19 +526,19 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
                             logo={`${addActive ? `/logo/minus.svg` : `logo/add-white.svg`}`}
                             logoClassName={"w-8 h-8"}
                             className={"p-4 relative hover:bg-another-purple rounded-xl"}
-                            onClick={onAddClick}
+                            onClick={onAddClick} // Toggles the add menu
                         />
                         
                         {/* popup section - add POI & add Hazard*/}
                         <div className={`transition-all duration-300 ease-in-out overflow-hidden
                             ${addActive ? `opacity-100 mx-4 overflow-visible`: `opacity-0 w-0 pointer-events-none ml-0`} flex justify-center items-center gap-4`}>
-                            <PrimaryButton>
+                            <PrimaryButton onClick={prepareHazardAddition}> {/* Updated onClick */}
                                 <img src="/logo/hazard.svg" alt={"add-hazard"}/>
                                 Add Hazard
                                 <Tooltip text="Click anywhere on the map"/>
                             </PrimaryButton>
 
-                            <PrimaryButton active={buttonActive} onClick={onPoiButtonClick}>
+                            <PrimaryButton active={poiButtonClickActive} onClick={preparePoiAddition}> {/* Updated onClick and active state */}
                                 <img src="/logo/poi-stroke.svg" alt={"add-poi"}/>
                                 Add POI
                                 <Tooltip text="Click anywhere on the map"/>
@@ -400,22 +550,17 @@ const BasicMap = ({roverCoords, setControlPanelState, selectedMarkerRef}: BasicM
                 {/* ZoomIn & ZoomOut*/}
                 <div className="absolute bottom-8 left-6 z-10">
                     <div className="flex flex-col items-center justify-center border border-light-purple rounded-xl bg-light-purple/20 backdrop-blur-sm overflow-hidden">
-
                          <TertiaryButton 
-                            onClick={() => map.current?.zoomIn()} 
+                            onClick={() => setViewState(v => ({...v, zoom: Math.min(22, v.zoom + 1), longitude: v.longitude, latitude: v.latitude, pitch: v.pitch, bearing: v.bearing, padding: v.padding}))} 
                             logo="/logo/zoom-in.svg" 
                             className="rounded-none p-3" 
                         />
-
-                        {/* divider */}
                         <div className="w-8 h-px bg-light-purple opacity-50" />
-
                         <TertiaryButton 
-                            onClick={() => map.current?.zoomOut()} 
+                            onClick={() => setViewState(v => ({...v, zoom: Math.max(0, v.zoom - 1), longitude: v.longitude, latitude: v.latitude, pitch: v.pitch, bearing: v.bearing, padding: v.padding}))}
                             logo="/logo/zoom-out.svg" 
                             className="rounded-none p-3" 
                         />
-                            
                     </div>
                 </div>
             </div>
