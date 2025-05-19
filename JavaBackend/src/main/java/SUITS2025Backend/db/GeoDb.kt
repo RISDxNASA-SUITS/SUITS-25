@@ -53,6 +53,8 @@ object Geos : IntIdTable() {
     val other = float("other")
 }
 
+
+
 class Geo(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<Geo>(Geos)
 

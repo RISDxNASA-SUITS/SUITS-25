@@ -16,7 +16,7 @@ interface RoverTelemetry {
 
 export async function GET(request: Request) {
     try {
-        const response = await fetch(`http://${process.env.NEXT_PUBLIC_JAVA_IP}/rover`);
+        const response = await fetch(`http://${process.env.NEXT_PUBLIC_JAVA_IP}/telemetry`);
         if (!response.ok) {
             throw new Error('Failed to fetch rover data');
         }
