@@ -135,6 +135,10 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
 
     useEffect(() => {
         loadFromBackend();
+        const timeout = setInterval(() => {
+            loadFromBackend();
+        }, 1000);
+        return () => clearInterval(timeout);
     }, [loadFromBackend]);
 
     // This effect is no longer needed as markers are rendered declaratively
