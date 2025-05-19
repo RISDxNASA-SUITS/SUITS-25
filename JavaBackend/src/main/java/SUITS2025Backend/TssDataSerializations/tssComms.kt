@@ -6,6 +6,7 @@ import SUITS2025Backend.PythonCommunication.PythonCommunicationHandler
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+val SLEEP_TIME = 500L;
 
 enum class Battery { LOCAL, UMB }
 enum class Oxygen { SEC, PRI }
@@ -295,6 +296,7 @@ object TssComms {
             val recvBuffer = ByteBuffer.allocate(104)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, recvBuffer, { buff ->
+                Thread.sleep(SLEEP_TIME)
                 buff.getInt()
             })
         }
@@ -308,6 +310,7 @@ object TssComms {
             val recvBuffer = ByteBuffer.allocate(104)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, recvBuffer, { buff ->
+                Thread.sleep(SLEEP_TIME)
                 buff.getInt()
             })
         }
@@ -321,6 +324,7 @@ object TssComms {
             val recvBuffer = ByteBuffer.allocate(104)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt,recvBuffer) {
+                Thread.sleep(SLEEP_TIME)
                 it.getInt()
             }
         }
@@ -333,9 +337,10 @@ object TssComms {
             val recvBuffer = ByteBuffer.allocate(104)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, recvBuffer, { buff ->
+                Thread.sleep(SLEEP_TIME)
                 buff.getFloat()
             })
-        } // DO NOTE CHANGE
+        }
         
         val imuState = IMUState.fromDoubleArray(doubles)
         ctx.json(imuState)
@@ -347,28 +352,27 @@ object TssComms {
             val recvBuffer = ByteBuffer.allocate(104)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, recvBuffer, { buff ->
+                Thread.sleep(SLEEP_TIME)
                 buff.getFloat()
             })
-        } // DO NOT CHANGE
+        }
         val imuState = IMUState.fromDoubleArray(doubles)
         ctx.json(imuState)
     }
 
     fun getUIAState(ctx: Context) {
         val ints = (48..57).map {
-            val pkt = tssKt.makeSendLidarPacket(it);
-            val recvBuffer = ByteBuffer.allocate(104);
+            val pkt = tssKt.makeSendLidarPacket(it)
+            val recvBuffer = ByteBuffer.allocate(104)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, recvBuffer) {
+                Thread.sleep(SLEEP_TIME)
                 it.getInt()
             }
-
-
         }
         val uiaState = UIAState.fromIntArray(ints)
         ctx.json(uiaState)
     }
-
 
     fun getRoverState(ctx: Context) {
         val doubles = (23..30).map {
@@ -376,6 +380,7 @@ object TssComms {
             val recvBuffer = ByteBuffer.allocate(104)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, recvBuffer, { buff ->
+                Thread.sleep(SLEEP_TIME)
                 buff.getFloat()
             })
         }
@@ -384,6 +389,7 @@ object TssComms {
             val recvBuffer = ByteBuffer.allocate(104)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, recvBuffer, { buff ->
+                Thread.sleep(SLEEP_TIME)
                 buff.getInt() == 1
             })
         }
@@ -397,6 +403,7 @@ object TssComms {
             val recvBuffer = ByteBuffer.allocate(200)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, recvBuffer, { buff ->
+                Thread.sleep(SLEEP_TIME)
                 buff.getFloat()
             })
         }
@@ -405,6 +412,7 @@ object TssComms {
             val recvBuffer = ByteBuffer.allocate(200)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, recvBuffer, { buff ->
+                Thread.sleep(SLEEP_TIME)
                 buff.getInt()
             })
         }
@@ -413,6 +421,7 @@ object TssComms {
             val recvBuffer = ByteBuffer.allocate(200)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, recvBuffer, { buff ->
+                Thread.sleep(SLEEP_TIME)
                 buff.getFloat()
             })
         }
@@ -425,6 +434,7 @@ object TssComms {
         val recvBuffer = ByteBuffer.allocate(200)
         recvBuffer.order(ByteOrder.BIG_ENDIAN)
         val time = tssKt.sendMessage(pkt, recvBuffer, { buff ->
+            Thread.sleep(SLEEP_TIME)
             buff.getFloat()
         })
         val floats = (86..91).map {
@@ -432,6 +442,7 @@ object TssComms {
             val recvBuffer = ByteBuffer.allocate(200)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, recvBuffer, { buff ->
+                Thread.sleep(SLEEP_TIME)
                 buff.getFloat()
             })
         }
@@ -440,6 +451,7 @@ object TssComms {
             val recvBuffer = ByteBuffer.allocate(200)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, recvBuffer, { buff ->
+                Thread.sleep(SLEEP_TIME)
                 buff.getInt()
             })
         }
@@ -448,6 +460,7 @@ object TssComms {
             val recvBuffer = ByteBuffer.allocate(200)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, recvBuffer, { buff ->
+                Thread.sleep(SLEEP_TIME)
                 buff.getFloat()
             })
         }
@@ -455,15 +468,13 @@ object TssComms {
         ctx.json(telemetryState)
     }
 
-
-
-
     fun getSpecState(ctx: Context) {
         val intList = (31..41).map{
             val pkt = tssKt.makeSendLidarPacket(it)
             val buf = ByteBuffer.allocate(1024)
             buf.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, buf){
+                Thread.sleep(SLEEP_TIME)
                 it.getFloat()
             }
         }
@@ -476,6 +487,7 @@ object TssComms {
             val buf = ByteBuffer.allocate(1024)
             buf.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, buf){
+                Thread.sleep(SLEEP_TIME)
                 it.getFloat()
             }
         }
@@ -483,19 +495,18 @@ object TssComms {
         ctx.json(specState)
     }
 
-
     fun getMissionState(ctx: Context) {
         val missionStateList = (108..123).map {
             val pkt = tssKt.makeSendCommandPacket(it, 2.0f)
             val recvBuffer = ByteBuffer.allocate(200)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
             tssKt.sendMessage(pkt, recvBuffer, { buff ->
+                Thread.sleep(SLEEP_TIME)
                 buff.getInt()
             })
         }
         val missionState = MissionState.fromIntArray(missionStateList)
         ctx.json(missionState)
     }
-
 
 }

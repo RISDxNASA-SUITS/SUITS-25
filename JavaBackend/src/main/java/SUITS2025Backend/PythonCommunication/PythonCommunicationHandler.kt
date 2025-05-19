@@ -14,7 +14,7 @@ data class returnData(val data:Float)
 data class lidarReturn(val data:List<Float>)
 
 object PythonCommunicationHandler {
-    private const val LIDAR_CMD = 167
+    private const val LIDAR_CMD = 172
     private const val BRAKE_CMD = 1107
     private const val THROTTLE_CMD = 1109
     private const val STEERING_CMD = 1110
@@ -49,7 +49,8 @@ object PythonCommunicationHandler {
 
    fun sendMessageNoReturn(sendPacket: ByteBuffer) {
         val socket = DatagramSocket()
-        val ip = System.getenv("IP") ?: "127.0.0.1"
+        val ip = "127.0.0.1"
+        // val ip =  "192.168.51.110"
         val port = System.getenv("PORT") ?: "14141"
         val address = InetAddress.getByName(ip)
         val bytes = sendPacket.array()
@@ -59,11 +60,13 @@ object PythonCommunicationHandler {
 
    fun <T> sendMessage(sendPacket: ByteBuffer, recvBuffer: ByteBuffer, callBack: (ByteBuffer) -> T): T {
         val socket = DatagramSocket()
-        val ip = System.getenv("IP") ?: "127.0.0.1"
+        // val ip =  "192.168.51.110"
+        val ip = "127.0.0.1"
         val port = System.getenv("PORT") ?: "14141"
         val address = InetAddress.getByName(ip)
         val bytes = sendPacket.array()
         val packet = DatagramPacket(bytes, bytes.size, address, port.toInt())
+        println("SENT to $ip:$port $address")
         socket.send(packet)
 
         val recvPacket = DatagramPacket(recvBuffer.array(), recvBuffer.array().size)
@@ -82,6 +85,8 @@ object PythonCommunicationHandler {
             val sendPacket = makeSendLidarPacket(it)
             val callBack: (ByteBuffer) -> List<Float> = { buff: ByteBuffer ->
                 (1..13).map {
+                    
+                    
                     buff.getFloat()
                 }
             }
@@ -95,6 +100,7 @@ object PythonCommunicationHandler {
             val recvBuffer = ByteBuffer.allocate(104)
             val sendPacket = makeSendLidarPacket(it)
             val callBack: (ByteBuffer) -> String = { buff: ByteBuffer ->
+                // Thread.sleep(500)
                 var l = buff.getFloat()
                 println(l)
                 l.toString()
