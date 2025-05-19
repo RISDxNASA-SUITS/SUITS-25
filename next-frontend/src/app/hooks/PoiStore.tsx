@@ -1,12 +1,30 @@
 import { create } from "zustand/react";
 import {Marker} from "mapbox-gl"
 import { convertMoonToEarth } from "../components/map-page/map/BasicMap";
+import { nanoid } from "nanoid";
 export type PinTypes = 'hazard' | 'Poi' | 'breadCrumb'
+
 type TagSelections = {
     [category: string]: {
         [subCategory: string]: string[];
     };
 };
+
+const categories = {
+    Rock: {
+    Color: ["Black", "Gray", "Light-toned"],
+    Diameter: ["5cm", "10cm", "15cm"],
+    Depth: ["0.1kg", "0.2kg", "0.3kg"],
+    Roughness: ["Fine", "Medium", "Coarse"],
+},
+Terrain: {
+    Slope: ["flat", "steep"],
+    Texture: ["grainy", "smooth", "rocky"],
+},
+Category: {
+    Type: ["sedimentary", "igneous", "metamorphic"],
+},
+}
 
 type VoiceNotes = {
     id: number;
@@ -71,12 +89,47 @@ interface PoiStore {
 }
 
 const backendToFrontendPoi = (poi: poiBackend): Poi => {
+    let parsedTags: TagSelections | null = null;
+    
+    if (poi.tags) {
+        const tagArray = poi.tags
+        parsedTags = {};
+        
+        // Iterate through each category
+        Object.entries(categories).forEach(([category, subCategories]) => {
+            const categoryTags: { [key: string]: string[] } = {};
+            
+            // Iterate through each subcategory
+            Object.entries(subCategories).forEach(([subCategory, values]) => {
+                // Filter values that exist in the tag array
+                const matchingValues = values.filter(value => 
+                    tagArray.includes(value)
+                );
+                
+                // Only add the subcategory if it has matching values
+                if (matchingValues.length > 0) {
+                    categoryTags[subCategory] = matchingValues;
+                }
+            });
+            
+            // Only add the category if it has any subcategories with values
+            if (Object.keys(categoryTags).length > 0) {
+                parsedTags[category] = categoryTags;
+            }
+        });
+        
+        // If no tags were matched, set to null
+        if (Object.keys(parsedTags).length === 0) {
+            parsedTags = null;
+        }
+    }
+
     return {
-        id: poi.id,
+        id: nanoid(),
         name: poi.name,
         coords: convertMoonToEarth({x: poi.x, y: poi.y}),
         moonCoords: { x: poi.x, y: poi.y },
-        tags: poi.tags ? JSON.parse(poi.tags) as TagSelections : null,
+        tags: parsedTags,
         type: poi.type as PinTypes,
         audio_id: poi.audio_id,
         description: poi.description

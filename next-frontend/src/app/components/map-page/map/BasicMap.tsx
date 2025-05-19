@@ -108,6 +108,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     const [tempPinType, setTempPinType] = useState<PinTypes | null>(null);
     const [hazardRadius, setHazardRadius] = useState(50); // Default hazard radius
     const [tempHazardPin, setTempHazardPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
+    console.log(pois, breadCrumbs,hazardPois)
 
     // For the expandable add menu
     const [addActive, toggleAddActive] = useState<boolean>(false);
@@ -126,6 +127,10 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
 
     useEffect(() => {
         loadFromBackend();
+        const interval =  setInterval(() => {
+            loadFromBackend();
+        }, 1000);
+        return () => clearInterval(interval);
     }, [loadFromBackend]);
 
     // This effect is no longer needed as markers are rendered declaratively
@@ -227,7 +232,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             moonCoords: { x, y },
             tags: null,
             type: type,
-            marker: new mapboxgl.Marker(), // Add the required marker property
+           
             ...additionalData,
         };
         addPoi(newPoi);
@@ -473,11 +478,17 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                     {/* Render breadcrumb POIs */}
                     {breadCrumbs.map(breadcrumb => (
                         <Marker
-                         
+                            key={breadcrumb.id}
                             longitude={breadcrumb.coords.lng}
                             latitude={breadcrumb.coords.lat}
                         >
-                            <div className="breadcrumb-marker-exclamation text-center text-white font-bold text-lg">!</div>
+                            <div
+                                className={`bg-purple-500 border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center`}
+                             
+                            >
+   <div className=" text-center text-white font-bold text-lg">!</div>
+                            </div>
+                         
                         </Marker>
                     ))}
                     
