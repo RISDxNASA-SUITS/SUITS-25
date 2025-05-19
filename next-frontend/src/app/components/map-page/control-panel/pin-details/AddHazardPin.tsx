@@ -25,7 +25,6 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
     //initial input field state
     const [showInitialInput, setInitialShowInput] = useState<boolean>(true);
     
-    const [hazardCategory, setHazardCategory] = useState<'warning' | 'caution'>('warning');
     
     const {updatePoi, clearTags, deletePoi, selectedPoiId, pois} = PoiStore();
     
@@ -143,8 +142,8 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
                         </div>
                     )}
                 </div>
+
                 
-                {/* Hazard Category Toggle */}
                 
                 {/*Voice Notes*/}
                 <div className={"flex flex-col gap-4"}>

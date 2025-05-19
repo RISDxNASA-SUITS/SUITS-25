@@ -16,6 +16,8 @@ export const MapPage = ()=>{
     const [roverX,setRoverX] = useState<number>(0);
     const [roverY, setRoverY] = useState<number>(0);
     
+    console.log(controlPanelState);
+    
     useEffect(() => {
         console.log(roverX, roverY);
         const fetchRoverCoords = async() => {
@@ -26,7 +28,7 @@ export const MapPage = ()=>{
                 }
                 const res = await data.json();
                 
-                console.log(res.x, res.y);
+                // console.log(res.x, res.y);
                 
                 setRoverX(res.x || -95.08100506531964);
                 setRoverY(res.y || 29.56485541847833);

@@ -23,6 +23,8 @@ export const ControlPanel = ({state, panelState, selectedMarkerRef}: ControlPane
     const selectedPoi = pois.find(poi => poi.id === selectedPoiId);
     const selectHazardPoi = hazardPois.find(poi => poi.id === selectedPoiId);
     
+    console.log(panelState);
+    
     const handleClose = () => {
         // Close popup if exists
         selectedMarkerRef.current?.getPopup()?.remove();
