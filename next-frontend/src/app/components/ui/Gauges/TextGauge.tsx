@@ -20,14 +20,24 @@ const TextGauge = ({
     typeof value === "number" ? value.toFixed(decimals) : value;
 
   return (
-    <div className="bg-[#26233a] rounded-2xl p-8 flex flex-col items-center w-[260px]">
-      <p className="text-gray-200 text-lg mb-2">{label}</p>
-      <p className="text-5xl font-bold text-white mb-4">
+    <div
+      data-property-1="default"
+      className="w-40 h-28 px-2 py-1 rounded-lg inline-flex flex-col justify-center items-center"
+    >
+      <div className="self-stretch text-center justify-center text-white text-sm font-normal font-['IBM_Plex_Sans']">
+        {label}
+      </div>
+      <div className="self-stretch text-center justify-start text-white text-5xl font-medium font-['IBM_Plex_Sans']">
         {displayValue}
-        <span className="text-3xl font-normal ml-1">{units}</span>
-      </p>
-      <div className="bg-[#393654] px-4 py-1 rounded-full text-base font-semibold italic text-white">
-        {status}
+        {units}
+      </div>
+      <div
+        data-status={status?.toLowerCase()}
+        className="px-2 py-1 bg-white/10 rounded-[20px] inline-flex justify-center items-center gap-1"
+      >
+        <div className="justify-center text-white text-[10px] font-semibold font-['IBM_Plex_Sans']">
+          {status}
+        </div>
       </div>
     </div>
   );
