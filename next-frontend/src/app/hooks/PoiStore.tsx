@@ -39,14 +39,14 @@ export interface Poi {
     name: string;
     coords: { lng: number; lat: number };
     moonCoords: { x: number; y: number };
-    tags: TagSelections | null;
+    tags: String[];
     // voiceMemo?: string[];
 
     // voiceNoteID?: number[];
 
     // voiceNotes?: VoiceNotes[];
 
-    type: PinTypes
+    type: PinTypes;
     audioId: number | null;
     description?: string;
     radius?: number | null;
@@ -94,45 +94,14 @@ interface PoiStore {
 const backendToFrontendPoi = (poi: poiBackend): Poi => {
     let parsedTags: TagSelections | null = null;
 
-    if (poi.tags) {
-        const tagArray = poi.tags;
-        parsedTags = {};
 
-        // Iterate through each category
-        Object.entries(categories).forEach(([category, subCategories]) => {
-            const categoryTags: { [key: string]: string[] } = {};
-
-            // Iterate through each subcategory
-            Object.entries(subCategories).forEach(([subCategory, values]) => {
-                // Filter values that exist in the tag array
-                const matchingValues = values.filter(value =>
-                    tagArray.includes(value)
-                );
-
-                // Only add the subcategory if it has matching values
-                if (matchingValues.length > 0) {
-                    categoryTags[subCategory] = matchingValues;
-                }
-            });
-
-            // Only add the category if it has any subcategories with values
-            if (Object.keys(categoryTags).length > 0) {
-                parsedTags[category] = categoryTags;
-            }
-        });
-
-        // If no tags were matched, set to null
-        if (Object.keys(parsedTags).length === 0) {
-            parsedTags = null;
-        }
-    }
 
     return {
         id: poi.id,
         name: poi.name,
         coords: convertMoonToEarth({x: poi.x, y: poi.y}),
         moonCoords: { x: poi.x, y: poi.y },
-        tags: parsedTags,
+        tags: poi.tags,
         type: poi.type as PinTypes,
         audioId: poi.audioId,
         description: poi.description,
@@ -219,31 +188,24 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         get().loadFromBackend()
     },
 
-    updateTag: (poiId, category, subCategory, label) =>
-        set((state) => {
-            const poi = state.pois.find(p => p.id === poiId);
-            if (!poi) return {};
-
-            const current = poi.tags?.[category]?.[subCategory] || [];
-            const isSelected = current.includes(label);
-            const updated = isSelected
-                ? current.filter(l => l !== label) // Remove label
-                : [...current, label]; // Add label
-
-            const updatedTags: TagSelections = {
-                ...poi.tags,
-                [category]: {
-                    ...poi.tags?.[category],
-                    [subCategory]: updated
-                }
-            };
-
-            const updatedPois = state.pois.map(p =>
-                p.id === poiId ? { ...p, tags: updatedTags } : p
-            );
-
-            return { pois: updatedPois };
-        }),
+    updateTag: async (poiId, label) =>{
+        const poi = get().pois.find(p => p.id === poiId)
+        const hzrd = get().hazardPois.find(p => p.id === poiId)
+        if (poi) {
+            poi.tags.push(label)
+        }
+        if (hzrd) {
+            hzrd.tags.push(label)
+        }
+        await fetch(`/api/pois/updateTags/${poiId}`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({tags: poi.tags})
+        })
+        get().loadFromBackend()
+    },
     clearTags: (poiId: string) =>
         set((state) => ({
             pois: state.pois.map(p =>

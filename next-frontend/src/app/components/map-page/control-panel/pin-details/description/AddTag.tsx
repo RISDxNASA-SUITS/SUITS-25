@@ -14,8 +14,9 @@ type SubTab = "Rock" | "Terrain" | "Category" | ""
 
 export const AddTag = ({ onClose, setControlPanelState } : SelectLabelProps) => {
     const [selectedSubTab, setSelectedSubTab] = useState<SubTab>("Rock");
-    const { selectedPoiId, pois, updateTag } = PoiStore();
+    const { selectedPoiId, pois, updateTag, hazardPois } = PoiStore();
     const selectedPoi = pois.find(p => p.id === selectedPoiId);
+    const selectedHazardPoi = hazardPois.find(p => p.id === selectedPoiId);
 
     const tagOptions: Record<SubTab, Record<string, string[]>> = {
         Rock: {
@@ -68,14 +69,14 @@ export const AddTag = ({ onClose, setControlPanelState } : SelectLabelProps) => 
                             <p className="text-white font-medium">{subCategory}</p>
                             <div className="flex gap-2 flex-wrap mt-1">
                                 {labels.map(label => {
-                                    const selected = selectedPoi?.tags?.[selectedSubTab]?.[subCategory]?.includes(label);
+                                    const selected = selectedPoi?.tags?.includes(label);
                                     return (
                                         <button
                                             key={label}
                                             className={`px-4 py-2 rounded-full border text-sm ${
                                                 selected ? "bg-white text-black border-white" : "text-white border-white"
                                             }`}
-                                            onClick={() => updateTag(selectedPoiId, selectedSubTab, subCategory, label)}
+                                            onClick={() => updateTag(selectedPoiId, label)}
                                         >
                                             {label}
                                         </button>

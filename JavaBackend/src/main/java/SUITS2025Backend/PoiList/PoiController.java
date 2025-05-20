@@ -22,6 +22,7 @@ public class PoiController {
         app.delete("/poi", poiDbController::deletePois);
         app.post("/poi/addVoiceNote", poiDbController::addVoiceNote);
         app.delete("/poi/{id}", poiDbController::deletePoi);
+        app.post("/poi/updateTags/{id}", poiDbController::updateTags);
     }
 
     private static void getPois(Context ctx) {
