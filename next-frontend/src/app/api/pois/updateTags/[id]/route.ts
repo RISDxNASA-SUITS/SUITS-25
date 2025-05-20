@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server"
 
 export async function POST(request:Request, {params}:{params: {id: string}}){
-    const {id} = params
+    const {id} = await params
     const body = await request.json()
     const {tags} = body
 
-    await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/pois/updateTags/${id}`, {
+    await fetch(`http://${process.env.NEXT_PUBLIC_JAVA_IP}/poi/updateTags/${id}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

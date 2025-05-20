@@ -182,7 +182,7 @@ class PoiDbController {
 
 
     fun getAudio(ctx: Context): Context{
-        ctx.result("gg")
+        
         val id = ctx.pathParam("id").toInt()
         val audio = transaction { Audio.findById(id) }
             ?: return ctx.status(404).result("Audio not found")
