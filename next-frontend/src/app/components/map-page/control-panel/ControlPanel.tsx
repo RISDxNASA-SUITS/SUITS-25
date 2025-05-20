@@ -19,24 +19,22 @@ type ControlPanelProps = {
 }
 
 export const ControlPanel = ({state, panelState, selectedMarkerRef}: ControlPanelProps ) => {
-    const {pois, hazardPois,selectedPoiId, selectPoi, addPoi, updatePoi} = PoiStore();
+    const {pois, hazardPois,selectedPoiId, selectPoi, addPoi} = PoiStore();
     const selectedPoi = pois.find(poi => poi.id === selectedPoiId);
     const selectHazardPoi = hazardPois.find(poi => poi.id === selectedPoiId);
 
     
-    console.log(selectedPoi, "is the selected poi");
-    console.log(selectedPoiId, "is the selected poi id");
-    console.log(selectHazardPoi, "is the selected hazard poi");
+    
     
     const handleClose = () => {
         // Close popup if exists
-        selectedMarkerRef.current?.getPopup()?.remove();
+        // selectedMarkerRef.current?.getPopup()?.remove();
 
-        // Reset marker icon
-        if (selectedMarkerRef.current) {
-            selectedMarkerRef.current.getElement().style.backgroundImage = 'url(/markers/default-poi.svg)';
-            selectedMarkerRef.current = null;
-        }
+        // // Reset marker icon
+        // if (selectedMarkerRef.current) {
+        //     selectedMarkerRef.current.getElement().style.backgroundImage = 'url(/markers/default-poi.svg)';
+        //     selectedMarkerRef.current = null;
+        // }
 
         // Clear selected POI and go back
         selectPoi(null);

@@ -33,7 +33,7 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
         hazardPoi?.hazardCategory || 'warning'
     );
 
-    const { updatePoi, updateHazardPoi, clearTags, deletePoi, selectedPoiId, pois } = PoiStore();
+    const { clearTags, deletePoi, selectedPoiId, pois } = PoiStore();
 
     //voice note IDs from currently selected POI
     // const recordingIDs = poi.voiceNoteID;
@@ -43,6 +43,7 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
     
     
     const handleSave = () => {
+        return
         if (poi.type === 'hazard') {
             updateHazardPoi(poi.id, { name: initialInputValue, hazardCategory });
           } else {
@@ -98,7 +99,7 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
                             setInitialInputValue(e.target.value)
                         }}
                         onBlur={() => {
-                            updatePoi(poi.id, { name: initialInputValue });
+                            // updatePoi(poi.id, { name: initialInputValue });
                             setInitialShowInput(false);
                         }}
                         className="rounded-lg bg-white-10 px-3 py-1 text-center border border-gray-300"
