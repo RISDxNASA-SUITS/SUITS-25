@@ -32,8 +32,8 @@ public class PoiController {
 
     private static void addPoi(Context ctx) {
         PoiResponse poi = ctx.bodyAsClass(PoiResponse.class);
-        poiDbController.addPoi(poi);
-        ctx.result("Successfully added POI");
+        PoiResponse resp = poiDbController.addPoi(poi);
+        ctx.json(resp);
     }
 
     private static void removePoi(Context ctx) {

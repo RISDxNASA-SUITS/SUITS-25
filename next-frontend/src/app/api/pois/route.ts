@@ -6,8 +6,10 @@ export async function GET() {
     try {
         const response = await fetch(`${BASE_URL}/poi`);
         const data = await response.json();
+       
         return NextResponse.json(data);
     } catch (error) {
+        console.log(error, 'is the error');
         return NextResponse.json({ error: 'Failed to fetch POIs' }, { status: 500 });
     }
 }
@@ -16,7 +18,7 @@ export async function POST(request: Request) {
     try {
 
         const body = await request.json();
-        console.log(body)
+      
         const response = await fetch(`${BASE_URL}/poi`, {
             method: 'POST',
             headers: {
@@ -24,9 +26,11 @@ export async function POST(request: Request) {
             },
             body: JSON.stringify(body),
         });
-
-        const data = await response.json();
-        return NextResponse.json(data);
+        console.log(response, "is the response");
+        const json = await response.json()
+        console.log(json, "is the json");
+        
+       return NextResponse.json(json)
     } catch (error) {
         console.log(error, "is the error")
         return NextResponse.json({ error: 'Failed to create POI' }, { status: 500 });

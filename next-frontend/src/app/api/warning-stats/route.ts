@@ -50,7 +50,7 @@ export async function GET(request: Request) {
     try {
         const response = await fetch(`http://${process.env.NEXT_PUBLIC_JAVA_IP}/telemetry`);
         const data: PrTelemetry = await response.json();
-        console.log(data);
+     
         return NextResponse.json(data);
     } catch (error) {
         console.error("API Error:", error);

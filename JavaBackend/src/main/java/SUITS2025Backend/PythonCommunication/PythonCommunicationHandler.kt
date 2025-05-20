@@ -90,8 +90,8 @@ object PythonCommunicationHandler {
 
    fun sendMessageNoReturn(sendPacket: ByteBuffer) {
         val socket = DatagramSocket()
-        val ip = "127.0.0.1"
-        // val ip =  "192.168.51.110"
+        //val ip = "127.0.0.1"
+        val ip =  "192.168.51.110"
         val port = System.getenv("PORT") ?: "14141"
         val address = InetAddress.getByName(ip)
         val bytes = sendPacket.array()
@@ -101,8 +101,8 @@ object PythonCommunicationHandler {
 
    fun <T> sendMessage(sendPacket: ByteBuffer, recvBuffer: ByteBuffer, callBack: (ByteBuffer) -> T): T {
         val socket = DatagramSocket()
-        // val ip =  "192.168.51.110"
-        val ip = "127.0.0.1"
+        val ip =  "192.168.51.110"
+        //val ip = "127.0.0.1"
         val port = System.getenv("PORT") ?: "14141"
         val address = InetAddress.getByName(ip)
         val bytes = sendPacket.array()

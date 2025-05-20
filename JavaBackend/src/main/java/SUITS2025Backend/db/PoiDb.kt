@@ -67,7 +67,7 @@ class Poi(id: EntityID<Int>) : IntEntity(id) {
             this.tags.split(",").filter { it.isNotEmpty() },
             this.description,
             this.type,
-            this.audio?.id?.value,
+            null,
             this.radius
         )
     }
@@ -108,8 +108,8 @@ class PoiDbController {
         ctx.result("Voice note added")
     }
 
-    fun addPoi(poi: PoiResponse) {
-        transaction {
+    fun addPoi(poi: PoiResponse): PoiResponse{
+        return transaction {
             Poi.new {
                 name = poi.name
                 x = poi.x
@@ -123,7 +123,7 @@ class PoiDbController {
                 radius = poi.radius
             }
 
-        }
+        }.asResponse()
     }
     
     fun getPois(): PoiResponseJson{
@@ -182,6 +182,7 @@ class PoiDbController {
 
 
     fun getAudio(ctx: Context): Context{
+        ctx.result("gg")
         val id = ctx.pathParam("id").toInt()
         val audio = transaction { Audio.findById(id) }
             ?: return ctx.status(404).result("Audio not found")

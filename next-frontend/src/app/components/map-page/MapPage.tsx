@@ -12,6 +12,8 @@ export const MapPage = ()=>{
 
     const selectedMarkerRef = useRef<mapboxgl.Marker | null>(null);
     
+    console.log("Mappage", controlPanelState);
+
     //rover coords
     const [roverX,setRoverX] = useState<number>(0);
     const [roverY, setRoverY] = useState<number>(0);
@@ -19,7 +21,7 @@ export const MapPage = ()=>{
     console.log(controlPanelState);
     
     useEffect(() => {
-        console.log(roverX, roverY, "ARE ROVER COORDS");
+       
         const fetchRoverCoords = async() => {
             try {
                 const data = await fetch('/api/map-page-stats');
@@ -27,7 +29,7 @@ export const MapPage = ()=>{
                     throw new Error("HTTP error: " + data.statusText);
                 }
                 const res = await data.json(); 
-                                console.log("res" + JSON.stringify(res));
+                            
 
                 setRoverX(res.currentPosX || -95.08100506531964);
                 setRoverY(res.currentPosY || 29.56485541847833);

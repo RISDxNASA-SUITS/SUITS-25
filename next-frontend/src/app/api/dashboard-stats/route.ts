@@ -53,7 +53,7 @@ export async function GET(request: Request) {
             fetch(`http://${process.env.NEXT_PUBLIC_JAVA_IP}/error`).then(res => res.json()),
             fetch(`http://${process.env.NEXT_PUBLIC_JAVA_IP}/uia`).then(res => res.json())
         ]);
-        console.log(telemetry)
+   
         // Format data to match dashboard structure
         const dashboardData = {
             cabinStatus: {

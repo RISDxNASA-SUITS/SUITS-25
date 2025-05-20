@@ -22,8 +22,11 @@ export const ControlPanel = ({state, panelState, selectedMarkerRef}: ControlPane
     const {pois, hazardPois,selectedPoiId, selectPoi, addPoi, updatePoi} = PoiStore();
     const selectedPoi = pois.find(poi => poi.id === selectedPoiId);
     const selectHazardPoi = hazardPois.find(poi => poi.id === selectedPoiId);
+
     
-    console.log(panelState);
+    console.log(selectedPoi, "is the selected poi");
+    console.log(selectedPoiId, "is the selected poi id");
+    console.log(selectHazardPoi, "is the selected hazard poi");
     
     const handleClose = () => {
         // Close popup if exists
