@@ -19,14 +19,12 @@ type ControlPanelProps = {
 }
 
 export const ControlPanel = ({state, panelState, selectedMarkerRef}: ControlPanelProps ) => {
-    const {pois, hazardPois,selectedPoiId, selectPoi, addPoi, updatePoi} = PoiStore();
+    const {pois, hazardPois,selectedPoiId, selectPoi, addPoi} = PoiStore();
     const selectedPoi = pois.find(poi => poi.id === selectedPoiId);
     const selectHazardPoi = hazardPois.find(poi => poi.id === selectedPoiId);
 
     
-    console.log(selectedPoi, "is the selected poi");
-    console.log(selectedPoiId, "is the selected poi id");
-    console.log(selectHazardPoi, "is the selected hazard poi");
+    
     
     const handleClose = () => {
         // Close popup if exists

@@ -12,13 +12,13 @@ export const MapPage = ()=>{
 
     const selectedMarkerRef = useRef<mapboxgl.Marker | null>(null);
     
-    console.log("Mappage", controlPanelState);
+    
 
     //rover coords
     const [roverX,setRoverX] = useState<number>(0);
     const [roverY, setRoverY] = useState<number>(0);
     
-    console.log(controlPanelState);
+    
     
     useEffect(() => {
        

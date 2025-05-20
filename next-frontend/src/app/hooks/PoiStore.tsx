@@ -35,7 +35,7 @@ type VoiceNotes = {
 }
 
 export interface Poi {
-    id: string;
+    id?: number | null 
     name: string;
     coords: { lng: number; lat: number };
     moonCoords: { x: number; y: number };
@@ -49,7 +49,7 @@ export interface Poi {
     type: PinTypes
     audioId: number | null;
     description?: string;
-    radius: number | null;
+    radius?: number | null;
 }
 
 export interface HazardPoi extends Poi {
@@ -61,12 +61,10 @@ export interface BreadCrumb extends Poi {
     type: 'breadCrumb';
 }
 
-export interface LtvPoi extends Poi {
-    type: 'ltv';
-}
+
 
 type poiBackend = {
-    id: string | undefined;
+    id?: number | null ;
     name: string;
     x: number;
     y: number;
@@ -81,12 +79,10 @@ interface PoiStore {
     pois: Poi[];
     hazardPois: HazardPoi[];
     breadCrumbs: BreadCrumb[];
-    ltvPois: LtvPoi[];
     selectedPoiId: number | null;
     addPoi: (poi: Poi) => void;
     addHazardPoi: (hazardPoi: HazardPoi) => void;
-    
-    selectPoi: (poiId: string | null) => void;
+    selectPoi: (poiId: number | null) => void;
     updateTag: (poiId: string | null, category: string, subCategory: string, label: string) => void;
     clearTags: (poiId: string) => void;
     deletePoi: (poiId: string | null) => void;
@@ -171,8 +167,8 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         const pois:Poi[] = json.filter((poi:Poi) => poi.type !== "breadCrumb" && poi.type !== 'hazard')
         const hazardPois:HazardPoi[] = json.filter((poi:Poi) => poi.type === 'hazard')
         const breadCrumbs:BreadCrumb[] = json.filter((poi:Poi) => poi.type === 'breadCrumb')
-        const ltvPois:LtvPoi[] = json.filter((poi:Poi) => poi.type === 'ltv')
-        set({pois:pois, hazardPois:hazardPois, breadCrumbs:breadCrumbs, ltvPois:ltvPois})
+       
+        set({pois:pois, hazardPois:hazardPois, breadCrumbs:breadCrumbs})
     },
     addPoi: async (poi: Poi) => {
         const backendPoi = frontendToBackendPoi(poi)
@@ -209,7 +205,7 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         get().loadFromBackend()
         set({selectedPoiId: id})
     },
-    selectPoi: (poiId: string | null) => set(() => ({
+    selectPoi: (poiId: number | null) => set(() => ({
         selectedPoiId: poiId
     })),
     addVoiceNote: async (poiId:number, voiceNote:Number) => {
