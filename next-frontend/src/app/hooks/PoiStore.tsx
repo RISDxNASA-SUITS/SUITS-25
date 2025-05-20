@@ -84,9 +84,10 @@ interface PoiStore {
     addHazardPoi: (hazardPoi: HazardPoi) => void;
     selectPoi: (poiId: number | null) => void;
     updateTag: (poiId: string | null, category: string, subCategory: string, label: string) => void;
-    clearTags: (poiId: string) => void;
+  
     deletePoi: (poiId: string | null) => void;
     loadFromBackend: () => void
+    updatePoi: (poi: Poi) => void
     addVoiceNote: (poiId:number, voiceNote:Number) => void
 }
 
@@ -138,6 +139,17 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         const breadCrumbs:BreadCrumb[] = json.filter((poi:Poi) => poi.type === 'breadCrumb')
        
         set({pois:pois, hazardPois:hazardPois, breadCrumbs:breadCrumbs})
+    },
+    updatePoi: async (poi: Poi) => {
+        const backendPoi = frontendToBackendPoi(poi)
+        await fetch('/api/pois', {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(backendPoi)
+        })
+        get().loadFromBackend()
     },
     addPoi: async (poi: Poi) => {
         const backendPoi = frontendToBackendPoi(poi)
@@ -217,12 +229,6 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         })
         get().loadFromBackend()
     },
-    clearTags: (poiId: string) =>
-        set((state) => ({
-            pois: state.pois.map(p =>
-                p.id === poiId ? { ...p, tags: {} } : p
-            )
-        })),
     deletePoi: async (poiId: string | null) => {
         if (!poiId) return;
         await fetch(`/api/pois/${poiId}`, {
@@ -230,6 +236,8 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         })
         get().loadFromBackend()
     }
+
+
 }));
 
 

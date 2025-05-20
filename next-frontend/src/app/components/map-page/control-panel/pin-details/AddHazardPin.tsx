@@ -43,20 +43,10 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
     
     
     const handleSave = () => {
-        return
-        if (poi.type === 'hazard') {
-            updateHazardPoi(poi.id, { name: initialInputValue, hazardCategory });
-          } else {
-            updatePoi(poi.id, { name: initialInputValue });
-          }
+       
+        updatePoi(poi)
         
-        selectedMarkerRef.current?.getPopup()?.setHTML(`${poi.name}`);
-        
-        if (selectedMarkerRef.current) {
-            selectedMarkerRef.current.getElement().style.backgroundImage = 'url(/markers/default-poi.svg)';
-            selectedMarkerRef.current?.getPopup()?.remove();
-            selectedMarkerRef.current = null;
-        }
+       
         setSavedText(inputValue);
         setInputValue(poi.name);
         setShowInput(false);
@@ -66,7 +56,7 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
     
     const deleteMarker = () => {
         deletePoi(poi.id);
-        selectedMarkerRef.current?.remove();
+      
         setControlPanelState("EvDetails");
     };
     

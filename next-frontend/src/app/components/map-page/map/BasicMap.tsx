@@ -11,16 +11,14 @@ import { Tooltip } from '../../ui/ui-buttons/Tooltip';
 import "../mapstyle.css"; // Keep custom styles
 import mapboxgl from 'mapbox-gl';
 import { createRoot } from 'react-dom/client';
+import { usePanelStore } from '@/app/hooks/panelStore';
 
 // Mapbox token (ensure this is the correct way to set it for react-map-gl, often passed as a prop)
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGVydSJ9.pIfFx8HCC58f_PzAUjALRQ';
 
 type BasicMapProps = {
     roverCoords: { x: number; y: number };
-    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "SelectHazard" | "AddHazard") => void;
-    // selectedMarkerRef is problematic with declarative rendering. We'll rely on selectedPoiId from the store.
-    // Consider removing or rethinking its purpose. For now, I'll leave it but comment out its direct uses if they conflict.
-    selectedMarkerRef: RefObject<any>; // Type will change from mapboxgl.Marker
+    
 }
 
 type MapboxCoord = {
@@ -97,11 +95,11 @@ const initialViewState = {
         return { x: moonX, y: moonY };
     }
 
-const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: BasicMapProps) => {
+const BasicMap = ({ roverCoords, }: BasicMapProps) => {
     const [viewState, setViewState] = useState(initialViewState);
     const { pois, hazardPois,  addPoi, addHazardPoi, selectPoi, selectedPoiId, loadFromBackend, breadCrumbs } = PoiStore();
     const [poiNum, setPoiNum] = useState(1); // For default naming, might need better persistence
-
+    const {setPanelState:setControlPanelState} = usePanelStore();
     const pointA = convertMoonToEarth({ x: -5855.60, y: -10168.60 });
     const pointB = convertMoonToEarth({ x: -5868.10, y: -10016.10 });
     const pointC = convertMoonToEarth({ x: -5745.90, y: -9977.30 });
@@ -347,6 +345,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             console.log("RENDER POPUP 1")
             return (
                 <Popup
+                    key={`add-pin-${newPinLocation.lng}-${newPinLocation.lat}`}
                     longitude={newPinLocation.lng}
                     latitude={newPinLocation.lat}
                     onClose={() => {

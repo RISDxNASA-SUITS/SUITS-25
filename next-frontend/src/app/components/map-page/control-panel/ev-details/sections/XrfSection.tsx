@@ -1,13 +1,15 @@
 import GeoSampleCard from "@/app/components/ui/Cards/GeoSampleCard"
 import { useState, useEffect } from "react"
 import { GeoResponse } from "@/app/api/geo-data/route"
+import { usePanelStore } from "@/app/hooks/panelStore";
 
 interface XrfSectionProps {
     setControlPanelState: (state: "AddTag" |"AddVoiceNote" | "EvDetails") => void;
 }
 
-export default function XrfSection({setControlPanelState}: XrfSectionProps) {
+export default function XrfSection() {
     const [geoData, setGeoData] = useState<GeoResponse[]>([]);
+    const {setState} = usePanelStore();
 
     useEffect(() => {
         const fetchGeoData = async () => {
@@ -27,8 +29,8 @@ export default function XrfSection({setControlPanelState}: XrfSectionProps) {
             {geoData.map((sample) => (
                 <GeoSampleCard 
                     key={sample.id}
-                    sample={sample}
-                    setControlPanelState={setControlPanelState}
+                    sample={sample} 
+                    setControlPanelState={setState}
                 />
             ))}
         </div>

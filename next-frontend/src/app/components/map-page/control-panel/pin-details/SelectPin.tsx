@@ -5,40 +5,41 @@ import React, {RefObject, useState} from "react";
 import CloseButton from "@/app/components/ui/ui-buttons/CloseButton";
 import NotePreview from "@/app/components/ui/Cards/NotePreview";
 import {AddTag} from "@/app/components/map-page/control-panel/pin-details/description/AddTag";
+import { usePanelStore } from "@/app/hooks/panelStore";
 
 type selectpoiProps = {
     poi: Poi;
     onClose: () => void;
-    selectedMarkerRef: RefObject<mapboxgl.Marker | null>;
+
     setControlPanelState: (state: "AddTag" | "EvDetails" | "AddPin" | "SelectPin") => void;
 }
 
-export const Selectpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}: selectpoiProps) => {
+export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
     const [showInput, setShowInput] = useState<boolean>(false);
     const [inputValue, setInputValue] = useState(poi.name);
     const [savedText, setSavedText] = useState<string>(poi.name);
+    const {setPanelState} = usePanelStore();
+    const {updatePoi} = PoiStore();
 
     //voice note IDs from currently selected POI
-    const recordingIDs = poi.voiceNoteID;
+    const recordingIDs = poi.audioId;
 
-    const {clearTags, deletePoi} = PoiStore();
+    const { deletePoi} = PoiStore();
 
     const handleSave = () => {
         poi.name = inputValue;
 
-        selectedMarkerRef.current?.getPopup()?.setHTML(`${poi.name}`);
-
-        setSavedText(inputValue);
+        updatePoi(poi)
         setInputValue(poi.name);
         setShowInput(false);
 
-        setControlPanelState("EvDetails");
+        setPanelState("EvDetails");
     }
 
     const deleteMarker = () => {
         deletePoi(poi.id);
-        selectedMarkerRef.current?.remove();
-        setControlPanelState("EvDetails");
+        
+        setPanelState("EvDetails");
     };
 
     return (
@@ -57,7 +58,7 @@ export const Selectpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState
                 {/*Tag*/}
                 <div className={"flex flex-col gap-4"}>
                     <p className={"text-2xl font-bold"}>Tags</p>
-                    <AddTag onClose={onClose} setControlPanelState={setControlPanelState}compact={true} />
+                    <AddTag onClose={onClose} setControlPanelState={setPanelState}compact={true} />
                 </div>
 
                 {/*Voice Notes*/}
@@ -69,7 +70,7 @@ export const Selectpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState
                         <NotePreview date="test" title={`${item}`} key={item}></NotePreview>
                     ))}
 
-                    <SecondaryButton logo={"/logo/add.svg"} onClick={() => setControlPanelState("AddVoiceNote")}
+                    <SecondaryButton logo={"/logo/add.svg"} onClick={() => setPanelState("AddVoiceNote")}
                     >Voice Note</SecondaryButton>
                 </div>
             </div>
