@@ -53,19 +53,22 @@ class Scanner:
         }
 
     def scan(self):
+        print("scanning")
         ret_dict = get_lidar_telemetry()
+        print(ret_dict, "ret_dict")
         lidar = ret_dict['lidar']
         current_position = ret_dict['current_position']
         heading = ret_dict['heading']
         return_list = []
         self.get_surroundings(lidar, return_list, current_position, heading)
         counter = 0
+        print(lidar, "lidar")
         while min(lidar[3], lidar[4], lidar[6]) > self.wall_threshold and counter < 30: # forward right
             ret_dict = get_lidar_telemetry()
             lidar = ret_dict['lidar']
             current_position = ret_dict['current_position']
             heading = ret_dict['heading']
-            # print(counter, 'counter')
+            print(counter, 'counter')
             post_steering(1)
             post_throttle(30)
             time.sleep(0.4)
@@ -82,7 +85,7 @@ class Scanner:
             counter -= 1
         print(lidar, "lidar")
         while counter < 30 and min(lidar[10], lidar[11], lidar[12]) > self.wall_threshold: # backward right
-            # print(counter, 'counterb')
+            print(counter, 'counterb')
             ret_dict = get_lidar_telemetry()
             lidar = ret_dict['lidar']
             current_position = ret_dict['current_position']
@@ -101,7 +104,7 @@ class Scanner:
             time.sleep(0.1)
             counter -= 1
         while min(lidar[0], lidar[1], lidar[5]) > self.wall_threshold and counter < 30: # forward left
-            # print(counter, 'counter2')
+            print(counter, 'counter2')
             ret_dict = get_lidar_telemetry()
             lidar = ret_dict['lidar']
             current_position = ret_dict['current_position']
@@ -120,7 +123,7 @@ class Scanner:
             time.sleep(0.1)
             counter -= 1
         while counter < 30 and min(lidar[10], lidar[11], lidar[12]) > self.wall_threshold: # backward left
-            # print(counter, 'counter2b')
+            print(counter, 'counter2b')
             ret_dict = get_lidar_telemetry()
             lidar = ret_dict['lidar']
             current_position = ret_dict['current_position']

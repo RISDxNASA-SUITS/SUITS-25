@@ -120,8 +120,33 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
 
     const [isScanActive, setIsScanActive] = useState(false);
 
-    const handleScanToggle = () => {
-        setIsScanActive(prevState => !prevState);
+    const handleScanToggle = async () => {
+        try {
+            console.log("Starting scan request");
+            setIsScanActive(true);
+            const response = await fetch('/api/rover-scan');
+            console.log("Scan response status:", response.status);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Scan failed:', errorData);
+                throw new Error(errorData.error || 'Scan failed');
+            }
+            
+            const data = await response.json();
+            console.log("Scan results:", data);
+            
+            if (data.success) {
+                // Handle successful scan results here
+                console.log("Scan points:", data.points);
+            } else {
+                throw new Error('Scan was not successful');
+            }
+        } catch (error) {
+            console.error('Error during scan:', error);
+            setIsScanActive(false);
+            // You might want to show an error message to the user here
+        }
     };
 
     // Add these function definitions
@@ -810,6 +835,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                     <PrimaryButton
                         onClick={handleScanToggle}
                         className={`p-2 ${isScanActive ? 'bg-green-500' : 'bg-red-500'} text-white rounded-full`}
+                        
                     >
                         {isScanActive ? 'Ongoing scan' : 'Start Scan'}
                     </PrimaryButton>

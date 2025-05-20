@@ -1,8 +1,15 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from RoverAgents.Navigator import Navigator
 from RoverAgents.Scanner import Scanner
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Initialize the agents
 navigator = Navigator(15, 300)
@@ -28,11 +35,13 @@ def navigate_to_point():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/scan', methods=['GET', 'POST'])
+@app.route('/scan', methods=['GET'])
 def scan_area():
     try:
+        print("Scan request received")
         # Perform scan at current location
         scan_results = scanner.scan()
+        print(f"Scan completed with results: {scan_results}")
         
         return jsonify({
             'success': True,
