@@ -3,11 +3,11 @@ import { IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 
 
-const ibmPlexSans = IBM_Plex_Sans({
-  weight: ["400", "500", "700"],
-  subsets: ["latin"],
-  variable: "--font-ibm-plex-sans"
-});
+// const ibmPlexSans = IBM_Plex_Sans({
+//   weight: ["400", "500", "700"],
+//   subsets: ["latin"],
+//   variable: "--font-ibm-plex-sans"
+// });
 
 export const metadata: Metadata = {
   title: "RISD SUITS",
@@ -22,7 +22,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${ibmPlexSans.variable} font-sans text-white antialiased`}
+        // className={`${ibmPlexSans.variable} font-sans text-white antialiased`}
+        // className={`font-sans text-white antialiased`
       >
         {children}
       </body>

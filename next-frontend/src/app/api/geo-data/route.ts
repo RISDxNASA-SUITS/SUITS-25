@@ -4,10 +4,10 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
     try {
         const {data}:{data:GeoResponse[]}= await axios.get(`http://${process.env.NEXT_PUBLIC_JAVA_IP}/geo`)
-        console.log(data)
+        
         return NextResponse.json(data)
     } catch (error) {
-        console.log(error)
+       
         return NextResponse.json({ error: 'Failed to fetch geo dust data' }, { status: 500 })
     }
 

@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import SecondaryButton from "../ui-buttons/SecondaryButton";
 import { GeoResponse } from "@/app/api/geo-data/route";

@@ -30,7 +30,7 @@ export default function WarningSection() {
     const loadData = async () => {
       try {
         const { data } = await axios.get<ErrorState>("/api/warnings");
-        console.log(data)
+        
         if (isMounted) {
           setWarnings(data);
         }

@@ -2,6 +2,7 @@ package SUITS2025Backend.PoiList;
 
 import SUITS2025Backend.db.PoiDbController;
 import SUITS2025Backend.db.PoiResponse;
+import SUITS2025Backend.db.PoiResponseJson;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -19,18 +20,20 @@ public class PoiController {
         app.post("/audio", poiDbController::submitAudio);
         app.get("/audio/{id}", poiDbController::getAudio);
         app.delete("/poi", poiDbController::deletePois);
+        app.post("/poi/addVoiceNote", poiDbController::addVoiceNote);
+        app.delete("/poi/{id}", poiDbController::deletePoi);
     }
 
     private static void getPois(Context ctx) {
-        List<PoiResponse> resp = poiDbController.getPois();
-        System.out.println(resp);
+        PoiResponseJson resp = poiDbController.getPois();
+        
         ctx.json(resp);
     }
 
     private static void addPoi(Context ctx) {
         PoiResponse poi = ctx.bodyAsClass(PoiResponse.class);
-        poiDbController.addPoi(poi);
-        ctx.result("Successfully added POI");
+        PoiResponse resp = poiDbController.addPoi(poi);
+        ctx.json(resp);
     }
 
     private static void removePoi(Context ctx) {

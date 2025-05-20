@@ -9,22 +9,27 @@ from commands import (
 )
 from main import Pipeline
 from typing import Tuple, List, Dict
-from Node import Node
+# from Node import Node
+import requests
+import json
 
 Point = Tuple[float, float]
-import requests
 BASE_URL = "http://localhost:7070"
-pipeline = Pipeline(TSS_HOST, TSS_PORT)
+# pipeline = Pipeline(TSS_HOST, TSS_PORT)
 
 def get_lidar():
-
-    # response = requests.post(f"{BASE_URL}/lidar")
-    # return response.json()
-    response = pipeline.send_receive(LIDAR_CMD)
-    if not response:
-        return []
-    _, _, *lidar_data = response
-    return lidar_data
+    try:
+        response = requests.get(f"{BASE_URL}/lidar")
+        if response.status_code == 200:
+            return response.json()
+    except (requests.exceptions.RequestException, json.JSONDecodeError) as e:
+        print(f"Error getting telemetry from server: {e}")
+    # response = pipeline.send_receive(LIDAR_CMD)
+    # if not response:
+    #     return []
+    # _, _, *lidar_data = response
+    # returnObject = {'data': lidar_data}
+    # return returnObject
 
 def get_rover_location() -> Dict[str, float]:
     x_data = pipeline.send_receive(ROVER_X_CMD)
@@ -54,35 +59,45 @@ def get_speed():
     return speed_data[2] if speed_data else 0.0
 
 def get_telemetry() -> Dict[str, object]:
-    # response = requests.get(f"{BASE_URL}/telemetry")
-    # return response.json()
-    return {
-        "location": get_rover_location(),
-        "orientation": get_rover_orientation(),
-        "speed": get_speed(),
-    }
+    try:
+        response = requests.get(f"{BASE_URL}/telemetry")
+        if response.status_code == 200:
+            return response.json()
+    except (requests.exceptions.RequestException, json.JSONDecodeError) as e:
+        print(f"Error getting telemetry from server: {e}")
+    
+    # Fallback to direct telemetry gathering
+    # location = get_rover_location()
+    # orientation = get_rover_orientation()
+    # speed = get_speed()
+    # return {
+    #     'currentPosX': location['x'],
+    #     'currentPosY': location['y'],
+    #     'heading': orientation['heading'],
+    #     'speed': speed
+    # }
 
 def post_brakes(brake_input: float):
-    # payload = {"brakeInput": brake_input}
-    # response = requests.post(f"{BASE_URL}/brakes", json=payload)
-    # return response.status_code, response.text
-    pipeline.send_instructions(BRAKE_CMD, brake_input)
-    print(f"brake set to {brake_input}")
+    payload = {"brakeInput": brake_input}
+    response = requests.post(f"{BASE_URL}/brakes", json=payload)
+    return response.status_code, response.text
+    # pipeline.send_instructions(BRAKE_CMD, brake_input)
+    # print(f"brake set to {brake_input}")
 
 def post_throttle(throttle_input: float):
-    # payload = {"throttleInput": throttle_input}
-    # response = requests.post(f"{BASE_URL}/throttle", json=payload)
-    # return response.status_code, response.text
-    pipeline.send_instructions(THROTTLE_CMD, throttle_input)
-    print(f"throttle set to {throttle_input}")
+    payload = {"throttleInput": throttle_input}
+    response = requests.post(f"{BASE_URL}/throttle", json=payload)
+    return response.status_code, response.text
+    # pipeline.send_instructions(THROTTLE_CMD, throttle_input)
+    # print(f"throttle set to {throttle_input}")
 
 
 def post_steering(steering_input: float):
-    # payload = {"steeringInput": steering_input}
-    # response = requests.post(f"{BASE_URL}/steering", json=payload)
-    # return response.status_code, response.text
-    pipeline.send_instructions(STEERING_CMD, steering_input)
-    print(f"steering set to {steering_input}")
+    payload = {"steeringInput": steering_input}
+    response = requests.post(f"{BASE_URL}/steering", json=payload)
+    return response.status_code, response.text
+    # pipeline.send_instructions(STEERING_CMD, steering_input)
+    # print(f"steering set to {steering_input}")
 
 
 def euclidean_distance(pos_a : Point, pos_b : Point) -> float:
@@ -96,16 +111,16 @@ def path_function(point_a : Point, point_b : Point) -> float:
     A-star Cost Function between two points. Currently simple Euclidean function
     '''
     return euclidean_distance(point_a, point_b)
-def trace_path(final_node : Node) -> List[Point]:
-    '''
-    Traces the path leading from the first node in a tree to the final node in the tree
-    '''
-    path = []
-    cur_node = final_node
-    while cur_node is not None:
-        path.append(cur_node.position)
-        cur_node = cur_node.parent_node
-    return path[::-1]
+# def trace_path(final_node : Node) -> List[Point]:
+#     '''
+#     Traces the path leading from the first node in a tree to the final node in the tree
+#     '''
+#     path = []
+#     cur_node = final_node
+#     while cur_node is not None:
+#         path.append(cur_node.position)
+#         cur_node = cur_node.parent_node
+#     return path[::-1]
 
 
 def obstacle_path_distance(obstacle : Point, path_start : Point, path_end : Point) -> float:

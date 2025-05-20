@@ -1,4 +1,4 @@
-import {Poi, PoiStore} from "@/app/hooks/PoiStore";
+import {Poi, PoiStore, HazardPoi} from "@/app/hooks/PoiStore";
 import {SecondaryButton} from "@/app/components/ui/ui-buttons/SecondaryButton";
 import mapboxgl from "mapbox-gl";
 import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
@@ -25,19 +25,29 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
     //initial input field state
     const [showInitialInput, setInitialShowInput] = useState<boolean>(true);
     
-    const [hazardCategory, setHazardCategory] = useState<'warning' | 'caution'>('warning');
+    // Type check and cast
+    const isHazardPoi = poi.type === 'hazard';
+    const hazardPoi = isHazardPoi ? poi as HazardPoi : null;
     
-    const {updatePoi, clearTags, deletePoi, selectedPoiId, pois} = PoiStore();
-    
+    const [hazardCategory, setHazardCategory] = useState<'warning' | 'caution'>(
+        hazardPoi?.hazardCategory || 'warning'
+    );
+
+    const { updatePoi, updateHazardPoi, clearTags, deletePoi, selectedPoiId, pois } = PoiStore();
+
     //voice note IDs from currently selected POI
-    const recordingIDs = poi.voiceNoteID;
+    // const recordingIDs = poi.voiceNoteID;
     
     // // all recordings from the AudioStore
     // const { recordings } = useAudioStore();
     
     
     const handleSave = () => {
-        updatePoi(poi.id, { name: initialInputValue });
+        if (poi.type === 'hazard') {
+            updateHazardPoi(poi.id, { name: initialInputValue, hazardCategory });
+          } else {
+            updatePoi(poi.id, { name: initialInputValue });
+          }
         
         selectedMarkerRef.current?.getPopup()?.setHTML(`${poi.name}`);
         
@@ -144,16 +154,66 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
                     )}
                 </div>
 
-                {/* Hazard Category Toggle */}
+                {/* Hazard Category */}
+                <div className="flex flex-col gap-4">
+                    <p className="text-2xl font-bold">Hazard Category</p>
+                    <div className="flex gap-2 p-2 rounded-xl bg-white/10">
+                        {/* Warning */}
+                        <button
+                            className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-sm font-medium transition-colors duration-200 ${
+                                hazardCategory === 'warning'
+                                ? 'bg-[#6e223d] border-white text-white'
+                                : 'bg-transparent border-white text-white'
+                            }`}
+                            onClick={() => {
+                                setHazardCategory('warning');
+                                if (poi.type === 'hazard') {
+                                    updateHazardPoi(poi.id, { hazardCategory: 'warning' });
+                                }
+                            }}
+                            >
+                            <span
+                                className={`w-2 h-2 rounded-full ${
+                                hazardCategory === 'warning' ? 'bg-[#ff1a1a]' : 'bg-red-500'
+                                }`}
+                            ></span>
+                            Warning (Default)
+                            </button>
+
+                        {/* Caution */}
+                        <button
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-sm transition-colors duration-200 ${
+                            hazardCategory === 'caution'
+                            ? 'bg-[#5e4331] border-white text-white'
+                            : 'bg-transparent border-white text-white'
+                        }`}
+                        onClick={() => {
+                            setHazardCategory('caution');
+                            if (poi.type === 'hazard') {
+                                updateHazardPoi(poi.id, { hazardCategory: 'caution' });
+                            }
+                        }}
+                        >
+                        <span
+                            className={`w-2 h-2 rounded-full ${
+                            hazardCategory === 'caution' ? 'bg-[#ff9900]' : 'bg-yellow-400'
+                            }`}
+                        ></span>
+                        Caution
+                        </button>
+                    </div>
+                </div>
+
+                
                 
                 {/*Voice Notes*/}
                 <div className={"flex flex-col gap-4"}>
                     <p className={"text-2xl font-bold"}>Voice Notes</p>
                     
                     {/* map all recordings from zustand store to the notePreview card */}
-                    {recordingIDs?.map(item => (
-                        <NotePreview date="test" title={`${item}`} key={item}></NotePreview>
-                    ))}
+                    {/*{recordingIDs?.map(item => (*/}
+                    {/*    <NotePreview date="test" title={`${item}`} key={item}></NotePreview>*/}
+                    {/*))}*/}
                     
                     <SecondaryButton logo={"/logo/add.svg"} onClick={() => setControlPanelState("AddVoiceNote")}
                     >Voice Note</SecondaryButton>

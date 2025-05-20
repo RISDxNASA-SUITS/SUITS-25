@@ -1,10 +1,8 @@
-'use client';
+"use client";
 import React from 'react';
-import HorizontalTextGaugeCard from '../components/ui/Cards/HorizontalTextGaugeCard';
-import MultiGaugeCard from '../components/ui/Cards/MultiGaugeCard';
-import VerticalTextReadoutCard from '../components/ui/Cards/VerticalTextReadoutCard';
-import HorizontalLineGaugeCard from '../components/ui/Cards/HorizontalLineGaugeCard';
-import MixedGaugeCard from '../components/ui/Cards/MixedGaugeCard';
+import DashboardPanelLeft from '../components/ui/Panels/DashboardPanel_left';
+import DashboardPanelMiddle from '../components/ui/Panels/DashboardPanel_middle';
+import DashboardPanelRight from '../components/ui/Panels/DashboardPanel_right';
 
 // Mock data structure for fallback
 const MOCK_DATA = {
@@ -122,58 +120,10 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#201d33] p-8 flex flex-row items-start gap-8 w-full">
-            {/* Left side: all cards before the first divider */}
-            <div className="flex flex-col gap-8">
-                <HorizontalTextGaugeCard
-                    gauges={dashboardData.cabinStatus.gauges}
-                />
-                <div className="flex flex-row gap-8">
-                    <MultiGaugeCard
-                        oxygenTank={dashboardData.lifeSupport.oxygen.tank}
-                        oxygenLevel={dashboardData.lifeSupport.oxygen.level}
-                        oxygenPressure={dashboardData.lifeSupport.oxygen.pressure}
-                        coolantTank={dashboardData.lifeSupport.coolant.tank}
-                        coolantLevel={dashboardData.lifeSupport.coolant.level}
-                        coolantPressure={dashboardData.lifeSupport.coolant.pressure}
-                    />
-                    <VerticalTextReadoutCard
-                        readouts={dashboardData.solarAndFans.readouts}
-                    />
-                </div>
-            </div>
-            {/* First Divider */}
-            <div className="w-px bg-[#393654] self-stretch mx-2" />
-            {/* Middle: second HorizontalTextGaugeCard, HorizontalLineGaugeCard, and MixedGaugeCards */}
-            <div className="flex flex-col gap-8 w-full max-w-3xl">
-                <HorizontalTextGaugeCard
-                    gauges={dashboardData.vitals.gauges}
-                />
-                <HorizontalLineGaugeCard
-                    gauges={dashboardData.timeAndTemp.gauges}
-                />
-                {/* Two MixedGaugeCards side by side */}
-                <div className="flex flex-row gap-8">
-                    <MixedGaugeCard {...dashboardData.oxygenStorage.primary} />
-                    <MixedGaugeCard {...dashboardData.oxygenStorage.secondary} />
-                </div>
-            </div>
-            {/* Second Divider */}
-            <div className="w-px bg-[#393654] self-stretch mx-2" />
-            {/* Right side: duplicate of middle section */}
-            <div className="flex flex-col gap-8 w-full max-w-3xl">
-                <HorizontalTextGaugeCard
-                    gauges={dashboardData.vitals.gauges}
-                />
-                <HorizontalLineGaugeCard
-                    gauges={dashboardData.timeAndTemp.gauges}
-                />
-                {/* Two MixedGaugeCards side by side */}
-                <div className="flex flex-row gap-8">
-                    <MixedGaugeCard {...dashboardData.oxygenStorage.primary} />
-                    <MixedGaugeCard {...dashboardData.oxygenStorage.secondary} />
-                </div>
-            </div>
+        <div className="min-h-screen bg-[#201d33] p-8 flex flex-row justify-center items-start gap-8">
+            <DashboardPanelLeft />
+            <DashboardPanelMiddle />
+            <DashboardPanelRight />
         </div>
     );
 }

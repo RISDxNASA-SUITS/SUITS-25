@@ -27,17 +27,17 @@ export const Editpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}:
 
 
 
-    const {updatePoi, clearTags, deletePoi, selectedPoiId, pois} = PoiStore();
+    const { clearTags, deletePoi, selectedPoiId, pois} = PoiStore();
 
     //voice note IDs from currently selected POI
-    const recordingIDs = poi.voiceNoteID;
+    // const recordingIDs = poi.voiceNoteID;
 
     // // all recordings from the AudioStore
     // const { recordings } = useAudioStore();
 
 
     const handleSave = () => {
-        updatePoi(poi.id, { name: initialInputValue });
+        // updatePoi(poi.id, { name: initialInputValue });
 
         selectedMarkerRef.current?.getPopup()?.setHTML(`${poi.name}`);
 
@@ -88,7 +88,7 @@ export const Editpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}:
                         setInitialInputValue(e.target.value)
                     }}
                     onBlur={() => {
-                        updatePoi(poi.id, { name: initialInputValue });
+                        // updatePoi(poi.id, { name: initialInputValue });
                         setInitialShowInput(false);
                     }}
                     className="rounded-lg bg-white-10 px-3 py-1 text-center border border-gray-300"
@@ -149,9 +149,9 @@ export const Editpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}:
                     <p className={"text-2xl font-bold"}>Voice Notes</p>
 
                     {/* map all recordings from zustand store to the notePreview card */}
-                    {recordingIDs?.map(item => (
+                    {/* {recordingIDs?.map(item => (
                         <NotePreview date="test" title={`${item}`} key={item}></NotePreview>
-                    ))}
+                    ))} */}
 
                     <SecondaryButton logo={"/logo/add.svg"} onClick={() => setControlPanelState("AddVoiceNote")}
                     >Voice Note</SecondaryButton>
