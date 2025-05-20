@@ -11,6 +11,7 @@ import { Tooltip } from '../../ui/ui-buttons/Tooltip';
 import "../mapstyle.css"; // Keep custom styles
 import mapboxgl from 'mapbox-gl';
 import { createRoot } from 'react-dom/client';
+import Warnings from '@/app/components/map-page/mission-info/Warnings'
 
 // Mapbox token (ensure this is the correct way to set it for react-map-gl, often passed as a prop)
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGVydSJ9.pIfFx8HCC58f_PzAUjALRQ';
@@ -728,6 +729,10 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             className="rounded-none p-3"
                         />
                     </div>
+                </div>
+                
+                <div className = "absolute top-0 w-full flex items-end flex-col">
+                    <Warnings />
                 </div>
             </div>
         </div>
