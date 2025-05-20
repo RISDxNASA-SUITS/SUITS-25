@@ -118,6 +118,11 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     const [addActive, toggleAddActive] = useState<boolean>(false);
     const [poiButtonClickActive, setPoiButtonClickActive] = useState<boolean>(false);
 
+    const [isScanActive, setIsScanActive] = useState(false);
+
+    const handleScanToggle = () => {
+        setIsScanActive(prevState => !prevState);
+    };
 
     // Add these function definitions
     const prepareHazardAddition = () => {
@@ -232,19 +237,35 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     );
 
     function renderRoverMarker({ x, y }: { x: number; y: number }) {
-        const roverCoords = convertMoonToEarth({x: x, y: y})
+        const roverCoords = convertMoonToEarth({x: x, y: y});
         return (
-            <Marker
-                longitude={roverCoords.lng}
-                latitude={roverCoords.lat}
-            >
-                <div
-                    className="bg-contain bg-no-repeat bg-center cursor-pointer
-                                    lg:w-8 sm:h-6 md:h-7 lg:h-8"
-                    style={{backgroundImage: 'url(/markers/rover-marker.svg)'}}
-                />
-            </Marker>
-        )
+            <>
+                <Marker
+                    longitude={roverCoords.lng}
+                    latitude={roverCoords.lat}
+                >
+                    <div
+                        className="bg-contain bg-no-repeat bg-center cursor-pointer
+                                        lg:w-8 sm:h-6 md:h-7 lg:h-8"
+                        style={{backgroundImage: 'url(/markers/rover-marker.svg)'}}
+                    />
+                </Marker>
+                {isScanActive && (
+                    <Marker
+                        longitude={roverCoords.lng}
+                        latitude={roverCoords.lat}
+                    >
+                        <div
+                            className="border-2 border-blue-500 rounded-full opacity-50"
+                            style={{
+                                width: '200px',
+                                height: '200px',
+                            }}
+                        />
+                    </Marker>
+                )}
+            </>
+        );
     }
 
     const onPoiButtonClick = () => {
@@ -672,7 +693,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                                 className={`bg-purple-500 border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center`}
 
                             >
-   <div className=" text-center text-white font-bold text-lg">!</div>
+                            <div className=" text-center text-white font-bold text-lg">!</div>
                             </div>
 
                         </Marker>
@@ -781,6 +802,17 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                             className="rounded-none p-3"
                         />
                     </div>
+                </div>
+
+
+                {/* Scan Button */}
+                <div className="absolute top-4 right-4 z-10">
+                    <PrimaryButton
+                        onClick={handleScanToggle}
+                        className={`p-2 ${isScanActive ? 'bg-green-500' : 'bg-red-500'} text-white rounded-full`}
+                    >
+                        {isScanActive ? 'Ongoing scan' : 'Start Scan'}
+                    </PrimaryButton>
                 </div>
             </div>
         </div>
