@@ -44,7 +44,7 @@ export const SelectHazardPin = ({poi, onClose, selectedMarkerRef, setControlPane
     
     const deleteMarker = () => {
         deletePoi(poi.id);
-        selectedMarkerRef.current?.remove();
+        // selectedMarkerRef.current?.remove();
         setControlPanelState("EvDetails");
     };
     

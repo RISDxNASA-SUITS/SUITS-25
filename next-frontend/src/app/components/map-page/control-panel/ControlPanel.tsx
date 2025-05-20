@@ -28,13 +28,13 @@ export const ControlPanel = ({state, panelState, selectedMarkerRef}: ControlPane
     
     const handleClose = () => {
         // Close popup if exists
-        selectedMarkerRef.current?.getPopup()?.remove();
+        // selectedMarkerRef.current?.getPopup()?.remove();
 
-        // Reset marker icon
-        if (selectedMarkerRef.current) {
-            selectedMarkerRef.current.getElement().style.backgroundImage = 'url(/markers/default-poi.svg)';
-            selectedMarkerRef.current = null;
-        }
+        // // Reset marker icon
+        // if (selectedMarkerRef.current) {
+        //     selectedMarkerRef.current.getElement().style.backgroundImage = 'url(/markers/default-poi.svg)';
+        //     selectedMarkerRef.current = null;
+        // }
 
         // Clear selected POI and go back
         selectPoi(null);

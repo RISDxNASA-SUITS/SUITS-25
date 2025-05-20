@@ -247,17 +247,17 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
         )
     }
 
-    const onPoiButtonClick = () => {
-        setPoiButtonClickActive(!poiButtonClickActive);
-        if (newPinLocation) {
-            setNewPinLocation(null); // Clear temp pin if button is toggled off
-        }
-        if (!poiButtonClickActive) { // If turning on
-            toggleAddActive(true); // Ensure menu is open
-        } else { // If turning off
-            toggleAddActive(false);
-        }
-    };
+    // const onPoiButtonClick = () => {
+    //     setPoiButtonClickActive(!poiButtonClickActive);
+    //     if (newPinLocation) {
+    //         setNewPinLocation(null); // Clear temp pin if button is toggled off
+    //     }
+    //     if (!poiButtonClickActive) { // If turning on
+    //         toggleAddActive(true); // Ensure menu is open
+    //     } else { // If turning off
+    //         toggleAddActive(false);
+    //     }
+    // };
 
     // Generic function to add a new POI
     const addNewPinToStore = (
@@ -278,7 +278,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                 name: `${namePrefix} ${poiNum}`,
                 coords: { lng, lat },
                 moonCoords: { x, y },
-                tags: null,
+                tags: [],
                 type: 'hazard' as const,
                 radius: hazardRadius ?? 50,
                 hazardCategory: hazardCategory ?? 'warning',
@@ -299,7 +299,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             name: `${namePrefix} ${poiNum}`,
             coords: { lng, lat },
             moonCoords: { x, y },
-            tags: null,
+            tags: [],
             type: type,
             audioId: null,
             // marker: new mapboxgl.Marker(), // Add the required marker property
@@ -340,8 +340,11 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
 
     // Function to render the popup for a new pin or selected POI
     const renderPopup = () => {
-       
+        console.log("RENDER POPUP"
+        , newPinLocation, tempPinType, !tempPinType
+        )
         if (newPinLocation && !tempPinType) { // Temporary pin placed, show options
+            console.log("RENDER POPUP 1")
             return (
                 <Popup
                     longitude={newPinLocation.lng}

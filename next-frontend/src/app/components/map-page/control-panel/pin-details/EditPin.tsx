@@ -39,13 +39,13 @@ export const Editpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}:
     const handleSave = () => {
         // updatePoi(poi.id, { name: initialInputValue });
 
-        selectedMarkerRef.current?.getPopup()?.setHTML(`${poi.name}`);
+        // selectedMarkerRef.current?.getPopup()?.setHTML(`${poi.name}`);
 
-        if (selectedMarkerRef.current) {
-            selectedMarkerRef.current.getElement().style.backgroundImage = 'url(/markers/default-poi.svg)';
-            selectedMarkerRef.current?.getPopup()?.remove();
-            selectedMarkerRef.current = null;
-        }
+        // if (selectedMarkerRef.current) {
+        //     selectedMarkerRef.current.getElement().style.backgroundImage = 'url(/markers/default-poi.svg)';
+        //     selectedMarkerRef.current?.getPopup()?.remove();
+        //     selectedMarkerRef.current = null;
+        // }
         setSavedText(inputValue);
         setInputValue(poi.name);
         setShowInput(false);
