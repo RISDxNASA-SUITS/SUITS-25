@@ -6,6 +6,7 @@ import CloseButton from "@/app/components/ui/ui-buttons/CloseButton";
 import NotePreview from "@/app/components/ui/Cards/NotePreview";
 import {AddTag} from "@/app/components/map-page/control-panel/pin-details/description/AddTag";
 import { usePanelStore } from "@/app/hooks/panelStore";
+import AddWarning from "@/app/components/map-page/control-panel/pin-details/description/AddWarning"
 
 type selectpoiProps = {
     poi: Poi;
@@ -76,9 +77,12 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
             </div>
 
             {/*Buttons*/}
-            <div className={"flex justify-between gap-4"}>
-                <SecondaryButton logo={"/logo/delete.svg"} onClick={() => deleteMarker()}>Delete poi</SecondaryButton>
-                <PrimaryButton logo={"/logo/checkmark.svg"} onClick={() => handleSave()}>Save poi</PrimaryButton>
+            <div className={"flex justify-between flex-col gap-4"}>
+                <AddWarning />
+                <div className="flex flex-row justify-between gap-4">
+                    <SecondaryButton logo={"/logo/delete.svg"} onClick={() => deleteMarker()}>Delete poi</SecondaryButton>
+                    <PrimaryButton logo={"/logo/checkmark.svg"} onClick={() => handleSave()}>Save poi</PrimaryButton>
+                </div>
             </div>
         </div>
     )

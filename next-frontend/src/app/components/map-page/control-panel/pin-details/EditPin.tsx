@@ -8,6 +8,7 @@ import RecordingCard from "@/app/components/ui/Cards/RecordingCard";
 import NotePreview from "@/app/components/ui/Cards/NotePreview";
 import useAudioStore from "@/app/hooks/VoiceNoteStore";
 import { usePanelStore } from "@/app/hooks/panelStore";
+import AddWarning from "@/app/components/map-page/control-panel/pin-details/description/AddWarning"
 
 type AddpoiProps = {
     poi: Poi;
@@ -96,7 +97,7 @@ export const Editpoi = ({poi, onClose}:AddpoiProps) => {
                     {(!poi.tags || Object.keys(poi.tags).length === 0) ? (
                         <SecondaryButton
                             logo={"/logo/add.svg"}
-                            onClick={() => setControlPanelState("AddTag")}
+                            onClick={() => setPanelState("AddTag")}
                         >
                             Tag
                         </SecondaryButton>
@@ -129,32 +130,30 @@ export const Editpoi = ({poi, onClose}:AddpoiProps) => {
 
                             <SecondaryButton
                                 logo={"/logo/edit.svg"}
-                                onClick={() => setControlPanelState("AddTag")}
+                                onClick={() => setPanelState("AddTag")}
                             >
                                 Edit
                             </SecondaryButton>
                         </div>
                     )}
                 </div>
-
+                
                 {/*Voice Notes*/}
                 <div className={"flex flex-col gap-4"}>
                     <p className={"text-2xl font-bold"}>Voice Notes</p>
-
-                    {/* map all recordings from zustand store to the notePreview card */}
-                    {/* {recordingIDs?.map(item => (
-                        <NotePreview date="test" title={`${item}`} key={item}></NotePreview>
-                    ))} */}
-
-                    <SecondaryButton logo={"/logo/add.svg"} onClick={() => setControlPanelState("AddVoiceNote")}
+                    <SecondaryButton logo={"/logo/add.svg"} onClick={() => setPanelState("AddVoiceNote")}
                     >Voice Note</SecondaryButton>
                 </div>
-            </div>
+                
 
-            {/*Buttons*/}
-            <div className={"flex justify-between gap-4"}>
-                <SecondaryButton logo={"/logo/delete.svg"} onClick={() => deleteMarker()}>Delete poi</SecondaryButton>
-                <PrimaryButton logo={"/logo/checkmark.svg"} onClick={() => handleSave()}>Save poi</PrimaryButton>
+            </div>
+            {/*Buttons & WARNINGS*/}
+            <div className={"flex justify-between flex-col gap-4"}>
+                <AddWarning />
+                <div className="flex flex-row justify-between gap-4">
+                    <SecondaryButton logo={"/logo/delete.svg"} onClick={() => deleteMarker()}>Delete poi</SecondaryButton>
+                    <PrimaryButton logo={"/logo/checkmark.svg"} onClick={() => handleSave()}>Save poi</PrimaryButton>
+                </div>
             </div>
         </div>
     )

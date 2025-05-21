@@ -730,7 +730,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                     </div>
                 </div>
                 
-                <div className = "absolute top-0 w-full flex items-end flex-col">
+                <div className = "absolute top-0 w-full flex items-end flex-col pointer-events-none">
                     <Warnings />
                 </div>
             </div>

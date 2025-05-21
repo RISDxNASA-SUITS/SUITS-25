@@ -8,9 +8,9 @@ const getErrorCard = (message : String, xEffect : () => void) => {
     return(
         <div className = "relative m-2 bg-warning border-l-2 border-crimson-red w-1/2 rounded-lg">
             <div className = "flex justify-center items-center p-5 justify-items-center text-2xl font-bold">
-                {message}
+                <p className = "pointer-events-none">{message}</p>
             </div>
-            <button onClick = {xEffect} className = "absolute top-0 right-0 m-2">
+            <button onClick = {xEffect} className = "absolute top-0 right-0 m-2 pointer-events-auto">
                 <img src = "/logo/close.svg"></img>
             </button> 
         </div>
