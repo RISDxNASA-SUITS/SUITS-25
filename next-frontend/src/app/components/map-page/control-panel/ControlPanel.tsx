@@ -11,51 +11,48 @@ import {PoiStore} from "@/app/hooks/PoiStore";
 import React, {RefObject, useRef, useState} from "react";
 import AddHazardPin from "@/app/components/map-page/control-panel/pin-details/AddHazardPin";
 import SelectHazardPin from "@/app/components/map-page/control-panel/pin-details/SelectHazardPin";
-
+import { usePanelStore } from "@/app/hooks/panelStore";
 type ControlPanelProps = {
     state: string;
     panelState: (panel: "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "AddVoiceNote" | "AddHazard" | "SelectHazard") => void;
-    selectedMarkerRef: React.RefObject<mapboxgl.Marker | null>;
+    
 }
 
-export const ControlPanel = ({state, panelState, selectedMarkerRef}: ControlPanelProps ) => {
-    const {pois, hazardPois,selectedPoiId, selectPoi, addPoi, updatePoi} = PoiStore();
+export const ControlPanel = () => {
+    const {pois, hazardPois,selectedPoiId, selectPoi, addPoi} = PoiStore();
     const selectedPoi = pois.find(poi => poi.id === selectedPoiId);
     const selectHazardPoi = hazardPois.find(poi => poi.id === selectedPoiId);
+    const {panelState, setPanelState, showPopup, setShowPopup} = usePanelStore();
 
     
-    console.log(selectedPoi, "is the selected poi");
-    console.log(selectedPoiId, "is the selected poi id");
-    console.log(selectHazardPoi, "is the selected hazard poi");
+    
     
     const handleClose = () => {
         // Close popup if exists
-        selectedMarkerRef.current?.getPopup()?.remove();
+        // selectedMarkerRef.current?.getPopup()?.remove();
 
-        // Reset marker icon
-        if (selectedMarkerRef.current) {
-            selectedMarkerRef.current.getElement().style.backgroundImage = 'url(/markers/default-poi.svg)';
-            selectedMarkerRef.current = null;
-        }
+        // // Reset marker icon
+        // if (selectedMarkerRef.current) {
+        //     selectedMarkerRef.current.getElement().style.backgroundImage = 'url(/markers/default-poi.svg)';
+        //     selectedMarkerRef.current = null;
+        // }
 
         // Clear selected POI and go back
         selectPoi(null);
-        panelState("EvDetails");
+        setPanelState("EvDetails");
     };
 
     function handleContent(state: string) {
         switch (state) {
             case "EvDetails":
                 return <EvDetails
-                    setControlPanelState={panelState}
+                   
                 />;
             case "AddPin":
                 return selectedPoi ? (
                     <EditPin
                         poi={selectedPoi}
                         onClose={handleClose}
-                        selectedMarkerRef={selectedMarkerRef}
-                        setControlPanelState={panelState}
                     />
                 ) : null;
             case "SelectPin":
@@ -63,8 +60,8 @@ export const ControlPanel = ({state, panelState, selectedMarkerRef}: ControlPane
                     <SelectPin
                         poi={selectedPoi}
                         onClose={handleClose}
-                        selectedMarkerRef={selectedMarkerRef}
-                        setControlPanelState={panelState}
+                        
+                        
                     />
                 ): null;
             case "AddTag":
@@ -82,7 +79,7 @@ export const ControlPanel = ({state, panelState, selectedMarkerRef}: ControlPane
                     <AddHazardPin
                         poi={selectHazardPoi}
                         onClose={handleClose}
-                        selectedMarkerRef={selectedMarkerRef}
+                        
                         setControlPanelState={panelState}
                     />
                 ) : null;
@@ -91,7 +88,7 @@ export const ControlPanel = ({state, panelState, selectedMarkerRef}: ControlPane
                     <SelectHazardPin
                         poi={selectHazardPoi}
                         onClose={handleClose}
-                        selectedMarkerRef={selectedMarkerRef}
+                        
                         setControlPanelState={panelState}
                     />
                 ) : null;
@@ -101,7 +98,7 @@ export const ControlPanel = ({state, panelState, selectedMarkerRef}: ControlPane
     return(
         <div className={"h-full transition-opacity duration-300 ease-in-out"}>
             {/*{handleContent(state)}*/}
-            {handleContent(state)}
+            {handleContent(panelState)}
         </div>
     );
 }

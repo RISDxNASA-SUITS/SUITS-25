@@ -7,15 +7,18 @@ import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
 type SelectLabelProps = {
     onClose: () => void;
     setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" | "AddTag" ) => void;
+    compact?: boolean;
 }
 
 type SubTab = "Rock" | "Terrain" | "Category" | ""
 
 
-export const AddTag = ({ onClose, setControlPanelState } : SelectLabelProps) => {
+export const AddTag = ({ onClose, setControlPanelState, compact = false } : SelectLabelProps) => {
     const [selectedSubTab, setSelectedSubTab] = useState<SubTab>("Rock");
-    const { selectedPoiId, pois, updateTag } = PoiStore();
+    const { selectedPoiId, pois, updateTag, hazardPois } = PoiStore();
     const selectedPoi = pois.find(p => p.id === selectedPoiId);
+    const selectedHazardPoi = hazardPois.find(p => p.id === selectedPoiId);
+    console.log(selectedPoi?.tags)
 
     const tagOptions: Record<SubTab, Record<string, string[]>> = {
         Rock: {
@@ -38,16 +41,16 @@ export const AddTag = ({ onClose, setControlPanelState } : SelectLabelProps) => 
 
     return (
         <div className={"flex flex-col justify-between h-full"}>
-            <div className={"flex flex-col gap-9"}>
-                <div className={"flex justify-between"}>
-                    <div className={"flex gap-4"}>
+            <div className={`flex flex-col ${compact ? "gap-2" : "gap-9"}`}>
+                {!compact && <div className={"flex justify-between"}>
+                    <div className={`flex ${compact ? "gap-2" : "gap-4"}`}>
                         <button onClick={() => setControlPanelState("AddPin")}>
                             <img src={"/logo/back.svg"} alt={"back button"} />
                         </button>
                         <p className={"font-bold text-xl"}>Add Tag</p>
                     </div>
                     <CloseButton onClose={onClose}/>
-                </div>
+                </div>}
 
                 <div className={"flex gap-3"}>
                     {(["Rock", "Terrain", "Category"] as const).map(tab => (
@@ -62,20 +65,20 @@ export const AddTag = ({ onClose, setControlPanelState } : SelectLabelProps) => 
                 </div>
 
                 {/* Subcategory & label UI */}
-                <div className="flex flex-col gap-8">
+                <div className={`flex flex-col ${compact ? "gap-2" : "gap-8"}`}>
                     {Object.entries(options).map(([subCategory, labels]) => (
                         <div key={subCategory} className={"flex flex-col gap-2"}>
                             <p className="text-white font-medium">{subCategory}</p>
                             <div className="flex gap-2 flex-wrap mt-1">
                                 {labels.map(label => {
-                                    const selected = selectedPoi?.tags?.[selectedSubTab]?.[subCategory]?.includes(label);
+                                    const selected = selectedPoi?.tags?.includes(label);
                                     return (
                                         <button
                                             key={label}
                                             className={`px-4 py-2 rounded-full border text-sm ${
                                                 selected ? "bg-white text-black border-white" : "text-white border-white"
                                             }`}
-                                            onClick={() => updateTag(selectedPoiId, selectedSubTab, subCategory, label)}
+                                            onClick={() => updateTag(selectedPoiId, label)}
                                         >
                                             {label}
                                         </button>
@@ -87,9 +90,9 @@ export const AddTag = ({ onClose, setControlPanelState } : SelectLabelProps) => 
                 </div>
             </div>
 
-            <div className={"flex"}>
+            {!compact && <div className={"flex"}>
                 <PrimaryButton logo={"/logo/checkmark.svg"} onClick={() => setControlPanelState("AddPin")}>Save</PrimaryButton>
-            </div>
+            </div>}
         </div>
     );
 };

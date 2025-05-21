@@ -7,6 +7,8 @@ import CloseButton from "@/app/components/ui/ui-buttons/CloseButton";
 import RecordingCard from "@/app/components/ui/Cards/RecordingCard";
 import NotePreview from "@/app/components/ui/Cards/NotePreview";
 import useAudioStore from "@/app/hooks/VoiceNoteStore";
+import { usePanelStore } from "@/app/hooks/panelStore";
+
 
 type AddpoiProps = {
     poi: Poi;
@@ -33,7 +35,8 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
         hazardPoi?.hazardCategory || 'warning'
     );
 
-    const { updatePoi, updateHazardPoi, clearTags, deletePoi, selectedPoiId, pois } = PoiStore();
+    const { updatePoi, deletePoi, selectedPoiId, pois } = PoiStore();
+    const {setPanelState} = usePanelStore();
 
     //voice note IDs from currently selected POI
     // const recordingIDs = poi.voiceNoteID;
@@ -43,30 +46,21 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
     
     
     const handleSave = () => {
-        if (poi.type === 'hazard') {
-            updateHazardPoi(poi.id, { name: initialInputValue, hazardCategory });
-          } else {
-            updatePoi(poi.id, { name: initialInputValue });
-          }
+       
+        updatePoi(poi)
         
-        selectedMarkerRef.current?.getPopup()?.setHTML(`${poi.name}`);
-        
-        if (selectedMarkerRef.current) {
-            selectedMarkerRef.current.getElement().style.backgroundImage = 'url(/markers/default-poi.svg)';
-            selectedMarkerRef.current?.getPopup()?.remove();
-            selectedMarkerRef.current = null;
-        }
+       
         setSavedText(inputValue);
         setInputValue(poi.name);
         setShowInput(false);
         
-        setControlPanelState("EvDetails");
+        setPanelState("EvDetails");
     }
     
     const deleteMarker = () => {
         deletePoi(poi.id);
-        selectedMarkerRef.current?.remove();
-        setControlPanelState("EvDetails");
+      
+        setPanelState("EvDetails");
     };
     
     return (
@@ -98,7 +92,7 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
                             setInitialInputValue(e.target.value)
                         }}
                         onBlur={() => {
-                            updatePoi(poi.id, { name: initialInputValue });
+                            // updatePoi(poi.id, { name: initialInputValue });
                             setInitialShowInput(false);
                         }}
                         className="rounded-lg bg-white-10 px-3 py-1 text-center border border-gray-300"

@@ -5,7 +5,7 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction   
+import org.jetbrains.exposed.sql.transactions.transaction
 import io.javalin.http.Context
 import java.io.File
 import io.javalin.http.UploadedFile
@@ -31,7 +31,7 @@ class Audio(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<Audio>(Audios)
 
     var filename by Audios.filename
-    
+
     fun asResponse(): AudioResponse{
         return AudioResponse(
             filename=this.filename,
@@ -93,7 +93,7 @@ class PoiDbController {
             SchemaUtils.create(Pois, Audios)
         }
     }
-    
+
     data class AddVoiceNoteRequest(
         val poiId: Int,
         val voiceNote: Int
@@ -102,7 +102,7 @@ class PoiDbController {
         val req = ctx.bodyAsClass(AddVoiceNoteRequest::class.java)
         transaction {
             Poi.findById(req.poiId) ?.let {
-                it.audio = Audio.findById(req.voiceNote)  
+                it.audio = Audio.findById(req.voiceNote)
             }
         }
         ctx.result("Voice note added")
@@ -125,7 +125,7 @@ class PoiDbController {
 
         }.asResponse()
     }
-    
+
     fun getPois(): PoiResponseJson{
         val list = transaction {
             Poi.all().map { it.asResponse() }
@@ -156,7 +156,7 @@ class PoiDbController {
             }.map { it.asResponse() }
         }
     }
-  
+
 
     fun submitAudio(ctx: Context): Context{
         val file: UploadedFile = ctx.uploadedFile("audio")
@@ -165,7 +165,7 @@ class PoiDbController {
 
         if (file.contentType()?.startsWith("audio/") != true) {
             return ctx.status(415).result("Only audio files are accepted.")
-            
+
         }
         val targetFile = File(uploadDir, file.filename())
         file.content().copyTo(targetFile.outputStream())
@@ -173,25 +173,25 @@ class PoiDbController {
             Audio.new {
                 filename = file.filename()
             }
-            
+
         }
         return ctx.json(audio.asResponse())
 
-        
+
     }
 
 
     fun getAudio(ctx: Context): Context{
-        ctx.result("gg")
+        
         val id = ctx.pathParam("id").toInt()
         val audio = transaction { Audio.findById(id) }
             ?: return ctx.status(404).result("Audio not found")
-    
+
         val file = File("uploads/${audio.filename}")
         if (!file.exists()) {
             return ctx.status(404).result("File not found on disk")
         }
-    
+
         // Guess MIME type (you can hardcode if needed)
         val mimeType = when (file.extension.lowercase()) {
             "mp3" -> "audio/mpeg"
@@ -199,14 +199,14 @@ class PoiDbController {
             "ogg" -> "audio/ogg"
             else -> "application/octet-stream"
         }
-    
+
         ctx.contentType(mimeType)
         return ctx.result(file.inputStream())
     }
 
 
     fun deletePois(ctx: Context): Context{
-     
+
         transaction {
             Pois.deleteAll()
             Audios.deleteAll()
@@ -220,5 +220,43 @@ class PoiDbController {
         }
         return ctx.result("Successfully deleted POI")
     }
+    data class UpdateTagsRequest(
+        val tags: List<String>
+    )
+
+    fun updateTags(ctx:Context): Context{
+        val id = ctx.pathParam("id").toInt()
+        transaction {
+            Poi.findById(id)?.let {
+                it.tags = ctx.bodyAsClass(UpdateTagsRequest::class.java).tags.joinToString(",")
+            }
+        }
+        return ctx.result("updated")
+    }
+
+    fun updatePoi(ctx:Context): Context{
+        val poi = ctx.bodyAsClass(PoiResponse::class.java)
+        var id = -1;
+        if (poi.id == null) {
+            return ctx.status(400).result("POI ID is required")
+        } else {
+            poi.id?.let {
+                id = it
+            }
+        }
+        transaction {
+            Poi.findById(id)?.let {
+                it.name = poi.name
+                it.x = poi.x
+                it.y = poi.y
+                it.tags = poi.tags.joinToString(",")
+                it.description = poi.description
+                it.type = poi.type
+                it.audio = poi.audioId?.let { id -> Audio.findById(id) }
+                it.radius = poi.radius
+            }
+    }
+    return ctx.result("updated")
+}
 
 }

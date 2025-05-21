@@ -7,18 +7,19 @@ import CloseButton from "@/app/components/ui/ui-buttons/CloseButton";
 import RecordingCard from "@/app/components/ui/Cards/RecordingCard";
 import NotePreview from "@/app/components/ui/Cards/NotePreview";
 import useAudioStore from "@/app/hooks/VoiceNoteStore";
+import { usePanelStore } from "@/app/hooks/panelStore";
 
 type AddpoiProps = {
     poi: Poi;
     onClose: () => void;
-    selectedMarkerRef: RefObject<mapboxgl.Marker | null>;
-    setControlPanelState: (state: "AddTag" |"AddVoiceNote" | "EvDetails") => void;
+ 
 }
 
-export const Editpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}: AddpoiProps) => {
+export const Editpoi = ({poi, onClose}:AddpoiProps) => {
     const [showInput, setShowInput] = useState<boolean>(false);
     const [inputValue, setInputValue] = useState(poi.name);
     const [savedText, setSavedText] = useState<string>(poi.name);
+    const {setShowPopup, setPanelState} = usePanelStore();
 
     //initial input field value
     const [initialInputValue, setInitialInputValue] = useState(poi.name);
@@ -37,26 +38,18 @@ export const Editpoi = ({poi, onClose, selectedMarkerRef, setControlPanelState}:
 
 
     const handleSave = () => {
-        // updatePoi(poi.id, { name: initialInputValue });
-
-        selectedMarkerRef.current?.getPopup()?.setHTML(`${poi.name}`);
-
-        if (selectedMarkerRef.current) {
-            selectedMarkerRef.current.getElement().style.backgroundImage = 'url(/markers/default-poi.svg)';
-            selectedMarkerRef.current?.getPopup()?.remove();
-            selectedMarkerRef.current = null;
-        }
+    
         setSavedText(inputValue);
         setInputValue(poi.name);
         setShowInput(false);
 
-        setControlPanelState("EvDetails");
+        setPanelState("EvDetails");
     }
 
     const deleteMarker = () => {
         deletePoi(poi.id);
-        selectedMarkerRef.current?.remove();
-        setControlPanelState("EvDetails");
+        setShowPopup(false);
+        setPanelState("EvDetails");
     };
 
     return (

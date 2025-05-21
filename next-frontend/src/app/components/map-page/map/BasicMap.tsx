@@ -11,16 +11,14 @@ import { Tooltip } from '../../ui/ui-buttons/Tooltip';
 import "../mapstyle.css"; // Keep custom styles
 import mapboxgl from 'mapbox-gl';
 import { createRoot } from 'react-dom/client';
+import { usePanelStore } from '@/app/hooks/panelStore';
 
 // Mapbox token (ensure this is the correct way to set it for react-map-gl, often passed as a prop)
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGVydSJ9.pIfFx8HCC58f_PzAUjALRQ';
 
 type BasicMapProps = {
     roverCoords: { x: number; y: number };
-    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "SelectHazard" | "AddHazard") => void;
-    // selectedMarkerRef is problematic with declarative rendering. We'll rely on selectedPoiId from the store.
-    // Consider removing or rethinking its purpose. For now, I'll leave it but comment out its direct uses if they conflict.
-    selectedMarkerRef: RefObject<any>; // Type will change from mapboxgl.Marker
+    
 }
 
 type MapboxCoord = {
@@ -97,11 +95,11 @@ const initialViewState = {
         return { x: moonX, y: moonY };
     }
 
-const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: BasicMapProps) => {
+const BasicMap = ({ roverCoords, }: BasicMapProps) => {
     const [viewState, setViewState] = useState(initialViewState);
-    const { pois, hazardPois, ltvPois, addLtvPoi,  addPoi, addHazardPoi, selectPoi, selectedPoiId, loadFromBackend, updatePoi, updateHazardPoi,breadCrumbs } = PoiStore();
+    const { pois, hazardPois,  addPoi, addHazardPoi, selectPoi, selectedPoiId, loadFromBackend, breadCrumbs } = PoiStore();
     const [poiNum, setPoiNum] = useState(1); // For default naming, might need better persistence
-
+    const {setPanelState:setControlPanelState} = usePanelStore();
     const pointA = convertMoonToEarth({ x: -5855.60, y: -10168.60 });
     const pointB = convertMoonToEarth({ x: -5868.10, y: -10016.10 });
     const pointC = convertMoonToEarth({ x: -5745.90, y: -9977.30 });
@@ -247,17 +245,17 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
         )
     }
 
-    const onPoiButtonClick = () => {
-        setPoiButtonClickActive(!poiButtonClickActive);
-        if (newPinLocation) {
-            setNewPinLocation(null); // Clear temp pin if button is toggled off
-        }
-        if (!poiButtonClickActive) { // If turning on
-            toggleAddActive(true); // Ensure menu is open
-        } else { // If turning off
-            toggleAddActive(false);
-        }
-    };
+    // const onPoiButtonClick = () => {
+    //     setPoiButtonClickActive(!poiButtonClickActive);
+    //     if (newPinLocation) {
+    //         setNewPinLocation(null); // Clear temp pin if button is toggled off
+    //     }
+    //     if (!poiButtonClickActive) { // If turning on
+    //         toggleAddActive(true); // Ensure menu is open
+    //     } else { // If turning off
+    //         toggleAddActive(false);
+    //     }
+    // };
 
     // Generic function to add a new POI
     const addNewPinToStore = (
@@ -271,60 +269,42 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
         hazardRadius?: number,
         hazardCategory?: 'warning' | 'caution'
     ) => {
-        const newId = nanoid();
+        
         if (type === 'hazard') {
             const newHazardPoi: HazardPoi = {
-                id: newId,
+                
                 name: `${namePrefix} ${poiNum}`,
                 coords: { lng, lat },
                 moonCoords: { x, y },
-                tags: null,
+                tags: [],
                 type: 'hazard' as const,
                 radius: hazardRadius ?? 50,
+                hazardCategory: hazardCategory ?? 'warning',
               
                 // marker: new mapboxgl.Marker() // Add the required marker property
             };
             addHazardPoi(newHazardPoi);
             setPoiNum(prev => prev + 1);
-            selectPoi(newId);
+            
             setControlPanelState("AddHazard");
             setNewPinLocation(null);
             setTempPinType(null);
             return;
         }
-        if (type === 'ltv') {
-            const newLtvPoi: LtvPoi = {
-                id: newId,
-                name: `${namePrefix} ${poiNum}`,
-                coords: { lng, lat },
-                moonCoords: { x, y },
-                tags: null,
-                type: 'ltv' as const,
-                audio_id: null,
-            };
-            addLtvPoi(newLtvPoi);
-            setPoiNum(prev => prev + 1);
-            selectPoi(newId);
-            setControlPanelState("EvDetails");
-            setNewPinLocation(null);
-            setTempPinType(null);
-            return;
-        }
+       
         // Normal POI
         const newPoi: Poi = {
-            id: newId,
             name: `${namePrefix} ${poiNum}`,
             coords: { lng, lat },
             moonCoords: { x, y },
-            tags: null,
+            tags: [],
             type: type,
             audioId: null,
             // marker: new mapboxgl.Marker(), // Add the required marker property
             ...additionalData,
         };
         addPoi(newPoi);
-        setPoiNum(prev => prev + 1);
-        selectPoi(newId);
+        setPoiNum(prev => prev + 1);;
         setControlPanelState("AddPin");
         setNewPinLocation(null);
         setTempPinType(null);
@@ -333,18 +313,17 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
 
     const handleAddPoiFromPopup = (lng: number, lat: number) => {
         const moonCord = convertEarthToMoon({lat, lng});
+        console.log("WE HAVE ADDED A POI")
         addNewPinToStore(lng, lat, moonCord.x, moonCord.y, "Poi", "POI");
     };
 
     const handleAddHazardFromPopup = (lng: number, lat: number, radius: number) => {
         const moonCord = convertEarthToMoon({lat, lng});
+        console.log("WE HAVE ADDED A HAZARD")
         addNewPinToStore(lng, lat, moonCord.x, moonCord.y, "hazard", "Hazard", undefined, radius);
     };
 
-    const handleAddLtvFromPopup = (lng: number, lat: number) => {
-        const moonCord = convertEarthToMoon({lat, lng});
-        addNewPinToStore(lng, lat, moonCord.x, moonCord.y, "ltv", "LTV");
-    };
+    
 
     const onAddClick = () => {
         const newAddActiveState = !addActive;
@@ -359,11 +338,14 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
 
     // Function to render the popup for a new pin or selected POI
     const renderPopup = () => {
-        console.log(tempPinType, "is the temp pin type");
-        console.log(newPinLocation, "is the new pin location");
+        console.log("RENDER POPUP"
+        , newPinLocation, tempPinType, !tempPinType
+        )
         if (newPinLocation && !tempPinType) { // Temporary pin placed, show options
+            console.log("RENDER POPUP 1")
             return (
                 <Popup
+                    key={`add-pin-${newPinLocation.lng}-${newPinLocation.lat}`}
                     longitude={newPinLocation.lng}
                     latitude={newPinLocation.lat}
                     onClose={() => {
@@ -395,14 +377,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                         }}>
                             +Hazard
                         </PrimaryButton>
-                        <PrimaryButton
-                            logo={"/logo/poi-stroke.svg"}
-                            onClick={() => {
-                            handleAddPoiFromPopup(newPinLocation.lng, newPinLocation.lat);
-                            setNewPinLocation(null);
-                        }}>
-                            +LTV
-                        </PrimaryButton>
+                        
                     </div>
                 </Popup>
             );
@@ -662,36 +637,7 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                         </Marker>
                     ))}
                     {/* Render LTV POIs */}
-                    {ltvPois.map(ltv => (
-                        <Marker
-                            key={ltv.id}
-                            longitude={ltv.coords.lng}
-                            latitude={ltv.coords.lat}
-                        >
-                            <div
-                                className={`bg-purple-500 border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center`}
-
-                            >
-   <div className=" text-center text-white font-bold text-lg">!</div>
-                            </div>
-
-                        </Marker>
-                    ))}
-                    {/* Render LTV POIs */}
-                    {ltvPois.map(ltv => (
-                        <Marker
-                            key={ltv.id}
-                            longitude={ltv.coords.lng}
-                            latitude={ltv.coords.lat}
-                        >
-                            <div
-                                className={`bg-crimson-red border-dotted border-2 rounded-full border-white cursor-pointer flex items-center justify-center`}
-                            >
-                                <div className="ltv-marker-exclamation text-center text-white font-bold text-lg">!</div>
-                            </div>
-                        </Marker>
-                    ))}
-
+                    
                     {/* Show temporary hazard marker while adjusting radius */}
                     {tempHazardPin && (
                         <Marker
