@@ -4,8 +4,11 @@ import DirectionPanel from "./DirectionPanel";
 import TimePanel from "./TimePanel";
 import LiveVideoPanel from "./LiveVideoPanel";
 import TelemetryPanelEV from "./TelemetryPanel_EV";
+import { useDashboardStore } from "../../../hooks/dashboardHook";
 
 export default function DashboardPanelRight() {
+    const { ev2Direction, ev2Time, ev2Headlights } = useDashboardStore();
+    
     return (
         <div
             className="flex flex-col"
@@ -96,7 +99,7 @@ export default function DashboardPanelRight() {
                     top: 105,
                 }}
             >
-                <LiveVideoPanel coordinate="(O,19)" />
+                <LiveVideoPanel coordinate="(O,19)" headlightsOn={ev2Headlights} />
             </div>
             <div
                 style={{
@@ -105,7 +108,7 @@ export default function DashboardPanelRight() {
                     top: 565,
                 }}
             >
-                <TelemetryPanelEV />
+                <TelemetryPanelEV type="ev2" />
             </div>
         </div>
     );

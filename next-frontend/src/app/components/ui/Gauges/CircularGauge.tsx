@@ -96,10 +96,6 @@ const CircularGauge = ({
           <p className="text-xs text-white break-words max-w-[90px] leading-tight">{label}</p>
           <p className="text-2xl font-medium text-white">{Math.round(currentValue)}{units}</p>
         </div>
-        {/* "Steady" status indicator at the bottom */}
-        <div className="absolute bottom-2 bg-[#3E3951] px-2 py-0.5 rounded-full text-xs font-semibold">
-          Steady
-        </div>
       </div>
     </div>
   );

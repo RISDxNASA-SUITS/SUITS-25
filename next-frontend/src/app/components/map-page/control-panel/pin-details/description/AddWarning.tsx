@@ -40,7 +40,7 @@ const AddWarning = () => {
             setOxygen(res["oxygenLevels"])
         };
         fetchWarnings();
-        const interval = setInterval(fetchWarnings, 1000);
+        const interval = setInterval(fetchWarnings, 3000);
         return () => {
             clearInterval(interval);
         };
