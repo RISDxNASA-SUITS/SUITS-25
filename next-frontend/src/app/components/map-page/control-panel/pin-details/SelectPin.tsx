@@ -102,29 +102,19 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
                     <SecondaryButton logo={"/logo/add.svg"} onClick={() => setPanelState("AddVoiceNote")}
                     >Voice Note</SecondaryButton>
                 </div>
-
-                {/* Navigation */}
-                <div className="flex flex-col gap-4">
-                    <p className="text-2xl font-bold">Navigation</p>
-
-                    {/* show the coords so the operator sees what will be sent */}
-                    <span className="text-sm text-gray-400">
-                        ({poi.moonCoords.x.toFixed(1)}, {poi.moonCoords.y.toFixed(1)})
-                    </span>
-
-                    <SecondaryButton 
-                        logo={"/logo/add.svg"} 
-                        onClick={handleNavigate}
-                        disabled={isNavigating}>
-                    Navigate
-                    </SecondaryButton>
-                </div>
             </div>
+
 
             {/*Buttons*/}
             <div className={"flex justify-between flex-col gap-4"}>
                 <AddWarning />
                 <div className="flex flex-row justify-between gap-4">
+                    <SecondaryButton 
+                        logo={"/logo/add.svg"} 
+                        onClick={handleNavigate}
+                        disabled={isNavigating}>
+                        Navigate
+                    </SecondaryButton>
                     <SecondaryButton logo={"/logo/delete.svg"} onClick={() => deleteMarker()}>Delete poi</SecondaryButton>
                     <PrimaryButton logo={"/logo/checkmark.svg"} onClick={() => handleSave()}>Save poi</PrimaryButton>
                 </div>
