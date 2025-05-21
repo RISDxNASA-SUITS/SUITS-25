@@ -121,9 +121,9 @@ export default function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-[#201d33] p-8 flex flex-row justify-center items-start gap-8">
-            <DashboardPanelLeft />
-            <DashboardPanelMiddle />
-            <DashboardPanelRight />
+            <DashboardPanelLeft data={dashboardData} />
+            <DashboardPanelMiddle data={dashboardData} />
+            <DashboardPanelRight data={dashboardData} />
         </div>
     );
 }

@@ -24,7 +24,7 @@ export default function LiveVideoPanel({
       }}
       className="overflow-hidden"
     >
-      {/* Coordinate Card at x:12, y:12 */}
+      {/* Coordinate Card at x:12, y:12
       <div
         style={{
           position: "absolute",
@@ -33,7 +33,7 @@ export default function LiveVideoPanel({
         }}
       >
         <CoordinateCard coordinates={coordinate} />
-      </div>
+      </div> */}
       {/* Recording Toggle at x:511, y:12 */}
       <div
         style={{

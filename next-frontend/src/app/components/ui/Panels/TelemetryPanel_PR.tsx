@@ -5,7 +5,7 @@ import MultiGaugeCard from "../Cards/MultiGaugeCard";
 import VerticalTextReadoutCard from "../Cards/VerticalTextReadoutCard";
 import PanelSwitcherPR from "./PanelSwitcher_PR";
 
-export default function TelemetryPanelPR() {
+export default function TelemetryPanelPR({data}: {data: any}) {
     return (
         <div
             className="flex flex-col"
@@ -20,30 +20,21 @@ export default function TelemetryPanelPR() {
             
             <div className="flex flex-row gap-6 mt-6">
                 <HorizontalTextGaugeCard
-                    gauges={[
-                        { label: "Cabin Temperature", value: 70, units: "°F", status: "Steady" },
-                        { label: "Cabin Pressure", value: 4.0, units: "psi", decimals: 1, status: "Steady" },
-                        { label: "Battery Level", value: 40, units: "%", status: "Steady" },
-                    ]}
+                    gauges={data.cabinStatus.gauges}
                 />
             </div>
 
             <div className="flex flex-row gap-6 mt-6">
                 <MultiGaugeCard
-                    oxygenTank={50}
-                    oxygenLevel={20}
-                    oxygenPressure={2997.0}
-                    coolantTank={60}
-                    coolantLevel={42}
-                    coolantPressure={495}
+                    oxygenTank={data.lifeSupport.oxygen.tank}
+                    oxygenLevel={data.lifeSupport.oxygen.level}
+                    oxygenPressure={data.lifeSupport.oxygen.pressure}
+                    coolantTank={data.lifeSupport.coolant.tank}
+                    coolantLevel={data.lifeSupport.coolant.level}
+                    coolantPressure={data.lifeSupport.coolant.pressure}
                 />
                 <VerticalTextReadoutCard
-                    readouts={[
-                        { label: "Solar Panel Efficiency", value: 50, units: "%" },
-                        { label: "Solar Panel Dust", value: 20, units: "%" },
-                        { label: "AC Fan PRI", value: 29999, units: "rpm" },
-                        { label: "AC Fan SEC", value: 29999, units: "rpm" },
-                    ]}
+                    readouts={data.solarAndFans.readouts}
                 />
             </div>
         </div>
