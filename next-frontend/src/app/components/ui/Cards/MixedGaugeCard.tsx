@@ -24,8 +24,20 @@ const MixedGaugeCard = ({
 }: MixedGaugeCardProps) => {
   return (
     <div
-      className="rounded-2xl relative flex flex-col justify-center items-center"
-      style={{ width: 284, height: 276, backgroundColor: "#28233E" }}
+      style={{
+        width: 284,
+        minHeight: 0,
+        height: "auto",
+        borderRadius: 16,
+        backgroundColor: "#28233E",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 16,
+        padding: 8,
+        boxSizing: "border-box",
+        position: "relative",
+      }}
     >
       {/* Circular Gauge */}
       <div style={{ width: 268, height: 268 }}>
@@ -38,12 +50,9 @@ const MixedGaugeCard = ({
           rectWidth={268}
         />
       </div>
-      {/* Line Gauge absolutely positioned at x:8, y:192 */}
+      {/* Line Gauge */}
       <div
         style={{
-          position: "absolute",
-          left: 8,
-          top: 192,
           width: 268,
         }}
       >

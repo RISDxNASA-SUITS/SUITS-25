@@ -21,18 +21,38 @@ const MultiGaugeCard = ({
   coolantPressure,
 }: MultiGaugeCardProps) => (
   <div
-    className="p-2 bg-white/10 rounded-2xl inline-flex justify-start items-center gap-6"
-    style={{ width: 386, height: 392 }}
+    style={{
+      width: "fit-content",         // Hug width
+      height: 392,                  // Fixed height
+      borderRadius: 16,             // radius/16
+      background: "rgba(255,255,255,0.10)",
+      display: "flex",
+      justifyContent: "flex-start",
+      alignItems: "center",
+      gap: 24,
+      padding: 8,
+      boxSizing: "border-box",
+    }}
   >
     {/* Left: Circular Gauges */}
-    <div className="w-40 self-stretch flex flex-col justify-between items-center gap-4">
+    <div
+      style={{
+        width: 160,
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: 24,
+      }}
+    >
       <CircularGauge
         currentValue={oxygenTank}
         minValue={0}
         maxValue={100}
         label="Oxygen Tank"
         units="%"
-        rectWidth={168}
+        rectWidth={160}
       />
       <CircularGauge
         currentValue={coolantTank}
@@ -40,11 +60,21 @@ const MultiGaugeCard = ({
         maxValue={100}
         label="Coolant Tank"
         units="%"
-        rectWidth={168}
+        rectWidth={160}
       />
     </div>
     {/* Right: Line Gauges */}
-    <div className="flex-1 self-stretch flex flex-col justify-between items-start gap-2">
+    <div
+      style={{
+        flex: 1,
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        gap: 24,
+      }}
+    >
       <LineGauge
         currentValue={oxygenLevel}
         minValue={0}
