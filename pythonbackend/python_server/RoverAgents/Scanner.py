@@ -144,11 +144,11 @@ class Scanner:
         for i in range(len(lidar)):
             if i == 5 or i == 6 or lidar[i] == 1500 or i == 7 or i == 8:
                 continue
-            x = self.lidar_x[i]*0.01 + current_position[0]
-            y = self.lidar_y[i]*0.01 + current_position[1]
+            x = self.lidar_x[i]*0.05 + current_position[0]
+            y = self.lidar_y[i]*0.05 + current_position[1]
             angle = self.lidar_angles[i] + heading
-            x += lidar[i]*0.01 * math.sin(angle)
-            y += lidar[i]*0.01 * math.cos(angle)
+            x += lidar[i]*0.05 * math.sin(angle)
+            y += lidar[i]*0.05 * math.cos(angle)
             if [x, y] not in return_list:
                 return_list.append([x, y])
                 print(x, y, lidar[i], i)

@@ -4,7 +4,7 @@ import React, { useEffect, useState, RefObject, useCallback } from 'react';
 import { Map,Marker, Popup, ViewStateChangeEvent, MapMouseEvent } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css'; // Keep for base styles
 import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
-import { PoiStore, PinTypes, Poi, HazardPoi, LtvPoi } from "@/app/hooks/PoiStore";
+import { PoiStore, PinTypes, Poi, HazardPoi, LtvPoi, GeoSample } from "@/app/hooks/PoiStore";
 import { nanoid } from "nanoid";
 import TertiaryButton from "@/app/components/ui/ui-buttons/TertiaryButton";
 import { Tooltip } from '../../ui/ui-buttons/Tooltip';
@@ -168,6 +168,23 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
             
             if (data.success) {
                 console.log("Scan points:", data.points);
+                var countId = 0;
+                for (const point of data.points) {
+                    // Create and add POI
+                    const newPoi: Poi = {
+                        name: `Scan ${countId}`,
+                        coords: { lng: point[0], lat: point[1] },
+                        moonCoords: { x: point[0], y: point[1] },
+                        tags: ["geoSample"],
+                        type: "geologicalSample" as PinTypes,
+                        audioId: null,
+                        radius: null,
+                    };
+                    const poiResponse = await addPoi(newPoi);
+                    const poiId = poiResponse.id;
+                    setPoiNum(prev => prev + 1);
+                    countId++;
+                }
                 setScanPoints(data.points); // Store scan_results points from api.py points directly
             } else {
                 throw new Error('Scan was not successful');

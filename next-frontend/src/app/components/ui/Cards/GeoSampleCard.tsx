@@ -2,10 +2,11 @@
 import { useState } from "react";
 import SecondaryButton from "../ui-buttons/SecondaryButton";
 import { GeoResponse } from "@/app/api/geo-data/route";
+import { Poi } from "@/app/hooks/PoiStore";
 
 interface GeoSampleCardProps {
     setControlPanelState: (state: "AddTag" |"AddVoiceNote" | "EvDetails") => void;
-    sample: GeoResponse;
+    sample: GeoResponse | Poi;
 }
 
 export const GeoSampleCard = ({setControlPanelState, sample}: GeoSampleCardProps) => {
@@ -23,12 +24,37 @@ export const GeoSampleCard = ({setControlPanelState, sample}: GeoSampleCardProps
         });
     };
 
+    // Helper function to get sample ID
+    const getSampleId = () => {
+        if ('id' in sample) {
+            return sample.id;
+        }
+        return 'POI-' + Number(sample.moonCoords.x).toFixed(0) + '-' + Number(sample.moonCoords.y).toFixed(0);
+    };
+
+    // Helper function to get creation time
+    const getCreationTime = () => {
+        if ('createdAt' in sample) {
+            return formatTime(new Date(sample.createdAt));
+        }
+        return 'Created by Rover Scan';
+    };
+
+    // Helper function to get composition values
+    const getCompositionValue = (key: string) => {
+        if ('sio2' in sample) {
+            const value = (sample as GeoResponse)[key as keyof GeoResponse];
+            return typeof value === 'number' ? value.toFixed(2) : '0.00';
+        }
+        return '0.00';
+    };
+
     return (
         <div className="flex flex-col rounded-xl mb-4 border-solid border-b-1 border-white/10">
             {/* Header */}
             <div className="flex items-center p-3 justify-between gap-4">
                 <div className="flex gap-2">
-                    <p className="text-2xl font-bold">Sample {sample.id}</p>
+                    <p className="text-2xl font-bold">Sample {getSampleId()}</p>
                     <img src="/logo/flag.svg" className="w-8 h-8"/>
                 </div>
                 <button onClick={handleExpand}>
@@ -44,14 +70,19 @@ export const GeoSampleCard = ({setControlPanelState, sample}: GeoSampleCardProps
             <div className="flex p-3 pt-0 flex-col gap-2">
                 <div className="flex gap-2">
                     <img src="/logo/poi-stroke.svg" className="w-6 h-6"/>
-                    <p className="text-sm">--</p>                  
+                    <p className="text-sm">
+                        {('moonCoords' in sample) ? 
+                            `Location: (${sample.moonCoords.x.toFixed(2)}, ${sample.moonCoords.y.toFixed(2)})` : 
+                            '--'}
+                    </p>                  
                 </div>
                 {/* info */}
                 <div className="flex pt-0 gap-2">
                     <div className="inline-flex px-3 py-1 justify-center items-center bg-white/10 rounded-3xl">
-                        Collected at {formatTime(new Date(sample.createdAt))}
+                        {('createdAt' in sample) ? 
+                            `Collected at ${formatTime(new Date(sample.createdAt))}` : 
+                            'Created by Rover Scan'}
                     </div>
-                    
                 </div>
             </div>
 
@@ -75,7 +106,7 @@ export const GeoSampleCard = ({setControlPanelState, sample}: GeoSampleCardProps
                                     <p>SiO<small>2</small></p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>{sample.sio2.toFixed(2)}%</p>
+                                    <p>{getCompositionValue('sio2')}%</p>
                                 </div>
                             </div>
 
@@ -85,7 +116,7 @@ export const GeoSampleCard = ({setControlPanelState, sample}: GeoSampleCardProps
                                     <p>TiO<small>2</small></p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>{sample.tio2.toFixed(2)}%</p>
+                                    <p>{getCompositionValue('tio2')}%</p>
                                 </div>
                             </div>
 
@@ -95,7 +126,7 @@ export const GeoSampleCard = ({setControlPanelState, sample}: GeoSampleCardProps
                                     <p>Al<small>2</small>O<small>3</small></p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>{sample.al2o3.toFixed(2)}%</p>
+                                    <p>{getCompositionValue('al2o3')}%</p>
                                 </div>
                             </div>
                             
@@ -105,7 +136,7 @@ export const GeoSampleCard = ({setControlPanelState, sample}: GeoSampleCardProps
                                     <p>FeO</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>{sample.feo.toFixed(2)}%</p>
+                                    <p>{getCompositionValue('feo')}%</p>
                                 </div>
                             </div>
 
@@ -115,7 +146,7 @@ export const GeoSampleCard = ({setControlPanelState, sample}: GeoSampleCardProps
                                     <p>MnO</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>{sample.mno.toFixed(2)}%</p>
+                                    <p>{getCompositionValue('mno')}%</p>
                                 </div>
                             </div>
 
@@ -130,7 +161,7 @@ export const GeoSampleCard = ({setControlPanelState, sample}: GeoSampleCardProps
                                     <p>MgO</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>{sample.mgo.toFixed(2)}%</p>
+                                    <p>{getCompositionValue('mgo')}%</p>
                                 </div>
                             </div>
 
@@ -140,7 +171,7 @@ export const GeoSampleCard = ({setControlPanelState, sample}: GeoSampleCardProps
                                     <p>CaO</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>{sample.cao.toFixed(2)}%</p>
+                                    <p>{getCompositionValue('cao')}%</p>
                                 </div>
                             </div>
 
@@ -150,7 +181,7 @@ export const GeoSampleCard = ({setControlPanelState, sample}: GeoSampleCardProps
                                     <p>K<small>2</small>O</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>{sample.k2o.toFixed(2)}%</p>
+                                    <p>{getCompositionValue('k2o')}%</p>
                                 </div>
                             </div>
 
@@ -160,7 +191,7 @@ export const GeoSampleCard = ({setControlPanelState, sample}: GeoSampleCardProps
                                     <p>P<small>2</small>O<small>3</small></p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>{sample.p2o3.toFixed(2)}%</p>
+                                    <p>{getCompositionValue('p2o3')}%</p>
                                 </div>
                             </div>
 
@@ -170,7 +201,7 @@ export const GeoSampleCard = ({setControlPanelState, sample}: GeoSampleCardProps
                                     <p>Other</p>
                                 </div>
                                 <div className="p-1 flex gap-1">
-                                    <p>{sample.other.toFixed(2)}%</p>
+                                    <p>{getCompositionValue('other')}%</p>
                                 </div>
                             </div>
                                                                                     

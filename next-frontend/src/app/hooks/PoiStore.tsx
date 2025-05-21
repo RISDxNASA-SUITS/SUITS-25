@@ -2,7 +2,7 @@ import { create } from "zustand/react";
 import {Marker} from "mapbox-gl"
 import { convertMoonToEarth } from "../components/map-page/map/BasicMap";
 import { nanoid } from "nanoid";
-export type PinTypes = 'hazard' | 'Poi' | 'breadCrumb' | 'ltv';
+export type PinTypes = 'hazard' | 'Poi' | 'breadCrumb' | 'ltv' | 'geologicalSample';
 
 type TagSelections = {
     [category: string]: {
@@ -59,6 +59,10 @@ export interface HazardPoi extends Poi {
 
 export interface BreadCrumb extends Poi {
     type: 'breadCrumb';
+}
+
+export interface GeoSample extends Poi {
+    type: 'geologicalSample';
 }
 
 
@@ -235,8 +239,27 @@ export const PoiStore = create<PoiStore>((set,get) => ({
             method: "DELETE",
         })
         get().loadFromBackend()
-    }
+    },
+    addPoiGeo: async (poi: Poi) => {
+        const backendPoi = frontendToBackendPoi(poi)
+        console.log(get().pois, "is the pois");
 
+        const data = await fetch('/api/pois', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(backendPoi)
+        })
+        let json = await data.json()
+        console.log(json, "is the json");
+        const id = json.id
+        console.log(id, "is the id");
+
+        get().loadFromBackend()
+        set({selectedPoiId: id})
+        return json
+    }
 
 }));
 

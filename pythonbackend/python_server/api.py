@@ -106,7 +106,7 @@ def navigate_to_point():
         
         # Wait for the thread to complete
         current_navigation_thread.join()
-        
+        print("Navigation completed")
         return jsonify({
             'success': navigation_result,
             'message': 'Navigation completed' if navigation_result else 'Navigation failed'
@@ -124,6 +124,8 @@ def scan_area():
             navigator.stop_driving = True
             current_navigation_thread.join(timeout=2.0)  # Wait for thread to finish
         
+        # clustered_results = [[-5855.60, -10168.60], [-5868.10, -10016.10], [-5745.90, -9977.30]]
+        
         # Get rover's current position
         rover_pos = get_rover_pos()
         
@@ -131,11 +133,12 @@ def scan_area():
         scan_results = scanner.scan()
         
         # Cluster the points with a maximum threshold of 5 units
-        clustered_results = cluster_points(scan_results, 5, rover_pos)
+        clustered_results = cluster_points(scan_results, 10, rover_pos)
         print("Scan results: ", len(scan_results))
         print(scan_results)
         print("Clustered results: ", len(clustered_results))
         print(clustered_results)
+        print("Finished scan")
         return jsonify({
             'success': True,
             'points': clustered_results
