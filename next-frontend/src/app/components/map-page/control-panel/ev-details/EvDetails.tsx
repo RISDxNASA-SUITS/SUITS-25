@@ -21,7 +21,7 @@ type EvDetailsProps = {
     setControlPanelState: (state: "AddTag" |"AddVoiceNote" | "EvDetails") => void
 }
 
-export const EvDetails = ({setControlPanelState}: EvDetailsProps) => {
+export const EvDetails = () => {
     const [selectedEva, setSelectedEva] = useState<EvaTab>("PR");
     const [selectedSubTab, setSelectedSubTab] = useState<SubTab>("Tasks");
     const [evaData, setEvaData] = useState<Record<EvaTab, Eva>>({
@@ -29,6 +29,7 @@ export const EvDetails = ({setControlPanelState}: EvDetailsProps) => {
         EVA1: {},
         EVA2: {}
     });
+
 
     useEffect(() => {
         const fetchTaskData = async () => {
@@ -54,7 +55,7 @@ export const EvDetails = ({setControlPanelState}: EvDetailsProps) => {
             case "Warnings":
                 return <WarningSection warnings={data} />;
             case "XRFData":
-                return <XrfSection xrfData={data} setControlPanelState={setControlPanelState}/>
+                return <XrfSection xrfData={data} />
         }
     }
 

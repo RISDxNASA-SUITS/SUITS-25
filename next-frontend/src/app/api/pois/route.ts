@@ -36,3 +36,22 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Failed to create POI' }, { status: 500 });
     }
 }
+
+export async function PUT(request: Request) {
+    try {
+        const body = await request.json();
+        const response = await fetch(`${BASE_URL}/poi`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+        });
+        const json = await response.json();
+        return NextResponse.json(json);
+    } catch (error) {
+        console.log(error, "is the error")
+        return NextResponse.json({ error: 'Failed to update POI' }, { status: 500 });
+    }
+}
+

@@ -234,4 +234,29 @@ class PoiDbController {
         return ctx.result("updated")
     }
 
+    fun updatePoi(ctx:Context): Context{
+        val poi = ctx.bodyAsClass(PoiResponse::class.java)
+        var id = -1;
+        if (poi.id == null) {
+            return ctx.status(400).result("POI ID is required")
+        } else {
+            poi.id?.let {
+                id = it
+            }
+        }
+        transaction {
+            Poi.findById(id)?.let {
+                it.name = poi.name
+                it.x = poi.x
+                it.y = poi.y
+                it.tags = poi.tags.joinToString(",")
+                it.description = poi.description
+                it.type = poi.type
+                it.audio = poi.audioId?.let { id -> Audio.findById(id) }
+                it.radius = poi.radius
+            }
+    }
+    return ctx.result("updated")
+}
+
 }

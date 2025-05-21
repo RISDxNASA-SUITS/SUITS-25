@@ -6,12 +6,12 @@ import MissionInfoPanel from "@/app/components/map-page/mission-info/MissionInfo
 import Warnings from "@/app/components/map-page/mission-info/Warnings"
 import {useEffect, useRef, useState} from "react";
 
-type ControlPanelState = "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "AddVoiceNote" | "AddHazard" | "SelectHazard"
+
 
 export const MapPage = ()=>{
-    const [controlPanelState, setControlPanelState] = useState<ControlPanelState>("EvDetails")
+    
 
-    const selectedMarkerRef = useRef<mapboxgl.Marker | null>(null);
+  
     
     
 
@@ -50,9 +50,7 @@ export const MapPage = ()=>{
         <div className="flex w-full h-screen bg-slate-800">
             <div className="w-1/4 bg-midnight-purple flex flex-col gap-2 p-4 border-r-2 border-white border-opacity-10">
                 <ControlPanel
-                    state={controlPanelState}
-                    panelState={setControlPanelState}
-                    selectedMarkerRef={selectedMarkerRef}
+                    
                 />
             </div>
 
@@ -60,8 +58,7 @@ export const MapPage = ()=>{
                 <MissionInfoPanel/>
                 <BasicMap
                     roverCoords={{x: roverX, y: roverY}}
-                    setControlPanelState={setControlPanelState}
-                    selectedMarkerRef={selectedMarkerRef}
+                   
                 />
             </div>
         </div>
