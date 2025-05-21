@@ -119,39 +119,50 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
     const [tempHazardPin, setTempHazardPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
     const [tempLtvPin, setTempLtvPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
    
-        const [tempHazardCategory, setTempHazardCategory] = useState<'warning' | 'caution'>('warning');
+    const [tempHazardCategory, setTempHazardCategory] = useState<'warning' | 'caution'>('warning');
 
     // For the expandable add menu
     const [addActive, toggleAddActive] = useState<boolean>(false);
     const [poiButtonClickActive, setPoiButtonClickActive] = useState<boolean>(false);
 
-    
+    const [mounted, setMounted] = useState(0);
     useEffect(() => {
-        const init = async () => {
-            await loadFromBackend();
-            
-            // Ensure LTV points are added only if not already present
-            const existingLtvNames = new Set(ltvPois.map(poi => poi.name));
-            for (const { name, moonCoords } of defaultLtvCoords) {
-                if (!existingLtvNames.has(name)) {
-                    const earth = convertMoonToEarth(moonCoords);
-                    addLtvPoi({
-                        name,
-                        coords: earth,
-                        moonCoords,
-                        tags: [],
-                        type: "ltv",
-                        audioId: null,
-                    });
-                }
-            }
-        };
+        loadFromBackend();
         
-        init();
-        const interval = setInterval(loadFromBackend, 1000);
-        return () => clearInterval(interval);
-    }, [loadFromBackend, ltvPois, addLtvPoi]);
-    
+        defaultLtvCoords.map((ltvCoord, index) => {
+            const {lat, lng} = convertMoonToEarth(ltvCoord["moonCoords"])
+            //addLtvPoi({id: 2180000 + index, name: "LTV" + index, coords: {lng: lng, lat: lat}, type: "ltv", moonCoords: ltvCoord["moonCoords"], tags: [], audioId: null})
+        })
+        
+        const timeout = setInterval(() => {
+            loadFromBackend();
+        }, 1000);
+        
+        return () => clearInterval(timeout);
+    }, [loadFromBackend]);
+
+    useEffect(() => {
+        if(mounted === 0){//first won't have ltvPois
+            setMounted(1)
+        }
+        else if(mounted === 1){//React seems to give us the initialized ltvPois as [] after the first mount
+            console.log(ltvPois)
+            setMounted(2)
+        }
+        else if(mounted === 2){
+            const ltvToAdd = defaultLtvCoords.filter((ltvCoord) => {
+                const {lat, lng} = convertMoonToEarth(ltvCoord["moonCoords"])
+                const k = ltvPois.filter((ltvPoiInDatabase) => (lat === ltvPoiInDatabase.coords.lat && lng === ltvPoiInDatabase.coords.lng))
+                return k.length === 0
+            })
+            ltvToAdd.map((ltv, index) => {
+                const {lat, lng} = convertMoonToEarth(ltv["moonCoords"])
+                addLtvPoi({id: index, type: "ltv", name: "LTV" + index, coords: {lng: lng, lat: lat}, moonCoords: ltv["moonCoords"], audioId: null, tags: []})
+            })
+            setMounted(3)
+        }
+    }, [ltvPois])
+
     const handleMapClick = useCallback((event: MapMouseEvent) => {
         const { lng, lat } = event.lngLat;
       
@@ -310,7 +321,6 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
             );
         }
         else if (newPinLocation && !tempPinType) { // Temporary pin placed, show options
-            console.log("RENDER POPUP 1")
             return (
                 <Popup
                     key={`add-pin-${newPinLocation.lng}-${newPinLocation.lat}`}
@@ -339,6 +349,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                         <PrimaryButton
                             logo={"/logo/poi-stroke.svg"}
                             onClick={() => {
+                                
                             setTempPinType("hazard");
                             setHazardRadius(50);
                             setTempHazardPin({lng: newPinLocation.lng, lat: newPinLocation.lat, radius: 50});
@@ -351,6 +362,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
             );
         } else if (newPinLocation && tempPinType === "hazard") {
             // Show hazard radius controls
+            
             return (
                 <Popup
                     longitude={newPinLocation.lng}
@@ -360,7 +372,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                         setTempPinType(null);
                         setTempHazardPin(null);
                     }}
-                    closeButton={true}
+                    closeButton={false}
                     closeOnClick={false}
                     anchor="bottom"
                     offset={15}
@@ -397,25 +409,24 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
         const [radius, setRadius] = useState(initialRadius);
         const minRadius = 10;
         const maxRadius = 200;
-
         const handleSetRadius = (newRadius: number) => {
             setRadius(newRadius);
             onRadiusChange(newRadius);
         };
 
-            return (
-                <div className="bg-backplate rounded-2xl p-4 min-w-[220px] text-white border-[1.5px] border-light-purple shadow-lg flex flex-col items-center">
-                    <div className="flex items-center mb-3">
-                <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => handleSetRadius(Math.max(minRadius, radius - 5))}>-</PrimaryButton>
-                    <span className="mx-[18px] text-2xl">{radius}m</span>
-                <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => handleSetRadius(Math.min(maxRadius, radius + 5))}>+</PrimaryButton>
-                    </div>
-                    <div className="flex gap-4 w-full justify-center">
-                    <PrimaryButton style={{ flex: 1, background: 'transparent', border: '1.5px solid #9D89FF', color: '#9D89FF' }} onClick={onCancel}>Cancel</PrimaryButton>
-                <PrimaryButton style={{ flex: 1 }} onClick={() => onConfirm(radius)}>Confirm</PrimaryButton>
+        return (
+            <div className="bg-backplate rounded-2xl p-4 min-w-[220px] text-white border-[1.5px] border-light-purple shadow-lg flex flex-col items-center">
+                <div className="flex items-center mb-3">
+            <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => handleSetRadius(Math.max(minRadius, radius - 5))}>-</PrimaryButton>
+                <span className="mx-[18px] text-2xl">{radius}m</span>
+            <PrimaryButton style={{ minWidth: 36, height: 36, fontSize: 24, padding: 0 }} onClick={() => handleSetRadius(Math.min(maxRadius, radius + 5))}>+</PrimaryButton>
                 </div>
-                </div>
-            );
+                <div className="flex gap-4 w-full justify-center">
+                <PrimaryButton style={{ flex: 1, background: 'transparent', border: '1.5px solid #9D89FF', color: '#9D89FF' }} onClick={onCancel}>Cancel</PrimaryButton>
+            <PrimaryButton style={{ flex: 1 }} onClick={() => onConfirm(radius)}>Confirm</PrimaryButton>
+            </div>
+            </div>
+        );
     }
 
     return (

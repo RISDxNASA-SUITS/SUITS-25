@@ -40,12 +40,6 @@ export interface Poi {
     coords: { lng: number; lat: number };
     moonCoords: { x: number; y: number };
     tags: String[];
-    // voiceMemo?: string[];
-
-    // voiceNoteID?: number[];
-
-    // voiceNotes?: VoiceNotes[];
-
     type: PinTypes;
     audioId: number | null;
     description?: string;
@@ -144,7 +138,6 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         const hazardPois:HazardPoi[] = json.filter((poi:Poi) => poi.type === 'hazard')
         const breadCrumbs:BreadCrumb[] = json.filter((poi:Poi) => poi.type === 'breadCrumb')
         const ltvPois: Ltv[] = json.filter((poi: Poi) => poi.type === 'ltv');
-        
         set({pois:pois, hazardPois:hazardPois, breadCrumbs:breadCrumbs, ltvPois:ltvPois});
     },
     updatePoi: async (poi: Poi) => {
@@ -206,7 +199,6 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         const id = json.id
         console.log(id, "is the id");
         get().loadFromBackend()
-        set({selectedPoiId: id})
     },
     selectPoi: (poiId: number | null) => set(() => ({
         selectedPoiId: poiId

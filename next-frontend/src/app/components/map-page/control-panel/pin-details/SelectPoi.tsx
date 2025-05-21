@@ -26,7 +26,6 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
     const recordingIDs = poi.audioId;
 
     const { deletePoi} = PoiStore();
-    console.log("Select Pin");
 
     const handleSave = () => {
         poi.name = inputValue;

@@ -84,7 +84,7 @@ export const Notifications = () => {
                     <img src={"/logo/checkmark.svg"} alt="poi" className="h-5 w-5" />
                     <div className = "flex flex-col pointer-events-none justify-around items-center flex-grow">
                         <div className = 'p-4'>
-                            <p>You placed a {poiType === 'Poi' ? "Pin" : "Hazard"} POI at {poiLat}, {poiLon}</p>
+                            <p className = "text-center">You placed a {poiType === 'Poi' ? "Pin" : "Hazard"} POI at <br />({poiLat?.toFixed(4)}, {poiLon?.toFixed(4)})</p>
                         </div>
                         <progress value = {poiBar / 10000} className = "w-5/6 h-1 [&::-webkit-progress-bar]:rounded-lg [&::-webkit-progress-value]:rounded-lg   [&::-webkit-progress-bar]:bg-slate-300 [&::-webkit-progress-value]:bg-green-800"></progress>
                     </div>
