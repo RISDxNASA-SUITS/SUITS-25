@@ -108,13 +108,13 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
             {/*Buttons*/}
             <div className={"flex justify-between flex-col gap-4"}>
                 <AddWarning />
-                <div className="flex flex-row justify-between gap-4">
-                    <SecondaryButton 
+                <SecondaryButton 
                         logo={"/logo/add.svg"} 
                         onClick={handleNavigate}
                         disabled={isNavigating}>
                         Navigate
                     </SecondaryButton>
+                <div className="flex flex-row justify-between gap-4">
                     <SecondaryButton logo={"/logo/delete.svg"} onClick={() => deleteMarker()}>Delete poi</SecondaryButton>
                     <PrimaryButton logo={"/logo/checkmark.svg"} onClick={() => handleSave()}>Save poi</PrimaryButton>
                 </div>
