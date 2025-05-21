@@ -133,11 +133,7 @@ class PoiDbController {
         return PoiResponseJson(list)
     }
 
-    fun deletePoi(name: String) {
-        transaction {
-            Poi.find { Pois.name eq name }.forEach { it.delete() }
-        }
-    }
+
 
 
     fun getPoisByTag(tag: String): List<PoiResponse> {
@@ -214,11 +210,15 @@ class PoiDbController {
         return ctx.result("Successfully deleted POI")
     }
     fun deletePoi(ctx: Context): Context{
+        
+        println("Deleting POI")
         val id = ctx.pathParam("id").toInt()
+
+        println("Deleting POI with ID: $id")
         transaction {
             Poi.findById(id)?.delete()
         }
-        return ctx.result("Successfully deleted POI")
+        return ctx.result("Deleted POI with ID: $id")
     }
     data class UpdateTagsRequest(
         val tags: List<String>
