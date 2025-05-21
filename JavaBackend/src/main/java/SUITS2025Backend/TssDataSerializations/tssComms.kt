@@ -400,6 +400,7 @@ object TssComms {
     }
 
     fun getEv1Telemetry(ctx: Context) {
+        println("Getting EV1 Telemetry")
         val floats = (63..68).map {
             val pkt = tssKt.makeSendCommandPacket(it, 0f)
             val recvBuffer = ByteBuffer.allocate(200)
@@ -432,6 +433,7 @@ object TssComms {
     }
 
     fun getEv2Telemetry(ctx: Context) {
+        println("Getting EV2 Telemetry")
         val pkt = tssKt.makeSendCommandPacket(63, 0f)
         val recvBuffer = ByteBuffer.allocate(200)
         recvBuffer.order(ByteOrder.BIG_ENDIAN)
@@ -439,7 +441,7 @@ object TssComms {
             Thread.sleep(SLEEP_TIME)
             buff.getFloat()
         })
-        val floats = (86..91).map {
+        val floats = (86..90).map {
             val pkt = tssKt.makeSendCommandPacket(it, 0f)
             val recvBuffer = ByteBuffer.allocate(200)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
@@ -448,7 +450,7 @@ object TssComms {
                 buff.getFloat()
             })
         }
-        val singleInt = listOf(93).map{
+        val singleInt = listOf(91).map{
             val pkt = tssKt.makeSendCommandPacket(it,2.0f)
             val recvBuffer = ByteBuffer.allocate(200)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
@@ -457,7 +459,7 @@ object TssComms {
                 buff.getInt()
             })
         }
-        val restFloats = (94..107).map {
+        val restFloats = (92..107).map {
             val pkt = tssKt.makeSendCommandPacket(it, 2.0f)
             val recvBuffer = ByteBuffer.allocate(200)
             recvBuffer.order(ByteOrder.BIG_ENDIAN)
