@@ -4,7 +4,7 @@ export async function POST(request: Request) {
   try {
     // 1. pull x,y (and name, if you like) out of the client’s POST body
     const {x, y} = await request.json();
-
+    console.log("x: ", x, "y: ", y)
     // 2. forward it on to your Python service
     const response = await fetch('http://127.0.0.1:4000/navigate', {
       method: 'POST',

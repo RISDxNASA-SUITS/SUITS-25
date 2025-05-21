@@ -19,6 +19,7 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
     const [showInput, setShowInput] = useState<boolean>(false);
     const [inputValue, setInputValue] = useState(poi.name);
     const [savedText, setSavedText] = useState<string>(poi.name);
+    const [isNavigating, setIsNavigating] = useState(false);
     const {setPanelState} = usePanelStore();
     const {updatePoi} = PoiStore();
 
@@ -41,6 +42,33 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
         deletePoi(poi.id);
         
         setPanelState("EvDetails");
+    };
+
+    const handleNavigate = async () => {
+        try {
+            setIsNavigating(true);
+            const response = await fetch('/api/rover-nav', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    x: poi.moonCoords.x,
+                    y: poi.moonCoords.y
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Navigation failed');
+            }
+
+            const data = await response.json();
+            console.log('Navigation response:', data);
+        } catch (error) {
+            console.error('Error during navigation:', error);
+        } finally {
+            setIsNavigating(false);
+        }
     };
 
     return (
@@ -83,7 +111,11 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
                         ({poi.moonCoords.x.toFixed(1)}, {poi.moonCoords.y.toFixed(1)})
                     </span>
 
-                    <SecondaryButton logo={"/logo/add.svg"} onClick={() => setPanelState("GoToNavigation")}
+                    <SecondaryButton 
+                        logo={"/logo/add.svg"} 
+                        onClick={handleNavigate}
+                        disabled={isNavigating}
+                        className={isNavigating ? "opacity-50 cursor-not-allowed" : ""}
                     >Navigate</SecondaryButton>
                 </div>
             </div>

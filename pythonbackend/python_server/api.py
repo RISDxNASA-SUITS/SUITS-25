@@ -80,7 +80,7 @@ def navigate_to_point():
         
         x = float(data['x'])
         y = float(data['y'])
-        
+        print("Navigating to: ", x, y)
         # Navigate to the point
         success = navigator.follow_path([x, y])
         
