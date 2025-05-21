@@ -130,12 +130,12 @@ def scan_area():
         # Perform scan at current location
         scan_results = scanner.scan()
         
-        # Cluster the points with a maximum threshold of 50 units
-        clustered_results = cluster_points(scan_results, 50, rover_pos)
-        # print("Scan results: ", len(scan_results))
-        # print(scan_results)
-        # print("Clustered results: ", len(clustered_results))
-        # print(clustered_results)
+        # Cluster the points with a maximum threshold of 5 units
+        clustered_results = cluster_points(scan_results, 5, rover_pos)
+        print("Scan results: ", len(scan_results))
+        print(scan_results)
+        print("Clustered results: ", len(clustered_results))
+        print(clustered_results)
         return jsonify({
             'success': True,
             'points': clustered_results
