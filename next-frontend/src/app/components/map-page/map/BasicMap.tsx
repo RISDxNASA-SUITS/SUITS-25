@@ -144,6 +144,9 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
 
     const [isScanActive, setIsScanActive] = useState(false);
 
+    // api.py scan_results points fetched from json backend
+    const [scanPoints, setScanPoints] = useState<Array<[number, number]>>([]);
+
     const handleScanToggle = async () => {
         if (isScanActive) return; // Prevent multiple simultaneous scans
         
@@ -165,6 +168,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
             
             if (data.success) {
                 console.log("Scan points:", data.points);
+                setScanPoints(data.points); // Store scan_results points from api.py points directly
             } else {
                 throw new Error('Scan was not successful');
             }
@@ -174,6 +178,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
             setIsScanActive(false);
         }
     };
+
 
 
     // This effect is no longer needed as markers are rendered declaratively
@@ -677,6 +682,53 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                             </div>
                         </Marker>
                     ))}
+
+                    {/* Add the markers for all scan_result from api.pycoordinates */}
+                    {(() => {
+                        const scanMarkers = [];
+                        for (let index = 0; index < scanPoints.length; index++) {
+                            const point = scanPoints[index];
+                            const earthCoords = convertMoonToEarth({x: point[0], y: point[1]});
+                            scanMarkers.push(
+                                <Marker
+                                    key={`scan-${index}`}
+                                    longitude={earthCoords.lng}
+                                    latitude={earthCoords.lat}
+                                >
+                                    <div
+                                        className="w-5 h-5 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center text-white text-xs font-bold"
+                                        title={`Scan Point ${index + 1}`}
+                                    >
+                                        {index + 1}
+                                    </div>
+                                </Marker>
+                            );
+                        }
+                        
+                        // Add a popup showing total scan points
+                        if (scanPoints.length > 0) {
+                            const firstPoint = scanPoints[0];
+                            const popupCoords = convertMoonToEarth({x: firstPoint[0], y: firstPoint[1]});
+                            
+                            scanMarkers.push(
+                                <Popup
+                                    key="scan-count-popup"
+                                    longitude={popupCoords.lng}
+                                    latitude={popupCoords.lat}
+                                    anchor="top"
+                                    offset={15}
+                                    className="scan-count-popup"
+                                >
+                                    <div className="bg-galaxy-purple p-2 rounded-lg border border-light-purple text-white">
+                                        <strong>{scanPoints.length} points</strong> Detected!
+                                    </div>
+                                </Popup>
+                            );
+                        }
+                        
+                        return scanMarkers;
+                    })()}
+
                     {/* Render breadcrumb POIs */}
                     {breadCrumbs.map(breadcrumb => (
                         <Marker
@@ -782,22 +834,22 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                 
                 <div className = "absolute top-0 w-full flex items-end flex-col pointer-events-none">
                     <Warnings />
-                    {/* Scan Button */}
-                    {/* <div className="absolute top-4 right-4 z-10">
-                        <PrimaryButton
-                            onClick={(e) => {
-                                e.stopPropagation(); // Prevent event bubbling
-                                e.preventDefault(); // Prevent default behavior
-                                console.log("Button clicked - starting scan request");
-                                handleScanToggle();
-                            }}
-                            className={`p-2 ${isScanActive ? 'bg-green-500' : 'bg-red-500'} text-white rounded-full`}
-                            disabled={isScanActive} // Disable button while scan is active
-                        >
-                            {isScanActive ? 'Ongoing scan' : 'Start Scan'}
-                        </PrimaryButton> 
-
-                    </div> */}
+                </div>
+                
+                {/* Scan Button - repositioned to bottom left above zoom controls */}
+                <div className="absolute bottom-32 left-6 z-10">
+                    <PrimaryButton
+                        onClick={(e) => {
+                            e.stopPropagation(); // Prevent event bubbling
+                            e.preventDefault(); // Prevent default behavior
+                            console.log("Button clicked - starting scan request");
+                            handleScanToggle();
+                        }}
+                        className={`p-2 ${isScanActive ? 'bg-green-500' : 'bg-red-500'} text-white rounded-full`}
+                        disabled={isScanActive} // Disable button while scan is active
+                    >
+                        {isScanActive ? 'Ongoing scan' : 'Start Scan'}
+                    </PrimaryButton>
                 </div>
             </div>
         </div>
