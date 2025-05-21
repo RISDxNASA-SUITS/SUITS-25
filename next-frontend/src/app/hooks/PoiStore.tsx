@@ -112,7 +112,7 @@ const backendToFrontendPoi = (poi: poiBackend): Poi => {
 
 const frontendToBackendPoi = (poi: Poi): poiBackend => {
     return {
-        id:undefined,
+        id:poi.id,
         name: poi.name,
         x: poi.moonCoords.x,
         y: poi.moonCoords.y,

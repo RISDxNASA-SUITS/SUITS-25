@@ -11,7 +11,7 @@ import AudioCard from "@/app/components/ui/Cards/AudioCard";
 
 type SelectLabelProps = {
     onClose: () => void;
-    setControlPanelState: (state:"AddPin") => void;
+    setControlPanelState: (str : string) => void;
 }
 
 export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProps) => {
@@ -20,6 +20,7 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
     const possiblePoi = pois.find(x => x.id === selectedPoiId)
     const possibleHazard = hazardPois.find(x => x.id === selectedPoiId)
     const poi = possiblePoi ?? possibleHazard
+    const isHazard = (possiblePoi === undefined)
     const [audioBlobId, setAudioBlobId] = useState(poi ? poi.audioId : undefined)
     
     const handleStopRecording = async (blobURL: string | undefined, blob: Blob | undefined) => {
@@ -67,7 +68,7 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
             <div className={"flex flex-col gap-9"}>
                 <div className={"flex justify-between"}>
                     <div className={"flex gap-4"}>
-                        <button onClick={() => setControlPanelState("AddPin")}>
+                        <button onClick={isHazard ? () => setControlPanelState("AddHazard") : () => setControlPanelState("AddPin")}>
                             <img src={"/logo/back.svg"} alt={"back button"}/>
                         </button>
                         <p className={"font-bold text-xl"}>Record Note</p>
@@ -99,7 +100,7 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
             </div>
 
             <div className={"flex"}>
-            <PrimaryButton logo={"/logo/checkmark.svg"} onClick={() => setControlPanelState("AddPin")}>Save</PrimaryButton>
+            <PrimaryButton logo={"/logo/checkmark.svg"} onClick={isHazard ? () => setControlPanelState("AddHazard") : () => setControlPanelState("AddPin")}>Save</PrimaryButton>
             </div>
         </div>
     );
