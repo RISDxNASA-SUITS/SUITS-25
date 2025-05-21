@@ -30,7 +30,9 @@ export default function LiveVideoPanel({
         height: 444,
         borderRadius: 12,
         overflow: "hidden",
-        position: "relative",
+        position: "absolute",
+        top: 105,
+        left: 24,
         background: "#000",
       }}
     >

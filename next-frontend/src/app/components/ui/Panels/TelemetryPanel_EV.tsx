@@ -26,10 +26,14 @@ export default function TelemetryPanelEV({ type }: TelemetryPanelEVProps) {
             className="flex flex-col"
             style={{
                 width: 592,
-                height: 611,
+                height: 615,
+                position: "absolute",
+                top: 565,
+                left: 24,
                 backgroundColor: "transparent",
                 borderRadius: 0,
-                position: "relative",
+                paddingBottom: 109,
+                boxSizing: "border-box",
             }}
         >
             <PanelSwitcherEV selected={selected} setSelected={setSelected} />
@@ -81,7 +85,7 @@ export default function TelemetryPanelEV({ type }: TelemetryPanelEVProps) {
                     >
                         <MixedGaugeCard2 />
                     </div>
-                    {/* MultiGaugeCard2 at x:0, y:317 */}
+                    {/* MultiGaugeCard2 at x:0, y:387 */}
                     <div
                         style={{
                             position: "absolute",

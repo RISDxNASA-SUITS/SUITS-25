@@ -18,61 +18,80 @@ export default function DashboardPanelMiddle() {
                 top: 0,
                 width: 640,
                 height: 1200,
-                backgroundColor: "#100A28", // midnight-purple
+                backgroundColor: "#100A28",
+                borderLeft: "1px solid #28233E",
                 borderRadius: 0,
+                boxSizing: "border-box",
+                gap: 40,
             }}
         >
-            
-            {/* Direction Panel */}
+            {/* Top Row: DirectionPanel, EV1 Text Box, TimePanel */}
             <div
                 style={{
-                    position: "absolute",
-                    left: 24,
-                    top: 28,
-                }}
-            >
-                <DirectionPanel degrees={ev1Direction} filled={false} />
-            </div>
-            
-            {/* PR Text Box */}
-            <div
-                style={{
-                    position: "absolute",
-                    left: 94,
-                    top: 32,
-                    width: 343,
-                    height: 42,
+                    width: 640,
+                    minHeight: 0,
+                    height: "106px",
+                    padding: 24,
                     display: "flex",
+                    flexDirection: "row",
                     alignItems: "center",
-                    justifyContent: "center",
+                    gap: 20,
+                    boxSizing: "border-box",
                 }}
             >
-                <span
+                <div
                     style={{
-                        color: "white",
-                        fontSize: 32,
-                        fontWeight: 550,
-                        fontFamily: "IBM Plex Sans, sans-serif",
-                        letterSpacing: 2,
-                        width: "100%",
-                        textAlign: "left",
-                        display: "block",
+                        width: 50,
+                        height: 50,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                     }}
                 >
-                    EV1
-                </span>
+                    <DirectionPanel degrees={315} filled={false} />
+                </div>
+                <div
+                    style={{
+                        width: 343,
+                        height: 42,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "flex-start",
+                    }}
+                >
+                    <span
+                        style={{
+                            width: "100%",
+                            height: "42px",
+                            color: "#FFF",
+                            fontFamily: "IBM Plex Sans, sans-serif",
+                            fontWeight: 500,
+                            fontSize: 32,
+                            lineHeight: "100%",
+                            letterSpacing: 0,
+                            display: "flex",
+                            alignItems: "center",
+                            verticalAlign: "middle",
+                            fontVariantNumeric: "slashed-zero",
+                            textAlign: "left",
+                            userSelect: "none",
+                        }}
+                    >
+                        EV1
+                    </span>
+                </div>
+                <div
+                    style={{
+                        width: 100,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "flex-end",
+                    }}
+                >
+                    <TimePanel time="00:17:00" />
+                </div>
             </div>
-
-            <div
-                style={{
-                    position: "absolute",
-                    left: 457,
-                    top: 24,
-                }}
-            >
-                <TimePanel time={ev1Time} />
-            </div>
-            
+            {/* Live Video Panel */}
             <div
                 style={{
                     position: "absolute",

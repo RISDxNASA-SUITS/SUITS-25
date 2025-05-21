@@ -17,8 +17,13 @@ export default function TelemetryPanelPR() {
             style={{
                 width: 592,
                 height: 611,
+                position: "absolute",
+                top: 565,
+                left: 24,
                 backgroundColor: "transparent",
                 borderRadius: 0,
+                paddingBottom: 40,
+                boxSizing: "border-box",
             }}
         >
             <PanelSwitcherPR />
