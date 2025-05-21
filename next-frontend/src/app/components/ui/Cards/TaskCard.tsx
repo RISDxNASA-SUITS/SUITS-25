@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import useTaskStore from "@/app/hooks/taskCounterHook";
 
 interface TaskCardProps {
     taskName: string;
@@ -8,12 +9,24 @@ interface TaskCardProps {
     duration: number;
 }
 
-export const TaskCard = ({ taskName, subTask, risk, duration }: TaskCardProps) => {
+export const TaskCard = ({ taskName, subTask, risk, duration}: TaskCardProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [checkedSubTasks, setCheckedSubTasks] = useState<boolean[]>(
         Array(subTask.length).fill(false)
     );
-
+    const [updateTaskStore, setUpdateTaskStore] = useState<string | undefined>(undefined)
+    const {tasksComplete, tasksTotal, setTaskComplete, setTasksTotal} = useTaskStore()
+    useEffect(() => {
+        if(updateTaskStore === 'increment')
+        {
+            setTaskComplete(tasksComplete + 1)
+        }
+        else if(updateTaskStore === 'decrement')
+        {
+            setTaskComplete(tasksComplete - 1)
+        }
+    }, [updateTaskStore])
+    
     const handleExpand = () => {
         setIsExpanded(prev => !prev);
     };
@@ -22,6 +35,18 @@ export const TaskCard = ({ taskName, subTask, risk, duration }: TaskCardProps) =
         setCheckedSubTasks(prev => {
             const updated = [...prev];
             updated[index] = !updated[index];
+            if(updated.every((i) => i===true)){
+                setUpdateTaskStore('increment')
+            }
+            else{
+                if(updateTaskStore === 'increment')
+                {
+                    setUpdateTaskStore('decrement')
+                }
+                else{
+                    setUpdateTaskStore(undefined)
+                }
+            }
             return updated;
         });
     };
@@ -43,13 +68,13 @@ export const TaskCard = ({ taskName, subTask, risk, duration }: TaskCardProps) =
             </div>
 
             {/* Meta Info */}
-            <div className="flex p-3 pt-0 gap-2">
-                <div className="inline-flex px-3 py-1 justify-center items-center bg-white/10 rounded-3xl">
-                    {risk}
-                </div>
+            <div className="flex p-3 pt-0 gap-2 justify-center">
+                {/* <div className="inline-flex px-3 py-1 justify-center items-center bg-white/10 rounded-3xl">
+                    {risk === 'high risk' ? "High Risk" : "Low Risk"}
+                </div> */}
                 <div className="inline-flex px-3 py-1 justify-center items-center gap-1 bg-white/10 rounded-3xl">
                     <img src={"/logo/timer.svg"} alt="timer" className="h-5 w-5" />
-                    {duration}m
+                    {duration} min
                 </div>
             </div>
 

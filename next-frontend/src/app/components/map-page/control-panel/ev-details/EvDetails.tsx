@@ -6,6 +6,7 @@ import SubTabButton from "@/app/components/ui/Tabs/SubTabButton";
 import TasksSection from "@/app/components/map-page/control-panel/ev-details/sections/TasksSection";
 import WarningSection from "@/app/components/map-page/control-panel/ev-details/sections/WarningSection";
 import XrfSection from "@/app/components/map-page/control-panel/ev-details/sections/XrfSection";
+import useTaskStore from "@/app/hooks/taskCounterHook";
 
 type EvaTab = "PR" | "EVA1" | "EVA2"
 
@@ -29,7 +30,7 @@ export const EvDetails = () => {
         EVA1: {},
         EVA2: {}
     });
-
+    const {setTasksTotal} = useTaskStore()
 
     useEffect(() => {
         const fetchTaskData = async () => {
@@ -37,18 +38,20 @@ export const EvDetails = () => {
                 const res = await fetch('/taskData.json');
                 const data: Record<EvaTab, Eva> = await res.json();
                 setEvaData(data);
+                setTasksTotal(data["PR"]["Tasks"].length + data["EVA1"]["Tasks"].length + data["EVA2"]["Tasks"].length)
             } catch (e) {
                 console.error("Failed to fetch: ", e);
             }
         }
 
         fetchTaskData();
+        
     }, []);
 
 
     function handleContent() {
         const data = evaData[selectedEva][selectedSubTab];
-
+        
         switch (selectedSubTab) {
             case "Tasks":
                 return <TasksSection tasks={data} />;

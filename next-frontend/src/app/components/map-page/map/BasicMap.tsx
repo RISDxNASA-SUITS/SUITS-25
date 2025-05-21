@@ -12,7 +12,9 @@ import "../mapstyle.css"; // Keep custom styles
 import mapboxgl from 'mapbox-gl';
 import { createRoot } from 'react-dom/client';
 import Warnings from '@/app/components/map-page/mission-info/Warnings'
+import Notifications from '@/app/components/map-page/mission-info/Notifications'
 import { usePanelStore } from '@/app/hooks/panelStore';
+import {usePoiAdderHook} from '@/app/hooks/poiAdderHook'
 
 // Mapbox token (ensure this is the correct way to set it for react-map-gl, often passed as a prop)
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGtpbWgiLCJhIjoiY203dGU2djRzMXZxdzJrcHNnejd3OGVydSJ9.pIfFx8HCC58f_PzAUjALRQ';
@@ -109,6 +111,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
     const [ltvLetter, setLtvLetter] = useState("A");
     const [ltvToggle, setLtvToggle] = useState(false);
     const {setPanelState:setControlPanelState} = usePanelStore();
+    const {setPoiLat, setPoiLon, setPoiType} = usePoiAdderHook();
 
     const [newPinLocation, setNewPinLocation] = useState<{ lng: number; lat: number } | null>(null);
     const [tempPinType, setTempPinType] = useState<PinTypes | null>(null);
@@ -201,7 +204,9 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
         hazardRadius?: number,
         hazardCategory?: 'warning' | 'caution'
     ) => {
-        
+        setPoiLat(lat)
+        setPoiLon(lng)
+        setPoiType(type)
         if (type === 'hazard') {
             const newHazardPoi: HazardPoi = {
                 
@@ -597,6 +602,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                 </div>
                 
                 <div className = "absolute top-0 w-full flex items-end flex-col pointer-events-none">
+                    <Notifications />
                     <Warnings />
                 </div>
             </div>
