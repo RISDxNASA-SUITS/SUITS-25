@@ -3,11 +3,12 @@ import React from 'react';
 import DashboardPanelLeft from '../components/ui/Panels/DashboardPanel_left';
 import DashboardPanelMiddle from '../components/ui/Panels/DashboardPanel_middle';
 import DashboardPanelRight from '../components/ui/Panels/DashboardPanel_right';
-import { useDashboardStore } from '../hooks/dashboardHook';
-
+import { useDashboardStore } from "@/app/hooks/dashboardHook";
+import PRPanel from "./prPanel";
+import { EvPanel } from './evPanel';
 
 export default function DashboardPage() {
-    const { fetchData, error } = useDashboardStore();
+    const {fetchData, prData, ev1Data, ev2Data } = useDashboardStore();
 
     React.useEffect(() => {
         fetchData();
@@ -17,15 +18,22 @@ export default function DashboardPage() {
         return () => clearInterval(interval);
     }, [fetchData]);
 
-    if (error) {
-        console.warn(error);
-    }
+  
 
     return (
-        <div className="min-h-screen bg-[#201d33] p-8 flex flex-row justify-center items-start gap-8">
-            <DashboardPanelLeft />
+        <div className="min-h-screen bg-[#201d33] p-8 grid grid-cols-3 justify-center items-start gap-4">
+            <div className="h-full">
+                <PRPanel prData={prData} />
+            </div>
+            <div className="h-full">
+                <EvPanel evData={ev1Data}/>
+            </div>
+            <div className="h-full">
+                <EvPanel evData={ev2Data}/>
+            </div>
+            {/* <DashboardPanelLeft />
             <DashboardPanelMiddle />
-            <DashboardPanelRight />
+            <DashboardPanelRight /> */}
         </div>
     );
 }
