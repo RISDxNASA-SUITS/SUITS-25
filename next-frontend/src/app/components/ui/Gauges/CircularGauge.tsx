@@ -53,9 +53,10 @@ const CircularGauge = ({
     <div
       className="flex items-center justify-center relative"
       style={{
-        width: rectWidth,
+        width: 168,
         height: 168,
         background: "transparent",
+        borderRadius: 8,
       }}
     >
       <div
@@ -90,7 +91,7 @@ const CircularGauge = ({
             transform={`rotate(${rotation} ${center} ${center})`}
           />
         </svg>
-                {/* Centered label and value */}
+        {/* Centered label and value */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
           <p className="text-xs text-white break-words max-w-[90px] leading-tight">{label}</p>
           <p className="text-2xl font-medium text-white">{Math.round(currentValue)}{units}</p>

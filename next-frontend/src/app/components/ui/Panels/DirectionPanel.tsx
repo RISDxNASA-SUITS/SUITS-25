@@ -18,6 +18,7 @@ export default function DirectionPanel({ degrees, filled = true }: DirectionPane
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        boxSizing: "border-box",
       }}
     >
       <svg
