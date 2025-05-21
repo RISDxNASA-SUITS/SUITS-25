@@ -204,7 +204,6 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                         radius: null,
                     };
                     const poiResponse = await addPoi(newPoi);
-                    const poiId = poiResponse.id;
                     setPoiNum(prev => prev + 1);
                     countId++;
                 }
