@@ -48,14 +48,12 @@
     var simRunning: Boolean,
     var simPaused: Boolean,
     var simCompleted: Boolean,
-    var latitude: Float,
-    var longitude: Float,
 
 ) {
     companion object {
         fun fromStringList(values: List<String>): PrTelemetry {
             
-            require(values.size == 51) { "Expected 51 values, got ${values.size}" }
+            require(values.size == 49) { "Expected 49 values, got ${values.size}" }
 
             var i = 0
             fun safeBoolean(value: String): Boolean {
@@ -121,8 +119,6 @@
                 simRunning = nextBool(),
                 simPaused = nextBool(),
                 simCompleted = nextBool(),
-                latitude = nextFloat(),
-                longitude = nextFloat(),
          
             )
         }
