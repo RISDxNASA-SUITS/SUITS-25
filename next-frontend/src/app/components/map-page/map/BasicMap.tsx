@@ -270,7 +270,23 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
     );
 
     function renderRoverMarker({ x, y }: { x: number; y: number }) {
+        const [animationFrame, setAnimationFrame] = useState(0);
         const roverCoords = convertMoonToEarth({x: x, y: y});
+
+        useEffect(() => {
+            if (!isScanActive) {
+                setAnimationFrame(0);
+                return;
+            }
+
+            const circles = [50, 100, 200];
+            const interval = setInterval(() => {
+                setAnimationFrame((prev) => (prev >= circles.length - 1 ? 0 : prev + 1));
+            }, 1000);
+
+            return () => clearInterval(interval);
+        }, [isScanActive]);
+
         return (
             <>
                 <Marker
@@ -289,10 +305,10 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                         latitude={roverCoords.lat}
                     >
                         <div
-                            className="border-2 border-blue-500 rounded-full opacity-50"
+                            className="border-2 border-blue-500 rounded-full opacity-50 transition-all duration-500"
                             style={{
-                                width: '200px',
-                                height: '200px',
+                                width: `${[50, 100, 200][animationFrame]}px`,
+                                height: `${[50, 100, 200][animationFrame]}px`,
                             }}
                         />
                     </Marker>
@@ -683,7 +699,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                         </Marker>
                     ))}
 
-                    {/* Add the markers for all scan_result from api.pycoordinates */}
+                    {/* Add the markers for all scan_result from api.py coordinates */}
                     {(() => {
                         const scanMarkers = [];
                         for (let index = 0; index < scanPoints.length; index++) {
