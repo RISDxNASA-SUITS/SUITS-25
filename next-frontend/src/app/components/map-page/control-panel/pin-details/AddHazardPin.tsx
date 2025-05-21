@@ -8,6 +8,7 @@ import RecordingCard from "@/app/components/ui/Cards/RecordingCard";
 import NotePreview from "@/app/components/ui/Cards/NotePreview";
 import useAudioStore from "@/app/hooks/VoiceNoteStore";
 import { usePanelStore } from "@/app/hooks/panelStore";
+import {AddTag} from "@/app/components/map-page/control-panel/pin-details/description/AddTag";
 
 
 type AddpoiProps = {
@@ -102,50 +103,9 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
                 
                 {/*Tag*/}
                 <div className={"flex flex-col gap-4"}>
-                    <p className={"text-2xl font-bold"}>Tags</p>
-                    
-                    {(!poi.tags || Object.keys(poi.tags).length === 0) ? (
-                        <SecondaryButton
-                            logo={"/logo/add.svg"}
-                            onClick={() => setControlPanelState("AddTag")}
-                        >
-                            Tag
-                        </SecondaryButton>
-                    ) : (
-                        <div className="flex flex-col gap-2">
-                            {/* selected tag UI */}
-                            <div className="flex gap-2">
-                                {/* remove tags*/}
-                                <button onClick={() => clearTags(poi.id)}>
-                                    <img src="/logo/close.svg" alt="clear tags"/>
-                                </button>
-                                
-                                {Object.entries(poi.tags).map(([category, subTags]) => (
-                                    <div key={category}
-                                         className="w-full bg-white-10 px-4 py-2 rounded-lg flex gap-2 flex-wrap items-center">
-                                        <span className="font-bold text-white">{category}</span>
-                                        {Object.entries(subTags).flatMap(([sub, labels]) =>
-                                            labels.map(label => (
-                                                <span
-                                                    key={`${sub}-${label}`}
-                                                    className="px-4 py-2 rounded-full border border-white text-white text-sm"
-                                                >
-                                                        {label}
-                                                    </span>
-                                            ))
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                            
-                            <SecondaryButton
-                                logo={"/logo/edit.svg"}
-                                onClick={() => setControlPanelState("AddTag")}
-                            >
-                                Edit
-                            </SecondaryButton>
-                        </div>
-                    )}
+                <AddTag compact={true}>
+
+                </AddTag>
                 </div>
 
                 {/* Hazard Category */}
