@@ -23,17 +23,12 @@ export const Editpoi = ({poi, onClose}:AddpoiProps) => {
     const [inputValue, setInputValue] = useState(poi.name);
     const [savedText, setSavedText] = useState<string>(poi.name);
     const {setShowPopup, setPanelState} = usePanelStore();
+    //initial input field state
+    const [showField, setShowField] = useState<boolean>(true);
+
     
 
-    //initial input field value
-    const [initialInputValue, setInitialInputValue] = useState(poi.name);
-    //initial input field state
-    const [showInitialInput, setInitialShowInput] = useState<boolean>(true);
-
-
-
-    const { deletePoi, selectedPoiId, pois, addVoiceNote} = PoiStore();
-
+    const { deletePoi, selectedPoiId, pois, addVoiceNote, updatePoi} = PoiStore();
     //voice note IDs from currently selected POI
     // const recordingIDs = poi.voiceNoteID;
 
@@ -83,16 +78,16 @@ export const Editpoi = ({poi, onClose}:AddpoiProps) => {
                 </div>
 
                 {/* Initial title input field */}
-                {showInitialInput && (
+                {showField && (
                     <input
                     type="text"
-                    value={initialInputValue}
+                    value={inputValue}
                     onChange={(e) => {
-                        setInitialInputValue(e.target.value)
+                        setInputValue(e.target.value)
                     }}
                     onBlur={() => {
-                        // updatePoi(poi.id, { name: initialInputValue });
-                        setInitialShowInput(false);
+                        poi.name = inputValue
+                        updatePoi(poi)
                     }}
                     className="rounded-lg bg-white-10 px-3 py-1 text-center border border-gray-300"
                     autoFocus

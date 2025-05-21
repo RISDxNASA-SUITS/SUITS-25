@@ -79,7 +79,7 @@ export const ControlPanel = () => {
                         poi={selectHazardPoi}
                         onClose={handleClose}
                         
-                        setControlPanelState={setPanelState}
+                        setControlPanelState={panelState}
                     />
                 ) : null;
         }
