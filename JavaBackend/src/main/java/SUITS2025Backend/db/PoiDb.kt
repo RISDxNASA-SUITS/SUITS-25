@@ -124,9 +124,9 @@ class PoiDbController {
                     transaction { Audio.findById(id) }
                 }
                 radius = poi.radius
-            }
+            }.asResponse()
 
-        }.asResponse()
+        }
     }
 
     fun getPois(): PoiResponseJson{
