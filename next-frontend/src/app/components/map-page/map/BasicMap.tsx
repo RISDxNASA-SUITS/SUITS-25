@@ -496,7 +496,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                     }}
                     mapboxAccessToken={MAPBOX_TOKEN}
                     style={{ width: '100%', height: '100%' }}
-                    mapStyle="mapbox://styles/dkimh/cm9k7yru7008601s617bl7zmh/draft"
+                    mapStyle="mapbox-style/style.json"
                     onClick={handleMapClick}
                     doubleClickZoom={false}
                 >
