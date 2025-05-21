@@ -41,7 +41,13 @@ const initialViewState = {
     bearing: 0,
     padding: {top: 0, bottom: 0, left: 0, right: 0}
 };
-    // }, [pois])
+
+const defaultLtvCoords = [
+    { name: "LTV A", moonCoords: { x: -5855.60, y: -10168.60 } },
+    { name: "LTV B", moonCoords: { x: -5868.10, y: -10016.10 } },
+    { name: "LTV C", moonCoords: { x: -5745.90, y: -9977.30 } },
+];
+
     export function convertMoonToEarth(moon: MoonCoord): MapboxCoord {
         // Moon (x, y) for 4 corners
         const topLeft: MoonCoord = { x: -6550, y: -9750 };
@@ -98,12 +104,11 @@ const initialViewState = {
 
 const BasicMap = ({ roverCoords, }: BasicMapProps) => {
     const [viewState, setViewState] = useState(initialViewState);
-    const { pois, hazardPois,  addPoi, addHazardPoi, selectPoi, selectedPoiId, loadFromBackend, breadCrumbs } = PoiStore();
+    const { pois, hazardPois,  addPoi, addHazardPoi, selectPoi, selectedPoiId, loadFromBackend, breadCrumbs, ltvPois, addLtvPoi } = PoiStore();
     const [poiNum, setPoiNum] = useState(1); // For default naming, might need better persistence
+    const [ltvLetter, setLtvLetter] = useState("A");
+    const [ltvToggle, setLtvToggle] = useState(false);
     const {setPanelState:setControlPanelState} = usePanelStore();
-    const pointA = convertMoonToEarth({ x: -5855.60, y: -10168.60 });
-    const pointB = convertMoonToEarth({ x: -5868.10, y: -10016.10 });
-    const pointC = convertMoonToEarth({ x: -5745.90, y: -9977.30 });
 
     const [newPinLocation, setNewPinLocation] = useState<{ lng: number; lat: number } | null>(null);
     const [tempPinType, setTempPinType] = useState<PinTypes | null>(null);
@@ -133,14 +138,32 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
         setPoiButtonClickActive(true);
         setControlPanelState("AddPin");
     };
-
+    
     useEffect(() => {
-        loadFromBackend();
-        const timeout = setInterval(() => {
-            loadFromBackend();
-        }, 1000);
-        return () => clearInterval(timeout);
-    }, [loadFromBackend]);
+        const init = async () => {
+            await loadFromBackend();
+            
+            // Ensure LTV points are added only if not already present
+            const existingLtvNames = new Set(ltvPois.map(poi => poi.name));
+            for (const { name, moonCoords } of defaultLtvCoords) {
+                if (!existingLtvNames.has(name)) {
+                    const earth = convertMoonToEarth(moonCoords);
+                    addLtvPoi({
+                        name,
+                        coords: earth,
+                        moonCoords,
+                        tags: [],
+                        type: "ltv",
+                        audioId: null,
+                    });
+                }
+            }
+        };
+        
+        init();
+        const interval = setInterval(loadFromBackend, 1000);
+        return () => clearInterval(interval);
+    }, [loadFromBackend, ltvPois, addLtvPoi]);
 
     // This effect is no longer needed as markers are rendered declaratively
     // useEffect(()=> {
@@ -234,6 +257,25 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
             setTempPinType(null);
             return;
         }
+
+        if (type === "ltv") {
+            const newLtvPoi: LtvPoi = {
+                name: `${namePrefix} ${ltvLetter}`,
+                coords: { lng, lat },
+                moonCoords: { x, y },
+                tags: [],
+                type: type,
+                audioId: null,
+                // marker: new mapboxgl.Marker(), // Add the required marker property
+                ...additionalData,
+            }
+            addLtvPoi(newLtvPoi);
+            setLtvLetter(prev => String.fromCharCode(prev.charCodeAt(0) + 1));
+            setControlPanelState("AddPin");
+            setNewPinLocation(null);
+            setTempPinType(null);
+            return;
+        }
        
         // Normal POI
         const newPoi: Poi = {
@@ -281,9 +323,9 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
 
     // Function to render the popup for a new pin or selected POI
     const renderPopup = () => {
-        console.log("RENDER POPUP"
-        , newPinLocation, tempPinType, !tempPinType
-        )
+        // console.log("RENDER POPUP"
+        // , newPinLocation, tempPinType, !tempPinType
+        // )
         if (newPinLocation && !tempPinType) { // Temporary pin placed, show options
             console.log("RENDER POPUP 1")
             return (
@@ -473,76 +515,42 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                             />
                         </Marker>
                     ))}
-
-                    {/* Render LTV POI Points (A, B, C) */}
-                    <Marker longitude={pointA.lng} latitude={pointA.lat}>
-                        <div
-                            className={`
-                                bg-contain bg-no-repeat bg-center cursor-pointer
-                                sm:w-5m md:w-6 lg:w-7 sm:h-5 md:h-6 lg:h-7
-                            `}
-                            style={{ backgroundImage: 'url(/markers/selected-poi.svg)' }}
-                            title="Point A"
-                        />
-                    </Marker>
-                    <Popup
-                        longitude={pointA.lng}
-                        latitude={pointA.lat}
-                        anchor="bottom"
-                        offset={15}
-                        closeButton={false}
-                        closeOnClick={false}
-                        className="custom-final-popup z-20"
-                    >
-                        <div>POI A</div>
-                    </Popup>
-
-                    <Marker longitude={pointB.lng} latitude={pointB.lat}>
-                        <div
-                            className={`
-                                bg-contain bg-no-repeat bg-center cursor-pointer
-                                sm:w-5m md:w-6 lg:w-7 sm:h-5 md:h-6 lg:h-7
-                            `}
-                            style={{ backgroundImage: 'url(/markers/selected-poi.svg)' }}
-                            title="Point B"
-                        />
-                    </Marker>
-                    <Popup
-                        longitude={pointB.lng}
-                        latitude={pointB.lat}
-                        anchor="bottom"
-                        offset={15}
-                        closeButton={false}
-                        closeOnClick={false}
-                        className="custom-final-popup z-20"
-                    >
-                        <div>POI B</div>
-                    </Popup>
-
-                    <Marker longitude={pointC.lng} latitude={pointC.lat}>
-                        <div
-                            className={`
-                                bg-contain bg-no-repeat bg-center cursor-pointer
-                                sm:w-5m md:w-6 lg:w-7 sm:h-5 md:h-6 lg:h-7
-                            `}
-                            style={{ backgroundImage: 'url(/markers/selected-poi.svg)' }}
-                            title="Point C"
-                        />
-                    </Marker>
-                    <Popup
-                        longitude={pointC.lng}
-                        latitude={pointC.lat}
-                        anchor="bottom"
-                        offset={15}
-                        closeButton={false}
-                        closeOnClick={false}
-                        className="custom-final-popup z-20"
-                    >
-                        <div>POI C</div>
-                    </Popup>
-
-
-
+                    
+                    {/* Render LTV POIs */}
+                    {ltvPois.map(ltv => (
+                        <div key={ltv.id}>
+                            <Marker
+                                longitude={ltv.coords.lng}
+                                latitude={ltv.coords.lat}
+                                onClick={(e) => {
+                                    e.originalEvent.stopPropagation(); // Prevent map click bubbling
+                                    selectPoi(ltv.id);
+                                    setControlPanelState("SelectPin");
+                                    setLtvToggle(true);
+                                }}
+                            >
+                                <div
+                                    className="bg-contain bg-no-repeat bg-center w-6 h-6 cursor-pointer"
+                                    style={{ backgroundImage: 'url(/markers/selected-poi.svg)' }}
+                                />
+                            </Marker>
+                            
+                            {/* Always-visible popup */}
+                            <Popup
+                                longitude={ltv.coords.lng}
+                                latitude={ltv.coords.lat}
+                                anchor="top"
+                                offset={20}
+                                closeButton={false}
+                                closeOnClick={false}
+                                className="custom-final-popup z-20 pointer-events-none" // make sure it doesn't intercept clicks
+                            >
+                                <div className="text-xs font-semibold">{ltv.name}</div>
+                            </Popup>
+                        </div>
+                    ))}
+                    
+                    
                     {/* Render hazard POIs */}
                     {hazardPois.map(hazard => (
                         <Marker
@@ -569,6 +577,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                             </div>
                         </Marker>
                     ))}
+                    
                     {/* Render breadcrumb POIs */}
                     {breadCrumbs.map(breadcrumb => (
                         <Marker
@@ -579,7 +588,6 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                             <div className="breadcrumb-marker-exclamation text-center text-white font-bold text-lg">!</div>
                         </Marker>
                     ))}
-                    {/* Render LTV POIs */}
                     
                     {/* Show temporary hazard marker while adjusting radius */}
                     {tempHazardPin && (
@@ -598,6 +606,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                             </div>
                         </Marker>
                     )}
+                    
                     {renderPopup()}
                     {renderRoverMarker({x: roverCoords.x, y: roverCoords.y})}
                 </Map>

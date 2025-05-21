@@ -13,7 +13,6 @@ type selectpoiProps = {
     poi: Poi;
     onClose: () => void;
 
-    setControlPanelState: (state: "AddTag" | "EvDetails" | "AddPin" | "SelectPin") => void;
 }
 
 export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
@@ -27,6 +26,7 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
     const recordingIDs = poi.audioId;
 
     const { deletePoi} = PoiStore();
+    console.log("Select Pin");
 
     const handleSave = () => {
         poi.name = inputValue;

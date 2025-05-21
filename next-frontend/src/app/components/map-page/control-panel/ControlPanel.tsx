@@ -2,7 +2,7 @@
 
 import EvDetails from "@/app/components/map-page/control-panel/ev-details/EvDetails";
 import EditPin from "@/app/components/map-page/control-panel/pin-details/EditPin";
-import SelectPin from "@/app/components/map-page/control-panel/pin-details/SelectPin"
+import SelectPin from "@/app/components/map-page/control-panel/pin-details/SelectPoi"
 
 
 import {AddTag} from "@/app/components/map-page/control-panel/pin-details/description/AddTag";
@@ -12,20 +12,14 @@ import React, {RefObject, useRef, useState} from "react";
 import AddHazardPin from "@/app/components/map-page/control-panel/pin-details/AddHazardPin";
 import SelectHazardPin from "@/app/components/map-page/control-panel/pin-details/SelectHazardPin";
 import { usePanelStore } from "@/app/hooks/panelStore";
-type ControlPanelProps = {
-    state: string;
-    panelState: (panel: "EvDetails" | "AddPin" | "SelectPin" | "AddTag" | "AddVoiceNote" | "AddHazard" | "SelectHazard") => void;
-    
-}
 
 export const ControlPanel = () => {
-    const {pois, hazardPois,selectedPoiId, selectPoi, addPoi} = PoiStore();
-    const selectedPoi = pois.find(poi => poi.id === selectedPoiId);
+    const {pois, hazardPois,selectedPoiId, selectPoi, addPoi, ltvPois} = PoiStore();
+    const selectedPoi = [...pois, ...ltvPois].find(poi => poi.id === selectedPoiId);
     const selectHazardPoi = hazardPois.find(poi => poi.id === selectedPoiId);
     const {panelState, setPanelState, showPopup, setShowPopup} = usePanelStore();
-
     
-    
+    console.log(panelState);
     
     const handleClose = () => {
         selectPoi(null);
@@ -33,6 +27,7 @@ export const ControlPanel = () => {
     };
 
     function handleContent(state: string) {
+        console.log(state);
         switch (state) {
             case "EvDetails":
                 return <EvDetails
@@ -50,8 +45,6 @@ export const ControlPanel = () => {
                     <SelectPin
                         poi={selectedPoi}
                         onClose={handleClose}
-                        
-                        
                     />
                 ): null;
             case "AddTag":
