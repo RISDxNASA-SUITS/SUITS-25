@@ -57,6 +57,10 @@ export interface HazardPoi extends Poi {
     radius: number;
 }
 
+export interface Ltv extends Poi {
+    type: 'ltv';
+}
+
 export interface BreadCrumb extends Poi {
     type: 'breadCrumb';
 }
@@ -83,9 +87,11 @@ interface PoiStore {
     pois: Poi[];
     hazardPois: HazardPoi[];
     breadCrumbs: BreadCrumb[];
+    ltvPois: Ltv[];
     selectedPoiId: number | null;
     addPoi: (poi: Poi) => void;
     addHazardPoi: (hazardPoi: HazardPoi) => void;
+    addLtvPoi: (ltvPoi: Ltv) => void;
     selectPoi: (poiId: number | null) => void;
     updateTag: (poiId: string | null, category: string, subCategory: string, label: string) => void;
   
@@ -116,7 +122,7 @@ const backendToFrontendPoi = (poi: poiBackend): Poi => {
 
 const frontendToBackendPoi = (poi: Poi): poiBackend => {
     return {
-        id:undefined,
+        id:poi.id,
         name: poi.name,
         x: poi.moonCoords.x,
         y: poi.moonCoords.y,
@@ -131,8 +137,8 @@ const frontendToBackendPoi = (poi: Poi): poiBackend => {
 export const PoiStore = create<PoiStore>((set,get) => ({
     pois: [],
     hazardPois: [],
-    breadCrumbs: [],
     ltvPois: [],
+    breadCrumbs: [],
     selectedPoiId: null,
     loadFromBackend: async () => {
         const data = await fetch('/api/pois')
@@ -141,8 +147,9 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         const pois:Poi[] = json.filter((poi:Poi) => poi.type !== "breadCrumb" && poi.type !== 'hazard')
         const hazardPois:HazardPoi[] = json.filter((poi:Poi) => poi.type === 'hazard')
         const breadCrumbs:BreadCrumb[] = json.filter((poi:Poi) => poi.type === 'breadCrumb')
-       
-        set({pois:pois, hazardPois:hazardPois, breadCrumbs:breadCrumbs})
+        const ltvPois: Ltv[] = json.filter((poi: Poi) => poi.type === 'ltv');
+        
+        set({pois:pois, hazardPois:hazardPois, breadCrumbs:breadCrumbs, ltvPois:ltvPois});
     },
     updatePoi: async (poi: Poi) => {
         const backendPoi = frontendToBackendPoi(poi)
@@ -190,6 +197,21 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         get().loadFromBackend()
         set({selectedPoiId: id})
     },
+    addLtvPoi: async (ltvPoi: Ltv) => {
+        const data = await fetch('/api/pois', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(frontendToBackendPoi(ltvPoi))
+        })
+        let json = await data.json()
+        console.log(json, "is the json");
+        const id = json.id
+        console.log(id, "is the id");
+        get().loadFromBackend()
+        set({selectedPoiId: id})
+    },
     selectPoi: (poiId: number | null) => set(() => ({
         selectedPoiId: poiId
     })),
@@ -205,31 +227,27 @@ export const PoiStore = create<PoiStore>((set,get) => ({
     },
 
     updateTag: async (poiId, label) =>{
+        console.log("CALLED WITH ID ", poiId)
         const poi = get().pois.find(p => p.id === poiId)
         const hzrd = get().hazardPois.find(p => p.id === poiId)
-        let tags;
-        if (poi) {
-            if (poi.tags.includes(label)) {
-                poi.tags = poi.tags.filter(tag => tag !== label)
-            } else {
-                poi.tags.push(label)
-            }
-            tags = poi.tags
+        const target = poi ?? hzrd
+        let tags = target.tags
+        console.log("hazard", hzrd, "pOI", poi)
+
+        if (target.tags.includes(label)) {
+            target.tags = target.tags.filter(tag => tag !== label)
+        } else {
+            target.tags.push(label)
         }
-        if (hzrd) {
-            if (hzrd.tags.includes(label)) {
-                hzrd.tags = hzrd.tags.filter(tag => tag !== label)
-            } else {
-                hzrd.tags.push(label)
-            }
-            tags = hzrd.tags
-        }
+
+
+
         await fetch(`/api/pois/updateTags/${poiId}`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({tags: poi?.tags})
+            body: JSON.stringify({tags: target?.tags})
         })
         get().loadFromBackend()
     },

@@ -16,11 +16,13 @@ import SUITS2025Backend.db.*
 data class returnData(val data:Float)
 data class lidarReturn(val data:List<Float>)
 
+
 object PythonCommunicationHandler {
     private const val LIDAR_CMD = 172
     private const val BRAKE_CMD = 1107
     private const val THROTTLE_CMD = 1109
     private const val STEERING_CMD = 1110
+    private const val HEADLIGHT_CMD = 1106
     val bgScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     
     data class Position(val x: Float, val y: Float)
@@ -68,6 +70,7 @@ object PythonCommunicationHandler {
         app.post("/throttle", this::postThrottle)
         app.post("/steering", this::postSteering)
         app.get("/telemetry", this::getTelem)
+        app.post("/headlights", this::postHeadlights)
     }
 
     fun makeSendCommandPacket(commandNumber: Int, input: Float): ByteBuffer {
@@ -138,7 +141,7 @@ object PythonCommunicationHandler {
 
     fun getTelemetry(): PrTelemetry {
         val retList: MutableList<String> = mutableListOf()
-        (124..166).forEach {
+        (124..174).forEach {
             val recvBuffer = ByteBuffer.allocate(104)
             val sendPacket = makeSendLidarPacket(it)
             val callBack: (ByteBuffer) -> String = { buff: ByteBuffer ->
@@ -169,6 +172,11 @@ object PythonCommunicationHandler {
         sendMessageNoReturn(sendPacket)
         return 1.0f
     }
+    fun setHeadlights(input: Float): Float {
+        val sendPacket = makeSendCommandPacket(HEADLIGHT_CMD, input)
+        sendMessageNoReturn(sendPacket)
+        return 1.0f
+    }
 
     // HTTP endpoint handlers
     private fun getLidar(ctx: Context) {
@@ -194,9 +202,15 @@ object PythonCommunicationHandler {
     private fun getTelem(ctx: Context) {
         ctx.json(getTelemetry())
     }
+    
+    private fun postHeadlights(ctx: Context) {
+        val headlights = setHeadlights(ctx.bodyAsClass(HeadlightsRequest::class.java).input)
+        ctx.json(headlights)
+    }
 }
 
 data class BrakesRequest(val brakeInput: Float)
 data class ThrottleRequest(val throttleInput: Float)
 data class SteeringRequest(val steeringInput: Float)
+data class HeadlightsRequest(val input: Float)
 

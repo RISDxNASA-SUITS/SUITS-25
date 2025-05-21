@@ -42,12 +42,20 @@
     var distanceFromBase: Float,
     var switchDest: Boolean,
     var destX: Float,
-    
+    var destY: Float,
+    var destZ: Float,
+    var dustWiper: Boolean,
+    var simRunning: Boolean,
+    var simPaused: Boolean,
+    var simCompleted: Boolean,
+    var latitude: Float,
+    var longitude: Float,
+
 ) {
     companion object {
         fun fromStringList(values: List<String>): PrTelemetry {
             
-            require(values.size == 43) { "Expected 44 values, got ${values.size}" }
+            require(values.size == 51) { "Expected 51 values, got ${values.size}" }
 
             var i = 0
             fun safeBoolean(value: String): Boolean {
@@ -107,7 +115,14 @@
                 distanceFromBase = nextFloat(),
                 switchDest = nextBool(),
                 destX = nextFloat(),
-              
+                destY = nextFloat(),
+                destZ = nextFloat(),
+                dustWiper = nextBool(),
+                simRunning = nextBool(),
+                simPaused = nextBool(),
+                simCompleted = nextBool(),
+                latitude = nextFloat(),
+                longitude = nextFloat(),
          
             )
         }

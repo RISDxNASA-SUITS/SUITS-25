@@ -7,14 +7,21 @@ import {SecondaryButton} from "@/app/components/ui/ui-buttons/SecondaryButton";
 import RecordingCard from "@/app/components/ui/Cards/RecordingCard";
 import useAudioStore from "@/app/hooks/VoiceNoteStore"
 import { useReactMediaRecorder } from "react-media-recorder";
+import AudioCard from "@/app/components/ui/Cards/AudioCard";
 
 type SelectLabelProps = {
     onClose: () => void;
-    setControlPanelState: (state:"AddPin") => void;
+    setControlPanelState: (str : string) => void;
 }
 
 export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProps) => {
-    const {selectedPoiId, pois, hazardPois, addVoiceNote } = PoiStore();
+    const {selectedPoiId, pois, hazardPois, addVoiceNote} = PoiStore();
+    
+    const possiblePoi = pois.find(x => x.id === selectedPoiId)
+    const possibleHazard = hazardPois.find(x => x.id === selectedPoiId)
+    const poi = possiblePoi ?? possibleHazard
+    const isHazard = (possiblePoi === undefined)
+    const [audioBlobId, setAudioBlobId] = useState(poi ? poi.audioId : undefined)
     
     const handleStopRecording = async (blobURL: string | undefined, blob: Blob | undefined) => {
         if (!blob) return;
@@ -36,8 +43,8 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
             console.log('Audio uploaded successfully:', audioData);
             
             if(selectedPoiId){
-                console.log(Number(selectedPoiId), audioData.id)
                 addVoiceNote(Number(selectedPoiId), audioData.id);
+                setAudioBlobId(audioData.id)
             }
         } catch (error) {
             console.error('Error uploading audio:', error);
@@ -61,32 +68,39 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
             <div className={"flex flex-col gap-9"}>
                 <div className={"flex justify-between"}>
                     <div className={"flex gap-4"}>
-                        <button onClick={() => setControlPanelState("AddPin")}>
+                        <button onClick={isHazard ? () => setControlPanelState("AddHazard") : () => setControlPanelState("AddPin")}>
                             <img src={"/logo/back.svg"} alt={"back button"}/>
                         </button>
                         <p className={"font-bold text-xl"}>Record Note</p>
                     </div>
                     <CloseButton onClose={onClose}/>
-                        </div>
-
-                    {/* Handling Recording Toggling */}
-                    <div className="flex flex-col gap-8">
-                        {
-                        <div className={"flex flex-col gap-4 items-center w-full"}>
-                            <div className={"w-full max-w-[500px] flex flex-col px-9 py-9 gap-5 border-light-purple border rounded-2xl"}>
-                                <button onClick={() => toggleRecording()} className="flex justify-center">
-                                    {(status === 'recording') ? 
-                                    <img src={"/logo/pause.svg"} alt={"pause logo"} className="cursor-pointer w-20 h-20" />
-                                    : <img src={"/logo/microphone.svg"} alt={"pause logo"} className="cursor-pointer w-20 h-20" />}
-                                </button>
-                            </div>
-                        </div>}
                 </div>
+
+                {/* Handling Recording Toggling */}
+                <div className="flex flex-col gap-8">
+                    {
+                    <div className={"flex flex-col gap-4 items-center w-full"}>
+                        <div className={"w-full max-w-[500px] flex flex-col px-9 py-9 gap-5 border-light-purple border rounded-2xl"}>
+                            <button onClick={() => toggleRecording()} className="flex justify-center">
+                                {(status === 'recording') ? 
+                                <img src={"/logo/pause.svg"} alt={"pause logo"} className="cursor-pointer w-20 h-20" />
+                                : <img src={"/logo/microphone.svg"} alt={"pause logo"} className="cursor-pointer w-20 h-20" />}
+                            </button>
+                        </div>
+                    </div>
+                    }
+                </div>
+                {(audioBlobId != undefined) ? 
+                <AudioCard audio_src = {"/api/audio?audioId=" + audioBlobId} unlinkAudio={undefined} redo = {() => {
+                    setAudioBlobId(undefined)
+                    addVoiceNote(Number(selectedPoiId), undefined);
+                }}/> : null}
+                
 
             </div>
 
             <div className={"flex"}>
-            <PrimaryButton logo={"/logo/checkmark.svg"} onClick={() => setControlPanelState("AddPin")}>Save</PrimaryButton>
+            <PrimaryButton logo={"/logo/checkmark.svg"} onClick={isHazard ? () => setControlPanelState("AddHazard") : () => setControlPanelState("AddPin")}>Save</PrimaryButton>
             </div>
         </div>
     );

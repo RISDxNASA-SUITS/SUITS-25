@@ -5,7 +5,6 @@ const BASE_URL = process.env.NEXT_PUBLIC_JAVA_IP ? `http://${process.env.NEXT_PU
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        
         const response = await fetch(`${BASE_URL}/poi/addVoiceNote`, {
             method: 'POST',
             headers: {
@@ -13,8 +12,10 @@ export async function POST(request: Request) {
             },
             body: JSON.stringify(body),
         });
-        const data = await response.json();
-        return NextResponse.json(data);
+        
+        const text = await response.text();
+        console.log("JSON: ", text)
+        return NextResponse.json(text)
     } catch (error) {
         return NextResponse.json({ error: 'Failed to add voice note' }, { status: 500 });
     }

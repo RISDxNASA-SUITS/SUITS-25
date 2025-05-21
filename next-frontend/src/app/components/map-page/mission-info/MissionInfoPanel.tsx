@@ -34,7 +34,7 @@ export const MissionInfoPanel = () => {
                 setPitch(`${res.pitch || 0}°`);
                 setRoll(`${res.roll || 0}°`);
                 setIncline(`${res.surfaceIncline || 0}°`);
-                setMissionTimer(res.ElapsedTime || 0);
+                setMissionTimer(res.missionElapsedTime || 0);
                 
             } catch (e) {
                 console.error("Failed to fetch: ", e);

@@ -12,25 +12,78 @@ interface VerticalTextReadoutCardProps {
 
 const VerticalTextReadoutCard = ({ readouts }: VerticalTextReadoutCardProps) => (
   <div
-    className="p-2 bg-white/10 rounded-2xl inline-flex flex-col justify-start items-start gap-10"
-    style={{ width: 180, height: 392 }}
+    style={{
+      width: 180,
+      height: 392,
+      position: "absolute",
+      left: 412,
+      gap: 40,
+      borderRadius: 16,
+      padding: 8,
+      background: "rgba(255,255,255,0.10)",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "flex-start",
+      alignItems: "flex-start",
+      boxSizing: "border-box",
+    }}
   >
     {readouts.map((r) => (
       <div
         key={r.label}
-        data-property-1="number"
-        className="self-stretch px-2 py-1 rounded-lg flex flex-col justify-start items-start"
+        style={{
+          width: "100%",
+          padding: "4px 8px",
+          borderRadius: 8,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+          boxSizing: "border-box",
+        }}
       >
-        <div className="self-stretch h-5 inline-flex justify-between items-center">
-          <div className="flex-1 justify-center text-white text-sm font-normal font-['IBM_Plex_Sans']">
+        <div
+          style={{
+            width: "100%",
+            height: 20,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 2,
+          }}
+        >
+          <div
+            style={{
+              flex: 1,
+              color: "#FFF",
+              fontSize: 14,
+              fontWeight: 400,
+              fontFamily: "IBM Plex Sans, sans-serif",
+            }}
+          >
             {r.label}
           </div>
         </div>
-        <div className="self-stretch justify-start text-white text-2xl font-bold font-['IBM_Plex_Sans']">
+        <div
+          style={{
+            width: "100%",
+            color: "#FFF",
+            fontSize: 24,
+            fontWeight: 700,
+            fontFamily: "IBM Plex Sans, sans-serif",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
           {typeof r.value === "number" && r.decimals !== undefined
-            ? r.value.toLocaleString(undefined, { minimumFractionDigits: r.decimals, maximumFractionDigits: r.decimals })
+            ? r.value.toLocaleString(undefined, {
+                minimumFractionDigits: r.decimals,
+                maximumFractionDigits: r.decimals,
+              })
             : r.value}
-          {r.units && <span className="ml-1">{r.units}</span>}
+          {r.units && (
+            <span style={{ marginLeft: 4 }}>{r.units}</span>
+          )}
         </div>
       </div>
     ))}

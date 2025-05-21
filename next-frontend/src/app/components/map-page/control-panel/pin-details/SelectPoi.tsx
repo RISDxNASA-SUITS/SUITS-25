@@ -7,12 +7,12 @@ import NotePreview from "@/app/components/ui/Cards/NotePreview";
 import {AddTag} from "@/app/components/map-page/control-panel/pin-details/description/AddTag";
 import { usePanelStore } from "@/app/hooks/panelStore";
 import AddWarning from "@/app/components/map-page/control-panel/pin-details/description/AddWarning"
+import AudioCard from "@/app/components/ui/Cards/AudioCard"
 
 type selectpoiProps = {
     poi: Poi;
     onClose: () => void;
 
-    setControlPanelState: (state: "AddTag" | "EvDetails" | "AddPin" | "SelectPin") => void;
 }
 
 export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
@@ -21,12 +21,13 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
     const [savedText, setSavedText] = useState<string>(poi.name);
     const [isNavigating, setIsNavigating] = useState(false);
     const {setPanelState} = usePanelStore();
-    const {updatePoi} = PoiStore();
+    const {selectedPoiId, pois, hazardPois, addVoiceNote} = PoiStore();
 
     //voice note IDs from currently selected POI
     const recordingIDs = poi.audioId;
 
     const { deletePoi} = PoiStore();
+    console.log("Select Pin");
 
     const handleSave = () => {
         poi.name = inputValue;
@@ -43,6 +44,12 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
         
         setPanelState("EvDetails");
     };
+    const unlinkAudio = () => {
+        addVoiceNote(poi.id, undefined);
+    }
+    const redoAudio = () => {
+        setPanelState("AddVoiceNote")
+    }
 
     const handleNavigate = async () => {
         try {
@@ -93,14 +100,8 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
                 {/*Voice Notes*/}
                 <div className={"flex flex-col gap-4"}>
                     <p className={"text-2xl font-bold"}>Voice Notes</p>
-
-                    {/* map all recordings from zustand store to the notePreview card */}
-                    {recordingIDs?.map(item => (
-                        <NotePreview date="test" title={`${item}`} key={item}></NotePreview>
-                    ))}
-
-                    <SecondaryButton logo={"/logo/add.svg"} onClick={() => setPanelState("AddVoiceNote")}
-                    >Voice Note</SecondaryButton>
+                    {poi.audioId === null ? <SecondaryButton logo={"/logo/add.svg"} onClick={() => setPanelState("AddVoiceNote")}
+                    >Voice Note</SecondaryButton> : <AudioCard audio_src = {"/api/audio?audioId=" + String(poi.audioId)} unlinkAudio = {unlinkAudio} redo = {redoAudio}/>}
                 </div>
             </div>
 

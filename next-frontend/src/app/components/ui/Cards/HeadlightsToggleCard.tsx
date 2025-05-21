@@ -7,6 +7,9 @@ export default function HeadlightsToggleCard() {
   return (
     <div
       style={{
+        position: "absolute",
+        top: 360,
+        left: 12,
         width: 568,
         height: 72,
         borderRadius: 16,
@@ -14,28 +17,52 @@ export default function HeadlightsToggleCard() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 32px",
+        padding: 20,
+        gap: 20,
+        boxSizing: "border-box",
       }}
     >
       {/* Left: Label */}
       <span
         style={{
-          color: "white",
-          fontSize: 24,
-          fontWeight: 500,
+          width: 470.67252468509133,
+          height: "26px",
+          display: "inline-block",
+          color: "rgba(255,255,255,1)",
+          fontSize: 20,
+          fontWeight: 400,
           fontFamily: "IBM Plex Sans, sans-serif",
+          lineHeight: "100%",
+          letterSpacing: 0,
+          verticalAlign: "middle",
+          fontVariantNumeric: "slashed-zero",
+          transform: "rotate(0.13deg)",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
         }}
       >
         PR Headlights{" "}
-        <span style={{ color: "rgba(255,255,255,0.5)" }}>
+        <span
+          style={{
+            color: "rgba(255,255,255,0.5)",
+            fontFamily: "IBM Plex Sans, sans-serif",
+            fontWeight: 400,
+            fontSize: 20,
+            lineHeight: "100%",
+            letterSpacing: 0,
+            verticalAlign: "middle",
+            fontVariantNumeric: "slashed-zero",
+          }}
+        >
           | {on ? "On" : "Off"}
         </span>
       </span>
       {/* Right: Toggle */}
       <div
         style={{
-          width: 57.33,
-          height: 31.27,
+          width: 57.32747268676758,
+          height: 31.26953125,
           borderRadius: 16,
           background: "transparent",
           border: "1px solid #FFF",
@@ -51,7 +78,7 @@ export default function HeadlightsToggleCard() {
             width: 25,
             height: 25,
             borderRadius: "50%",
-            background: on ? "#50E3C2" : "#FFF",
+            background: "#FFF",
             position: "absolute",
             left: on ? 29 : 3,
             top: "50%",

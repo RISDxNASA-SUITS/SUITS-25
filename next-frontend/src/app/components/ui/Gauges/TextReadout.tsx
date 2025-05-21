@@ -20,16 +20,63 @@ const TextReadout = ({
   return (
     <div
       data-property-1="number"
-      className="self-stretch px-2 py-1 rounded-lg inline-flex flex-col justify-start items-start"
+      style={{
+        width: 164,
+        minHeight: 0,
+        height: "auto",
+        borderRadius: 8,
+        padding: "4px 8px",
+        background: "transparent",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-start",
+        alignItems: "flex-start",
+        boxSizing: "border-box",
+      }}
     >
-      <div className="self-stretch h-5 inline-flex justify-between items-center">
-        <div className="flex-1 justify-center text-white text-sm font-normal font-['IBM_Plex_Sans']">
-          {label}
-        </div>
+      <div
+        style={{
+          width: 148,
+          height: "18px",
+          color: "#FFF",
+          fontFamily: "IBM Plex Sans, sans-serif",
+          fontWeight: 400,
+          fontSize: 14,
+          lineHeight: "100%",
+          letterSpacing: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          verticalAlign: "middle",
+          fontVariantNumeric: "slashed-zero",
+          marginBottom: 2,
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
+        }}
+      >
+        {label}
       </div>
-      <div className="self-stretch justify-start text-white text-2xl font-bold font-['IBM_Plex_Sans']">
+      <div
+        style={{
+          width: 148,
+          height: "31px",
+          color: "#FFF",
+          fontFamily: "IBM Plex Sans, sans-serif",
+          fontWeight: 700,
+          fontSize: 24, // font sizes/24
+          lineHeight: "100%",
+          letterSpacing: 0,
+          display: "flex",
+          alignItems: "center",
+          fontVariantNumeric: "slashed-zero",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
+        }}
+      >
         {displayValue}
-        {units && <span className="ml-1">{units}</span>}
+        {units && <span style={{ marginLeft: 4 }}>{units}</span>}
       </div>
     </div>
   );

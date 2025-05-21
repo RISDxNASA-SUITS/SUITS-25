@@ -1,7 +1,7 @@
 import {useRef, useState, useEffect} from "react";
 const coolantLimit = 40
 const batteryLimit = 30
-const oxygenLimit = 25
+const oxygenLimit = 20
 
 const getPositiveBox = (text : String) => {
     return(<div className = "flex border-green-700 border w-auto rounded-xl bg-green-500 bg-opacity-50 p-2">
@@ -40,7 +40,7 @@ const AddWarning = () => {
             setOxygen(res["oxygenLevels"])
         };
         fetchWarnings();
-        const interval = setInterval(fetchWarnings, 1000);
+        const interval = setInterval(fetchWarnings, 3000);
         return () => {
             clearInterval(interval);
         };

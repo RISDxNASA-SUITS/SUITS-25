@@ -3,21 +3,26 @@ import SubTabButton from "@/app/components/ui/Tabs/SubTabButton";
 import {useState} from "react";
 import {PoiStore} from "@/app/hooks/PoiStore";
 import PrimaryButton from "@/app/components/ui/ui-buttons/PrimaryButton";
+import {usePanelStore} from "@/app/hooks/panelStore";
 
 type SelectLabelProps = {
-    onClose: () => void;
-    setControlPanelState: (state: "EvDetails" | "AddPin" | "SelectPin" | "AddTag" ) => void;
+    onClose?: () => void;
+
     compact?: boolean;
 }
 
 type SubTab = "Rock" | "Terrain" | "Category" | ""
 
 
-export const AddTag = ({ onClose, setControlPanelState, compact = false } : SelectLabelProps) => {
+export const AddTag = ({ onClose=()=>{},  compact = false } : SelectLabelProps) => {
     const [selectedSubTab, setSelectedSubTab] = useState<SubTab>("Rock");
+    const {setPanelState:setControlPanelState} = usePanelStore()
     const { selectedPoiId, pois, updateTag, hazardPois } = PoiStore();
-    const selectedPoi = pois.find(p => p.id === selectedPoiId);
+    const normalPoi = pois.find(p => p.id === selectedPoiId)
     const selectedHazardPoi = hazardPois.find(p => p.id === selectedPoiId);
+    const selectedPoi = normalPoi ?? selectedHazardPoi
+    console.log("SELECTED POI IS", selectedPoi)
+
     console.log(selectedPoi?.tags)
 
     const tagOptions: Record<SubTab, Record<string, string[]>> = {

@@ -7,8 +7,10 @@ import CloseButton from "@/app/components/ui/ui-buttons/CloseButton";
 import RecordingCard from "@/app/components/ui/Cards/RecordingCard";
 import NotePreview from "@/app/components/ui/Cards/NotePreview";
 import useAudioStore from "@/app/hooks/VoiceNoteStore";
-import { usePanelStore } from "@/app/hooks/panelStore";
+import { usePanelStore, updatePoi} from "@/app/hooks/panelStore";
 import AddWarning from "@/app/components/map-page/control-panel/pin-details/description/AddWarning"
+import { AddTag } from "@/app/components/map-page/control-panel/pin-details//description/AddTag";
+import AudioCard from "@/app/components/ui/Cards/AudioCard"
 
 type AddpoiProps = {
     poi: Poi;
@@ -21,16 +23,12 @@ export const Editpoi = ({poi, onClose}:AddpoiProps) => {
     const [inputValue, setInputValue] = useState(poi.name);
     const [savedText, setSavedText] = useState<string>(poi.name);
     const {setShowPopup, setPanelState} = usePanelStore();
-
-    //initial input field value
-    const [initialInputValue, setInitialInputValue] = useState(poi.name);
     //initial input field state
-    const [showInitialInput, setInitialShowInput] = useState<boolean>(true);
+    const [showField, setShowField] = useState<boolean>(true);
 
+    
 
-
-    const { clearTags, deletePoi, selectedPoiId, pois} = PoiStore();
-
+    const { deletePoi, selectedPoiId, pois, addVoiceNote, updatePoi} = PoiStore();
     //voice note IDs from currently selected POI
     // const recordingIDs = poi.voiceNoteID;
 
@@ -53,8 +51,14 @@ export const Editpoi = ({poi, onClose}:AddpoiProps) => {
         setPanelState("EvDetails");
     };
 
+    const unlinkAudio = () => {
+        addVoiceNote(poi.id, undefined);
+    }
+    const redoAudio = () => {
+        setPanelState("AddVoiceNote")
+    }
     return (
-        <div className={"flex flex-col justify-between h-full"}>
+        <div className={"flex flex-col justify-between h-full bg-mid"}>
             <div className={"flex flex-col gap-10"}>
                 {/*Header*/}
                 <div className={"flex items-center justify-between"}>
@@ -74,16 +78,16 @@ export const Editpoi = ({poi, onClose}:AddpoiProps) => {
                 </div>
 
                 {/* Initial title input field */}
-                {showInitialInput && (
+                {showField && (
                     <input
                     type="text"
-                    value={initialInputValue}
+                    value={inputValue}
                     onChange={(e) => {
-                        setInitialInputValue(e.target.value)
+                        setInputValue(e.target.value)
                     }}
                     onBlur={() => {
-                        // updatePoi(poi.id, { name: initialInputValue });
-                        setInitialShowInput(false);
+                        poi.name = inputValue
+                        updatePoi(poi)
                     }}
                     className="rounded-lg bg-white-10 px-3 py-1 text-center border border-gray-300"
                     autoFocus
@@ -92,58 +96,16 @@ export const Editpoi = ({poi, onClose}:AddpoiProps) => {
 
                 {/*Tag*/}
                 <div className={"flex flex-col gap-4"}>
-                    <p className={"text-2xl font-bold"}>Tags</p>
-
-                    {(!poi.tags || Object.keys(poi.tags).length === 0) ? (
-                        <SecondaryButton
-                            logo={"/logo/add.svg"}
-                            onClick={() => setPanelState("AddTag")}
-                        >
-                            Tag
-                        </SecondaryButton>
-                    ) : (
-                        <div className="flex flex-col gap-2">
-                            {/* selected tag UI */}
-                            <div className="flex gap-2">
-                                {/* remove tags*/}
-                                <button onClick={() => clearTags(poi.id)}>
-                                    <img src="/logo/close.svg" alt="clear tags"/>
-                                </button>
-
-                                {Object.entries(poi.tags).map(([category, subTags]) => (
-                                    <div key={category}
-                                         className="w-full bg-white-10 px-4 py-2 rounded-lg flex gap-2 flex-wrap items-center">
-                                        <span className="font-bold text-white">{category}</span>
-                                        {Object.entries(subTags).flatMap(([sub, labels]) =>
-                                            labels.map(label => (
-                                                <span
-                                                    key={`${sub}-${label}`}
-                                                    className="px-4 py-2 rounded-full border border-white text-white text-sm"
-                                                >
-                                                        {label}
-                                                    </span>
-                                            ))
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-
-                            <SecondaryButton
-                                logo={"/logo/edit.svg"}
-                                onClick={() => setPanelState("AddTag")}
-                            >
-                                Edit
-                            </SecondaryButton>
-                        </div>
-                    )}
+                    <AddTag compact={true}></AddTag>
                 </div>
                 
                 {/*Voice Notes*/}
                 <div className={"flex flex-col gap-4"}>
                     <p className={"text-2xl font-bold"}>Voice Notes</p>
-                    <SecondaryButton logo={"/logo/add.svg"} onClick={() => setPanelState("AddVoiceNote")}
-                    >Voice Note</SecondaryButton>
+                    {poi.audioId === null ? <SecondaryButton logo={"/logo/add.svg"} onClick={() => setPanelState("AddVoiceNote")}
+                    >Voice Note</SecondaryButton> : <AudioCard audio_src = {"/api/audio?audioId=" + String(poi.audioId)} unlinkAudio={unlinkAudio} redo = {redoAudio}/>}
                 </div>
+                
                 
 
             </div>

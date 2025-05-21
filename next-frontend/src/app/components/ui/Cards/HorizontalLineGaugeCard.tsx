@@ -16,7 +16,24 @@ interface HorizontalLineGaugeCardProps {
 }
 
 const HorizontalLineGaugeCard = ({ gauges }: HorizontalLineGaugeCardProps) => (
-  <div className="w-[592px] p-2 bg-white/10 rounded-2xl flex flex-row justify-between items-center gap-4">
+  <div 
+    style={{
+      position: "absolute",
+      top: 149,
+      width: 592,
+      minHeight: 0,
+      height: "auto",
+      borderRadius: 16,
+      background: "rgba(255,255,255,0.10)",
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: 8,
+      gap: 8,
+      boxSizing: "border-box",
+    }}
+  >
     {gauges.map((g) => (
       <LineGauge
         key={g.label}
@@ -27,7 +44,6 @@ const HorizontalLineGaugeCard = ({ gauges }: HorizontalLineGaugeCardProps) => (
         units={g.units}
         widthPx={180}
         backgroundWidthPx={164}
-        // valueDecimals={g.valueDecimals}
       />
     ))}
   </div>
