@@ -57,6 +57,10 @@ export interface HazardPoi extends Poi {
     radius: number;
 }
 
+export interface Ltv extends Poi {
+    type: 'ltv';
+}
+
 export interface BreadCrumb extends Poi {
     type: 'breadCrumb';
 }
@@ -79,9 +83,11 @@ interface PoiStore {
     pois: Poi[];
     hazardPois: HazardPoi[];
     breadCrumbs: BreadCrumb[];
+    ltvPois: Ltv[];
     selectedPoiId: number | null;
     addPoi: (poi: Poi) => void;
     addHazardPoi: (hazardPoi: HazardPoi) => void;
+    addLtvPoi: (ltvPoi: Ltv) => void;
     selectPoi: (poiId: number | null) => void;
     updateTag: (poiId: string | null, category: string, subCategory: string, label: string) => void;
   
@@ -127,8 +133,8 @@ const frontendToBackendPoi = (poi: Poi): poiBackend => {
 export const PoiStore = create<PoiStore>((set,get) => ({
     pois: [],
     hazardPois: [],
-    breadCrumbs: [],
     ltvPois: [],
+    breadCrumbs: [],
     selectedPoiId: null,
     loadFromBackend: async () => {
         const data = await fetch('/api/pois')
@@ -137,8 +143,9 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         const pois:Poi[] = json.filter((poi:Poi) => poi.type !== "breadCrumb" && poi.type !== 'hazard')
         const hazardPois:HazardPoi[] = json.filter((poi:Poi) => poi.type === 'hazard')
         const breadCrumbs:BreadCrumb[] = json.filter((poi:Poi) => poi.type === 'breadCrumb')
-       
-        set({pois:pois, hazardPois:hazardPois, breadCrumbs:breadCrumbs})
+        const ltvPois: Ltv[] = json.filter((poi: Poi) => poi.type === 'ltv');
+        
+        set({pois:pois, hazardPois:hazardPois, breadCrumbs:breadCrumbs, ltvPois:ltvPois});
     },
     updatePoi: async (poi: Poi) => {
         const backendPoi = frontendToBackendPoi(poi)
@@ -183,6 +190,21 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         const id = json.id
         console.log(id, "is the id");
         console.log(get().pois, "is the pois");
+        get().loadFromBackend()
+        set({selectedPoiId: id})
+    },
+    addLtvPoi: async (ltvPoi: Ltv) => {
+        const data = await fetch('/api/pois', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(frontendToBackendPoi(ltvPoi))
+        })
+        let json = await data.json()
+        console.log(json, "is the json");
+        const id = json.id
+        console.log(id, "is the id");
         get().loadFromBackend()
         set({selectedPoiId: id})
     },
