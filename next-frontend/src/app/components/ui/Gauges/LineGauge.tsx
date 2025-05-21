@@ -30,7 +30,7 @@ const LineGauge = ({
     <div
       data-property-1="bar"
       style={{
-        width: 185,
+        width: "100%",
         minHeight: 0,
         height: "auto",
         borderRadius: 8,
@@ -45,7 +45,7 @@ const LineGauge = ({
     >
       <div
         style={{
-          width: 174,
+          width: "100%",
           height: "18px",
           display: "flex",
           alignItems: "center",
@@ -67,7 +67,7 @@ const LineGauge = ({
       </div>
       <div
         style={{
-          width: 174,
+          width: "100%",
           height: "31px",
           display: "flex",
           alignItems: "center",
@@ -89,7 +89,7 @@ const LineGauge = ({
       </div>
       <div
         style={{
-          width: 174,
+          width: "100%",
           height: 16,
           position: "relative",
           marginTop: 4,
@@ -100,7 +100,7 @@ const LineGauge = ({
             height: 8,
             borderRadius: 5,
             background: "#534F65",
-            width: bgWidth,
+            width: "100%",
             position: "absolute",
             top: 4,
             left: 0,
@@ -111,7 +111,7 @@ const LineGauge = ({
             height: 8,
             borderRadius: 5,
             background: "#00CA9A",
-            width: `${(percentage * bgWidth) / 100}px`,
+            width: `${percentage}%`,
             position: "absolute",
             top: 4,
             left: 0,
