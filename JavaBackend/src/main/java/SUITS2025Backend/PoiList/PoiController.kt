@@ -40,7 +40,7 @@ object PoiController {
 
     private fun getPois(ctx: Context) {
         val resp: PoiResponseJson = poiDbController.getPois()
-        println("THERE ARE NO POIS MWAHA")
+
         ctx.json(resp)
     }
 
