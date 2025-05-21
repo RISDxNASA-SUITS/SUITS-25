@@ -85,11 +85,13 @@ type poiBackend = {
 
 interface PoiStore {
     pois: Poi[];
+    geoPois: GeoSample[];
     hazardPois: HazardPoi[];
     breadCrumbs: BreadCrumb[];
     ltvPois: Ltv[];
     selectedPoiId: number | null;
     addPoi: (poi: Poi) => void;
+    addPoiGeo: (poi: Poi) => void;
     addHazardPoi: (hazardPoi: HazardPoi) => void;
     addLtvPoi: (ltvPoi: Ltv) => void;
     selectPoi: (poiId: number | null) => void;
@@ -136,6 +138,7 @@ const frontendToBackendPoi = (poi: Poi): poiBackend => {
 
 export const PoiStore = create<PoiStore>((set,get) => ({
     pois: [],
+    geoPois: [],
     hazardPois: [],
     ltvPois: [],
     breadCrumbs: [],
@@ -144,12 +147,12 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         const data = await fetch('/api/pois')
         let json = await data.json()
         json = json.data.map((poi: poiBackend) => backendToFrontendPoi(poi))
-        const pois:Poi[] = json.filter((poi:Poi) => poi.type !== "breadCrumb" && poi.type !== 'hazard')
+        const pois:Poi[] = json.filter((poi:Poi) => poi.type !== "breadCrumb" && poi.type !== 'hazard' && poi.type !== 'geologicalSample' && poi.type !== 'ltv')
         const hazardPois:HazardPoi[] = json.filter((poi:Poi) => poi.type === 'hazard')
         const breadCrumbs:BreadCrumb[] = json.filter((poi:Poi) => poi.type === 'breadCrumb')
         const ltvPois: Ltv[] = json.filter((poi: Poi) => poi.type === 'ltv');
-        
-        set({pois:pois, hazardPois:hazardPois, breadCrumbs:breadCrumbs, ltvPois:ltvPois});
+        const geoPois: GeoSample[] = json.filter((poi: Poi) => poi.type === 'geologicalSample');
+        set({pois:pois, hazardPois:hazardPois, breadCrumbs:breadCrumbs, ltvPois:ltvPois, geoPois:geoPois});
     },
     updatePoi: async (poi: Poi) => {
         const backendPoi = frontendToBackendPoi(poi)

@@ -104,7 +104,7 @@ const defaultLtvCoords = [
 
 const BasicMap = ({ roverCoords, }: BasicMapProps) => {
     const [viewState, setViewState] = useState(initialViewState);
-    const { pois, hazardPois,  addPoi, addHazardPoi, selectPoi, selectedPoiId, loadFromBackend, breadCrumbs, ltvPois, addLtvPoi } = PoiStore();
+    const { pois, hazardPois,  addPoi, addHazardPoi, selectPoi, selectedPoiId, loadFromBackend, breadCrumbs, ltvPois, addLtvPoi, addPoiGeo, geoPois } = PoiStore();
     const [poiNum, setPoiNum] = useState(1); // For default naming, might need better persistence
     const [ltvLetter, setLtvLetter] = useState("A");
     const [ltvToggle, setLtvToggle] = useState(false);
@@ -194,20 +194,20 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                 var countId = 0;
                 for (const point of data.points) {
                     // Create and add POI
-                    const newPoi: Poi = {
+                    const newGeo: GeoSample = {
                         name: `Scan ${countId}`,
                         coords: { lng: point[0], lat: point[1] },
                         moonCoords: { x: point[0], y: point[1] },
                         tags: ["geoSample"],
-                        type: "geologicalSample" as PinTypes,
+                        type: "geologicalSample",
                         audioId: null,
                         radius: null,
                     };
-                    const poiResponse = await addPoi(newPoi);
+                    const poiResponse = await addPoiGeo(newGeo);
                     setPoiNum(prev => prev + 1);
                     countId++;
                 }
-                setScanPoints(data.points); // Store scan_results points from api.py points directly
+                // setScanPoints(data.points); // Store scan_results points from api.py points directly
             } else {
                 throw new Error('Scan was not successful');
             }
@@ -577,6 +577,25 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                         <TemporaryMarker lng={newPinLocation.lng} lat={newPinLocation.lat} />
                     )}
 
+                    {/* Render Geologic POIs */}
+                    {geoPois.map(geo => (
+                        <Marker
+                            key={geo.id}
+                            longitude={geo.coords.lng}
+                            latitude={geo.coords.lat}
+                            onClick={(e) => {
+                                e.originalEvent.stopPropagation();
+                                selectPoi(geo.id);
+                                setControlPanelState("SelectPin");
+                            }}
+                        >
+                            <div
+                                className="bg-contain bg-no-repeat bg-center w-6 h-6 cursor-pointer"
+                                style={{ backgroundImage: 'url(/markers/geo-scanning-marker.svg)' }}
+                            />
+                        </Marker>
+                    ))}
+
                     {/* Render normal POIs */}
                     {pois.map(poi => (
                         <Marker
@@ -602,6 +621,8 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                             />
                         </Marker>
                     ))}
+
+
                     
                     {/* Render LTV POIs */}
                     {ltvPois.map(ltv => (
