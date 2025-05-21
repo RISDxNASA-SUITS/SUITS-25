@@ -100,6 +100,7 @@ class PoiDbController {
     )
     fun addVoiceNote(ctx: Context){
         val req = ctx.bodyAsClass(AddVoiceNoteRequest::class.java)
+        println("RUH ROH ")
         transaction {
             Poi.findById(req.poiId) ?.let {
                 it.audio = Audio.findById(req.voiceNote)
