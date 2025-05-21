@@ -23,22 +23,102 @@ const TextGauge = ({
   return (
     <div
       data-property-1="default"
-      className="w-40 h-28 px-2 py-1 rounded-lg inline-flex flex-col justify-center items-center"
+      style={{
+        width: 168,
+        height: 109,
+        borderRadius: 8,
+        padding: "4px 8px",
+        background: "transparent",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        boxSizing: "border-box",
+      }}
     >
-      <div className="self-stretch text-center justify-center text-white text-sm font-normal font-['IBM_Plex_Sans']">
+      <div
+        style={{
+          width: 152,
+          height: "18px",
+          textAlign: "center",
+          color: "#FFF",
+          fontFamily: "IBM Plex Sans, sans-serif",
+          fontWeight: 400,
+          fontSize: 14,
+          lineHeight: "100%",
+          letterSpacing: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          verticalAlign: "middle",
+          fontVariantNumeric: "slashed-zero",
+          marginBottom: 4,
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
+        }}
+      >
         {label}
       </div>
-      <div className="self-stretch text-center justify-start text-white text-5xl font-medium font-['IBM_Plex_Sans']">
+      <div
+        style={{
+          width: 152,
+          height: "62px",
+          textAlign: "center",
+          color: "#FFF",
+          fontFamily: "IBM Plex Sans, sans-serif",
+          fontWeight: 500,
+          fontSize: 48, // font sizes/48
+          lineHeight: "100%",
+          letterSpacing: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontVariantNumeric: "slashed-zero",
+          marginBottom: 4,
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
+        }}
+      >
         {displayValue}
         {units}
       </div>
       <div
         data-status={status?.toLowerCase()}
-        className="px-2 py-1 bg-white/10 rounded-[20px] inline-flex justify-center items-center gap-1"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 4,
+          borderRadius: 20,
+          padding: "4px 8px",
+          background: "rgba(255,255,255,0.10)",
+          width: "fit-content",
+          height: "21px",
+          marginTop: 4,
+        }}
       >
-        <div className="justify-center text-white text-[10px] font-semibold font-['IBM_Plex_Sans']">
+        <span
+          style={{
+            width: "fit-content",
+            height: "13px",
+            fontFamily: "IBM Plex Sans, sans-serif",
+            fontWeight: 600,
+            fontSize: 10,
+            lineHeight: "100%",
+            letterSpacing: 0,
+            verticalAlign: "middle",
+            fontVariantNumeric: "slashed-zero",
+            color: "#FFF",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            userSelect: "none",
+          }}
+        >
           {status}
-        </div>
+        </span>
       </div>
     </div>
   );
