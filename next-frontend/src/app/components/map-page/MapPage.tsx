@@ -3,6 +3,7 @@
 import BasicMap from "@/app/components/map-page/map/BasicMap";
 import ControlPanel from "@/app/components/map-page/control-panel/ControlPanel";
 import MissionInfoPanel from "@/app/components/map-page/mission-info/MissionInfoPanel"
+import Warnings from "@/app/components/map-page/mission-info/Warnings"
 import {useEffect, useRef, useState} from "react";
 
 
@@ -55,7 +56,6 @@ export const MapPage = ()=>{
 
             <div className="flex flex-col bg-midnight-purple w-3/4">
                 <MissionInfoPanel/>
-
                 <BasicMap
                     roverCoords={{x: roverX, y: roverY}}
                    

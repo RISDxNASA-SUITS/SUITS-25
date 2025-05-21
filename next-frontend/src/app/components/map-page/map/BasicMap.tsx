@@ -11,6 +11,7 @@ import { Tooltip } from '../../ui/ui-buttons/Tooltip';
 import "../mapstyle.css"; // Keep custom styles
 import mapboxgl from 'mapbox-gl';
 import { createRoot } from 'react-dom/client';
+import Warnings from '@/app/components/map-page/mission-info/Warnings'
 import { usePanelStore } from '@/app/hooks/panelStore';
 
 // Mapbox token (ensure this is the correct way to set it for react-map-gl, often passed as a prop)
@@ -727,6 +728,10 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                             className="rounded-none p-3"
                         />
                     </div>
+                </div>
+                
+                <div className = "absolute top-0 w-full flex items-end flex-col pointer-events-none">
+                    <Warnings />
                 </div>
             </div>
         </div>
