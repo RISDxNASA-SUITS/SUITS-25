@@ -138,7 +138,7 @@ object PythonCommunicationHandler {
 
     fun getTelemetry(): PrTelemetry {
         val retList: MutableList<String> = mutableListOf()
-        (124..166).forEach {
+        (124..174).forEach {
             val recvBuffer = ByteBuffer.allocate(104)
             val sendPacket = makeSendLidarPacket(it)
             val callBack: (ByteBuffer) -> String = { buff: ByteBuffer ->
