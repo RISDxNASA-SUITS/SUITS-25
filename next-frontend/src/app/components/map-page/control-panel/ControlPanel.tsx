@@ -28,16 +28,6 @@ export const ControlPanel = () => {
     
     
     const handleClose = () => {
-        // Close popup if exists
-        // selectedMarkerRef.current?.getPopup()?.remove();
-
-        // // Reset marker icon
-        // if (selectedMarkerRef.current) {
-        //     selectedMarkerRef.current.getElement().style.backgroundImage = 'url(/markers/default-poi.svg)';
-        //     selectedMarkerRef.current = null;
-        // }
-
-        // Clear selected POI and go back
         selectPoi(null);
         setPanelState("EvDetails");
     };
@@ -67,12 +57,12 @@ export const ControlPanel = () => {
             case "AddTag":
                 return <AddTag
                     onClose={handleClose}
-                    setControlPanelState={panelState}
+                    setControlPanelState={setPanelState}
                 />
             case "AddVoiceNote":
                 return <AddVoiceNote
                     onClose={handleClose}
-                    setControlPanelState={panelState}
+                    setControlPanelState={setPanelState}
                 />
             case "AddHazard":
                 return selectHazardPoi ? (
@@ -80,7 +70,7 @@ export const ControlPanel = () => {
                         poi={selectHazardPoi}
                         onClose={handleClose}
                         
-                        setControlPanelState={panelState}
+                        setControlPanelState={setPanelState}
                     />
                 ) : null;
             case "SelectHazard":
@@ -89,7 +79,7 @@ export const ControlPanel = () => {
                         poi={selectHazardPoi}
                         onClose={handleClose}
                         
-                        setControlPanelState={panelState}
+                        setControlPanelState={setPanelState}
                     />
                 ) : null;
         }

@@ -1,7 +1,7 @@
 package SUITS2025Backend.TssDataSerializations
 import io.javalin.Javalin
 import io.javalin.http.Context
-import SUITS2025Backend.TSSCommunication
+
 import SUITS2025Backend.PythonCommunication.PythonCommunicationHandler
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -269,7 +269,7 @@ data class MissionState(
 }
 
 object TssComms {
-    val tss = TSSCommunication()
+    
     val tssKt = PythonCommunicationHandler
     private val bgScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     @JvmStatic

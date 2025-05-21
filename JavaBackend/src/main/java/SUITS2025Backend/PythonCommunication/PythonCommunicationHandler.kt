@@ -28,6 +28,7 @@ object PythonCommunicationHandler {
     @JvmStatic
     fun setup(app: Javalin) {   
         val channel = Channel<Position>()
+        println("WE ARE SETTING UP")
         bgScope.launch {
             var lastXY = Position(1f, 0f)
             
