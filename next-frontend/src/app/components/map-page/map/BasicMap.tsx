@@ -782,21 +782,22 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                 
                 <div className = "absolute top-0 w-full flex items-end flex-col pointer-events-none">
                     <Warnings />
-                {/* Scan Button */}
-<!--                 <div className="absolute top-4 right-4 z-10">
-                    <PrimaryButton
-                        onClick={(e) => {
-                            e.stopPropagation(); // Prevent event bubbling
-                            e.preventDefault(); // Prevent default behavior
-                            console.log("Button clicked - starting scan request");
-                            handleScanToggle();
-                        }}
-                        className={`p-2 ${isScanActive ? 'bg-green-500' : 'bg-red-500'} text-white rounded-full`}
-                        disabled={isScanActive} // Disable button while scan is active
-                    >
-<!--                         {isScanActive ? 'Ongoing scan' : 'Start Scan'} -->
-<!--                     </PrimaryButton> --> -->
+                    {/* Scan Button */}
+                    {/* <div className="absolute top-4 right-4 z-10">
+                        <PrimaryButton
+                            onClick={(e) => {
+                                e.stopPropagation(); // Prevent event bubbling
+                                e.preventDefault(); // Prevent default behavior
+                                console.log("Button clicked - starting scan request");
+                                handleScanToggle();
+                            }}
+                            className={`p-2 ${isScanActive ? 'bg-green-500' : 'bg-red-500'} text-white rounded-full`}
+                            disabled={isScanActive} // Disable button while scan is active
+                        >
+                            {isScanActive ? 'Ongoing scan' : 'Start Scan'}
+                        </PrimaryButton> 
 
+                    </div> */}
                 </div>
             </div>
         </div>
