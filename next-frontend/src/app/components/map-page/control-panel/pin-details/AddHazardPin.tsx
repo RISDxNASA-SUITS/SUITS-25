@@ -7,6 +7,8 @@ import CloseButton from "@/app/components/ui/ui-buttons/CloseButton";
 import RecordingCard from "@/app/components/ui/Cards/RecordingCard";
 import NotePreview from "@/app/components/ui/Cards/NotePreview";
 import useAudioStore from "@/app/hooks/VoiceNoteStore";
+import { usePanelStore } from "@/app/hooks/panelStore";
+
 
 type AddpoiProps = {
     poi: Poi;
@@ -33,7 +35,8 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
         hazardPoi?.hazardCategory || 'warning'
     );
 
-    const { clearTags, deletePoi, selectedPoiId, pois } = PoiStore();
+    const { updatePoi, deletePoi, selectedPoiId, pois } = PoiStore();
+    const {setPanelState} = usePanelStore();
 
     //voice note IDs from currently selected POI
     // const recordingIDs = poi.voiceNoteID;
@@ -51,13 +54,13 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
         setInputValue(poi.name);
         setShowInput(false);
         
-        setControlPanelState("EvDetails");
+        setPanelState("EvDetails");
     }
     
     const deleteMarker = () => {
         deletePoi(poi.id);
       
-        setControlPanelState("EvDetails");
+        setPanelState("EvDetails");
     };
     
     return (
