@@ -7,9 +7,10 @@ import CloseButton from "@/app/components/ui/ui-buttons/CloseButton";
 import RecordingCard from "@/app/components/ui/Cards/RecordingCard";
 import NotePreview from "@/app/components/ui/Cards/NotePreview";
 import useAudioStore from "@/app/hooks/VoiceNoteStore";
-import { usePanelStore } from "@/app/hooks/panelStore";
+import { usePanelStore, updatePoi} from "@/app/hooks/panelStore";
 import AddWarning from "@/app/components/map-page/control-panel/pin-details/description/AddWarning"
 import { AddTag } from "@/app/components/map-page/control-panel/pin-details//description/AddTag";
+import AudioCard from "@/app/components/ui/Cards/AudioCard"
 
 type AddpoiProps = {
     poi: Poi;
@@ -22,6 +23,7 @@ export const Editpoi = ({poi, onClose}:AddpoiProps) => {
     const [inputValue, setInputValue] = useState(poi.name);
     const [savedText, setSavedText] = useState<string>(poi.name);
     const {setShowPopup, setPanelState} = usePanelStore();
+    
 
     //initial input field value
     const [initialInputValue, setInitialInputValue] = useState(poi.name);
@@ -30,7 +32,7 @@ export const Editpoi = ({poi, onClose}:AddpoiProps) => {
 
 
 
-    const { deletePoi, selectedPoiId, pois} = PoiStore();
+    const { deletePoi, selectedPoiId, pois, addVoiceNote} = PoiStore();
 
     //voice note IDs from currently selected POI
     // const recordingIDs = poi.voiceNoteID;
@@ -54,8 +56,14 @@ export const Editpoi = ({poi, onClose}:AddpoiProps) => {
         setPanelState("EvDetails");
     };
 
+    const unlinkAudio = () => {
+        addVoiceNote(poi.id, undefined);
+    }
+    const redoAudio = () => {
+        setPanelState("AddVoiceNote")
+    }
     return (
-        <div className={"flex flex-col justify-between h-full"}>
+        <div className={"flex flex-col justify-between h-full bg-mid"}>
             <div className={"flex flex-col gap-10"}>
                 {/*Header*/}
                 <div className={"flex items-center justify-between"}>
@@ -99,9 +107,10 @@ export const Editpoi = ({poi, onClose}:AddpoiProps) => {
                 {/*Voice Notes*/}
                 <div className={"flex flex-col gap-4"}>
                     <p className={"text-2xl font-bold"}>Voice Notes</p>
-                    <SecondaryButton logo={"/logo/add.svg"} onClick={() => setPanelState("AddVoiceNote")}
-                    >Voice Note</SecondaryButton>
+                    {poi.audioId === null ? <SecondaryButton logo={"/logo/add.svg"} onClick={() => setPanelState("AddVoiceNote")}
+                    >Voice Note</SecondaryButton> : <AudioCard audio_src = {"/api/audio?audioId=" + String(poi.audioId)} unlinkAudio={unlinkAudio} redo = {redoAudio}/>}
                 </div>
+                
                 
 
             </div>

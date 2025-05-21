@@ -7,6 +7,7 @@ import {SecondaryButton} from "@/app/components/ui/ui-buttons/SecondaryButton";
 import RecordingCard from "@/app/components/ui/Cards/RecordingCard";
 import useAudioStore from "@/app/hooks/VoiceNoteStore"
 import { useReactMediaRecorder } from "react-media-recorder";
+import AudioCard from "@/app/components/ui/Cards/AudioCard";
 
 type SelectLabelProps = {
     onClose: () => void;
@@ -88,7 +89,12 @@ export const AddVoiceNote = ({ onClose, setControlPanelState } : SelectLabelProp
                     </div>
                     }
                 </div>
-                {(audioBlobId != undefined) ? <audio src = {"/api/audio?audioId=" + audioBlobId} controls></audio> : null}
+                {(audioBlobId != undefined) ? 
+                <AudioCard audio_src = {"/api/audio?audioId=" + audioBlobId} unlinkAudio={undefined} redo = {() => {
+                    setAudioBlobId(undefined)
+                    addVoiceNote(Number(selectedPoiId), undefined);
+                }}/> : null}
+                
 
             </div>
 
