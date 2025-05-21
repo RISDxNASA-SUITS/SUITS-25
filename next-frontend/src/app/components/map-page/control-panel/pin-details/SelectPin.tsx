@@ -74,6 +74,18 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
                     <SecondaryButton logo={"/logo/add.svg"} onClick={() => setPanelState("AddVoiceNote")}
                     >Voice Note</SecondaryButton>
                 </div>
+                {/* Navigation */}
+                <div className="flex flex-col gap-4">
+                    <p className="text-2xl font-bold">Navigation</p>
+
+                    {/* show the coords so the operator sees what will be sent */}
+                    <span className="text-sm text-gray-400">
+                        ({poi.moonCoords.x.toFixed(1)}, {poi.moonCoords.y.toFixed(1)})
+                    </span>
+
+                    <SecondaryButton logo={"/logo/add.svg"} onClick={() => setPanelState("GoToNavigation")}
+                    >Navigate</SecondaryButton>
+                </div>
             </div>
 
             {/*Buttons*/}

@@ -142,6 +142,40 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
         return () => clearInterval(timeout);
     }, [loadFromBackend]);
 
+    const [isScanActive, setIsScanActive] = useState(false);
+
+    const handleScanToggle = async () => {
+        if (isScanActive) return; // Prevent multiple simultaneous scans
+        
+        try {
+            console.log("Starting scan request");
+            setIsScanActive(true);
+            
+            const response = await fetch('/api/rover-scan');
+            console.log("Scan response status:", response.status);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Scan failed:', errorData);
+                throw new Error(errorData.error || 'Scan failed');
+            }
+            
+            const data = await response.json();
+            console.log("Scan results:", data);
+            
+            if (data.success) {
+                console.log("Scan points:", data.points);
+            } else {
+                throw new Error('Scan was not successful');
+            }
+        } catch (error) {
+            console.error('Error during scan:', error);
+        } finally {
+            setIsScanActive(false);
+        }
+    };
+
+
     // This effect is no longer needed as markers are rendered declaratively
     // useEffect(()=> {
     //     pois.forEach(x => x.addMarkerFromBackend()) // This method needs to be removed from Poi type or re-evaluated
@@ -231,19 +265,35 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
     );
 
     function renderRoverMarker({ x, y }: { x: number; y: number }) {
-        const roverCoords = convertMoonToEarth({x: x, y: y})
+        const roverCoords = convertMoonToEarth({x: x, y: y});
         return (
-            <Marker
-                longitude={roverCoords.lng}
-                latitude={roverCoords.lat}
-            >
-                <div
-                    className="bg-contain bg-no-repeat bg-center cursor-pointer
-                                    lg:w-8 sm:h-6 md:h-7 lg:h-8"
-                    style={{backgroundImage: 'url(/markers/rover-marker.svg)'}}
-                />
-            </Marker>
-        )
+            <>
+                <Marker
+                    longitude={roverCoords.lng}
+                    latitude={roverCoords.lat}
+                >
+                    <div
+                        className="bg-contain bg-no-repeat bg-center cursor-pointer
+                                        lg:w-8 sm:h-6 md:h-7 lg:h-8"
+                        style={{backgroundImage: 'url(/markers/rover-marker.svg)'}}
+                    />
+                </Marker>
+                {isScanActive && (
+                    <Marker
+                        longitude={roverCoords.lng}
+                        latitude={roverCoords.lat}
+                    >
+                        <div
+                            className="border-2 border-blue-500 rounded-full opacity-50"
+                            style={{
+                                width: '200px',
+                                height: '200px',
+                            }}
+                        />
+                    </Marker>
+                )}
+            </>
+        );
     }
 
     // const onPoiButtonClick = () => {
@@ -732,6 +782,21 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                 
                 <div className = "absolute top-0 w-full flex items-end flex-col pointer-events-none">
                     <Warnings />
+                {/* Scan Button */}
+<!--                 <div className="absolute top-4 right-4 z-10">
+                    <PrimaryButton
+                        onClick={(e) => {
+                            e.stopPropagation(); // Prevent event bubbling
+                            e.preventDefault(); // Prevent default behavior
+                            console.log("Button clicked - starting scan request");
+                            handleScanToggle();
+                        }}
+                        className={`p-2 ${isScanActive ? 'bg-green-500' : 'bg-red-500'} text-white rounded-full`}
+                        disabled={isScanActive} // Disable button while scan is active
+                    >
+<!--                         {isScanActive ? 'Ongoing scan' : 'Start Scan'} -->
+<!--                     </PrimaryButton> --> -->
+
                 </div>
             </div>
         </div>
