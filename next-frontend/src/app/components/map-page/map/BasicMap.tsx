@@ -698,12 +698,6 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                                 <Tooltip text="Click anywhere on the map"/>
                             </PrimaryButton>
 
-                            <PrimaryButton onClick={prepareLtvAddition}> {/* Updated onClick */}
-                                <img src="/logo/ltv.svg" alt={"add-ltv"}/>
-                                Add LTV
-                                <Tooltip text="Click anywhere on the map"/>
-                            </PrimaryButton>
-
                             <PrimaryButton active={poiButtonClickActive} onClick={preparePoiAddition}> {/* Updated onClick and active state */}
                                 <img src="/logo/poi-stroke.svg" alt={"add-poi"}/>
                                 Add POI
