@@ -8,18 +8,24 @@ export default function MixedGaugeCard2() {
     <div
       style={{
         width: 592,
-        height: 291,
-        borderRadius: 20,
-        background: "#28233E", // Updated background color
-        position: "relative",
+        minHeight: 0,
+        height: "auto",
+        borderRadius: 16,
+        background: "#28233E",
+        display: "flex",
+        flexDirection: "row",
+        gap: 24,
+        padding: 8,
+        boxSizing: "border-box",
       }}
     >
-      {/* CircularGauge at x:0, y:0 */}
+      {/* Left: CircularGauge and one LineGauge stacked */}
       <div
         style={{
-          position: "absolute",
-          left: 8,
-          top: 8,
+          display: "flex",
+          flexDirection: "column",
+          gap: 24,
+          flex: "0 0 auto",
         }}
       >
         <CircularGauge
@@ -30,17 +36,8 @@ export default function MixedGaugeCard2() {
           units="psi"
           rectWidth={276}
         />
-      </div>
-      {/* LineGauge at x:0, y:199 */}
-      <div
-        style={{
-          position: "absolute",
-          left: 8,
-          top: 207,
-        }}
-      >
         <LineGauge
-          currentValue={0.00}
+          currentValue={0.0}
           minValue={0}
           maxValue={100}
           label="Helmet Pressure"
@@ -49,16 +46,17 @@ export default function MixedGaugeCard2() {
           backgroundWidthPx={260}
         />
       </div>
-      {/* LineGauge at x:308, y:15.5 */}
+      {/* Right: Three LineGauges stacked */}
       <div
         style={{
-          position: "absolute",
-          left: 308,
-          top: 15.5,
+          display: "flex",
+          flexDirection: "column",
+          gap: 24,
+          flex: "0 0 auto",
         }}
       >
         <LineGauge
-          currentValue={0.00}
+          currentValue={0.0}
           minValue={0}
           maxValue={100}
           label="Suit Pressure Oxygen"
@@ -66,17 +64,8 @@ export default function MixedGaugeCard2() {
           widthPx={276}
           backgroundWidthPx={260}
         />
-      </div>
-      {/* LineGauge at x:308, y:107.5 */}
-      <div
-        style={{
-          position: "absolute",
-          left: 308,
-          top: 107.5,
-        }}
-      >
         <LineGauge
-          currentValue={3.00}
+          currentValue={3.0}
           minValue={0}
           maxValue={100}
           label="Suit Pressure CO2"
@@ -84,17 +73,8 @@ export default function MixedGaugeCard2() {
           widthPx={276}
           backgroundWidthPx={260}
         />
-      </div>
-      {/* LineGauge at x:308, y:199.5 */}
-      <div
-        style={{
-          position: "absolute",
-          left: 308,
-          top: 199.5,
-        }}
-      >
         <LineGauge
-          currentValue={0.00}
+          currentValue={0.0}
           minValue={0}
           maxValue={100}
           label="Suit Pressure Other"
@@ -105,4 +85,4 @@ export default function MixedGaugeCard2() {
       </div>
     </div>
   );
-}``
+}

@@ -5,7 +5,7 @@ import TimePanel from "./TimePanel";
 import LiveVideoPanel from "./LiveVideoPanel";
 import TelemetryPanelEV from "./TelemetryPanel_EV";
 
-export default function DashboardPanelMiddle() {
+export default function DashboardPanelMiddle({data}: {data: any}) {
     return (
         <div
             className="flex flex-col"

@@ -5,7 +5,7 @@ import TimePanel from "./TimePanel";
 import LiveVideoPanel from "./LiveVideoPanel";
 import TelemetryPanelPR from "./TelemetryPanel_PR";
 
-export default function DashboardPanelLeft() {
+export default function DashboardPanelLeft({data}: {data: any}) {
     return (
         <div
             className="flex flex-col"
@@ -86,7 +86,7 @@ export default function DashboardPanelLeft() {
                     top: 565,
                 }}
             >
-                <TelemetryPanelPR />
+                <TelemetryPanelPR data={data} />
             </div>
         </div>
     );

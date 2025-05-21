@@ -17,7 +17,7 @@ const LineGauge = ({
   maxValue = 100,
   label,
   units = "%",
-  widthPx = 160,
+  widthPx = 276,
   backgroundWidthPx,
 }: LineGaugeProps) => {
   // Clamp and calculate percentage
@@ -29,28 +29,93 @@ const LineGauge = ({
   return (
     <div
       data-property-1="bar"
-      className="px-2 py-1 rounded-lg inline-flex flex-col justify-start items-start"
-      style={{ width: bgWidth + 32 }} // 32px for padding/margin, adjust as needed
+      style={{
+        width: 276,
+        minHeight: 0,
+        height: "auto",
+        borderRadius: 8,
+        padding: "4px 8px",
+        background: "transparent",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-start",
+        alignItems: "flex-start",
+        boxSizing: "border-box",
+      }}
     >
-      <div className="self-stretch h-5 inline-flex justify-between items-center">
-        <div className="flex-1 justify-center text-white text-sm font-normal font-['IBM_Plex_Sans']">
-          {label}
-        </div>
+      <div
+        style={{
+          width: 260,
+          height: "18px",
+          display: "flex",
+          alignItems: "center",
+          marginBottom: 2,
+          color: "#FFF",
+          fontFamily: "IBM Plex Sans, sans-serif",
+          fontWeight: 400,
+          fontSize: 14,
+          lineHeight: "100%",
+          letterSpacing: 0,
+          verticalAlign: "middle",
+          fontVariantNumeric: "slashed-zero",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
+        }}
+      >
+        {label}
       </div>
-      <div className="self-stretch justify-start text-white text-2xl font-bold font-['IBM_Plex_Sans']">
+      <div
+        style={{
+          width: 260,
+          height: "31px",
+          display: "flex",
+          alignItems: "center",
+          marginBottom: 2,
+          color: "#FFF",
+          fontFamily: "IBM Plex Sans, sans-serif",
+          fontWeight: 700,
+          fontSize: 24, // font sizes/24
+          lineHeight: "100%",
+          letterSpacing: 0,
+          fontVariantNumeric: "slashed-zero",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
+        }}
+      >
         {Math.round(clampedValue)}
         {units}
       </div>
-      <div data-property-1="steady" className="self-stretch h-4 relative">
+      <div
+        style={{
+          width: 260,
+          height: 16,
+          position: "relative",
+          marginTop: 4,
+        }}
+      >
         <div
-          className="h-1 left-0 top-[6px] absolute rounded-[5px]"
-          style={{ width: bgWidth, backgroundColor: "#534F65" }}
+          style={{
+            height: 8,
+            borderRadius: 5,
+            background: "#534F65",
+            width: bgWidth,
+            position: "absolute",
+            top: 4,
+            left: 0,
+          }}
         />
         <div
-          className="h-1 left-0 top-[6px] absolute rounded-[5px]"
           style={{
+            height: 8,
+            borderRadius: 5,
+            background: "#00CA9A",
             width: `${(percentage * bgWidth) / 100}px`,
-            backgroundColor: "#00CA9A",
+            position: "absolute",
+            top: 4,
+            left: 0,
+            transition: "width 0.3s",
           }}
         />
       </div>

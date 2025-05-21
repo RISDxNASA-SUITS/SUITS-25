@@ -7,13 +7,19 @@ export default function RecordingToggleCard() {
   return (
     <div
       style={{
-        width: 69,
+        position: "absolute",
+        top: 12,
+        left: 511,
+        minWidth: 69,
+        width: "fit-content",
         height: 28,
-        borderRadius: 14,
+        borderRadius: 16,
         background: "#100A28",
         display: "flex",
         alignItems: "center",
-        position: "relative",
+        padding: "4px 8px 4px 4px",
+        gap: 10,
+        boxSizing: "border-box",
         cursor: "pointer",
       }}
       onClick={() => setOn((prev) => !prev)}
@@ -25,25 +31,28 @@ export default function RecordingToggleCard() {
           height: 20,
           borderRadius: "50%",
           background: on ? "#FF3B3B" : "#FFF",
-          position: "absolute",
-          left: 4,
-          top: 4,
           transition: "background 0.2s",
+          marginRight: 0,
         }}
       />
       {/* REC text */}
       <span
         style={{
-          position: "absolute",
-          left: 34,
-          top: 5,
-          color: on ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.5)",
-          fontSize: 14,
-          fontWeight: 600,
+          width: 27,
+          height: "18px",
           fontFamily: "IBM Plex Sans, sans-serif",
-          letterSpacing: 1,
-          lineHeight: "18px",
+          fontWeight: 600,
+          fontSize: 14,
+          lineHeight: "100%",
+          letterSpacing: 0,
+          verticalAlign: "middle",
+          fontVariantNumeric: "slashed-zero",
+          color: on ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           transition: "color 0.2s",
+          userSelect: "none",
         }}
       >
         REC
