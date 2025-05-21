@@ -121,9 +121,12 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
     const [isScanActive, setIsScanActive] = useState(false);
 
     const handleScanToggle = async () => {
+        if (isScanActive) return; // Prevent multiple simultaneous scans
+        
         try {
             console.log("Starting scan request");
             setIsScanActive(true);
+            
             const response = await fetch('/api/rover-scan');
             console.log("Scan response status:", response.status);
             
@@ -137,15 +140,14 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
             console.log("Scan results:", data);
             
             if (data.success) {
-                // Handle successful scan results here
                 console.log("Scan points:", data.points);
             } else {
                 throw new Error('Scan was not successful');
             }
         } catch (error) {
             console.error('Error during scan:', error);
+        } finally {
             setIsScanActive(false);
-            // You might want to show an error message to the user here
         }
     };
 
@@ -833,9 +835,14 @@ const BasicMap = ({ roverCoords, setControlPanelState, selectedMarkerRef }: Basi
                 {/* Scan Button */}
                 <div className="absolute top-4 right-4 z-10">
                     <PrimaryButton
-                        onClick={handleScanToggle}
+                        onClick={(e) => {
+                            e.stopPropagation(); // Prevent event bubbling
+                            e.preventDefault(); // Prevent default behavior
+                            console.log("Button clicked - starting scan request");
+                            handleScanToggle();
+                        }}
                         className={`p-2 ${isScanActive ? 'bg-green-500' : 'bg-red-500'} text-white rounded-full`}
-                        
+                        disabled={isScanActive} // Disable button while scan is active
                     >
                         {isScanActive ? 'Ongoing scan' : 'Start Scan'}
                     </PrimaryButton>

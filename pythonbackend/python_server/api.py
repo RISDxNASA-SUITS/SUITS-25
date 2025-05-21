@@ -3,7 +3,7 @@ from flask_cors import CORS
 from RoverAgents.Navigator import Navigator
 from RoverAgents.Scanner import Scanner
 import logging
-
+import time
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -26,7 +26,9 @@ def navigate_to_point():
         y = float(data['y'])
         
         # Navigate to the point
-        success = navigator.follow_path([x, y])
+        # success = navigator.follow_path([x, y])
+        time.sleep(5)
+        success = True
         
         return jsonify({
             'success': success,
@@ -40,7 +42,9 @@ def scan_area():
     try:
         print("Scan request received")
         # Perform scan at current location
-        scan_results = scanner.scan()
+        time.sleep(5)
+        scan_results = [[3,5], [0,1], [9,0], [4,5]]
+        # scan_results = scanner.scan()
         print(f"Scan completed with results: {scan_results}")
         
         return jsonify({
