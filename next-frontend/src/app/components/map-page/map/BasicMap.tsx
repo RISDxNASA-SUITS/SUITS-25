@@ -34,9 +34,9 @@ type MoonCoord = {
 
 // Initial viewport settings
 const initialViewState = {
-    longitude: -95.081213,
-    latitude: 29.564795,
-    zoom: 18.8,
+    longitude: -95.081210,
+    latitude: 29.564820,
+    zoom: 19.6,
     pitch: 0,
     bearing: 0,
     padding: {top: 0, bottom: 0, left: 0, right: 0}
@@ -107,7 +107,6 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
     const { pois, hazardPois,  addPoi, addHazardPoi, selectPoi, selectedPoiId, loadFromBackend, breadCrumbs, ltvPois, addLtvPoi } = PoiStore();
     const [poiNum, setPoiNum] = useState(1); // For default naming, might need better persistence
     const [ltvLetter, setLtvLetter] = useState("A");
-    const [ltvToggle, setLtvToggle] = useState(false);
     const {setPanelState:setControlPanelState} = usePanelStore();
 
     const [newPinLocation, setNewPinLocation] = useState<{ lng: number; lat: number } | null>(null);
@@ -142,28 +141,12 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
     useEffect(() => {
         const init = async () => {
             await loadFromBackend();
-            
-            // Ensure LTV points are added only if not already present
-            const existingLtvNames = new Set(ltvPois.map(poi => poi.name));
-            for (const { name, moonCoords } of defaultLtvCoords) {
-                if (!existingLtvNames.has(name)) {
-                    const earth = convertMoonToEarth(moonCoords);
-                    addLtvPoi({
-                        name,
-                        coords: earth,
-                        moonCoords,
-                        tags: [],
-                        type: "ltv",
-                        audioId: null,
-                    });
-                }
-            }
         };
         
         init();
-        // const interval = setInterval(loadFromBackend, 1000);
-        // return () => clearInterval(interval);
-    }, [loadFromBackend, ltvPois, addLtvPoi]);
+        const interval = setInterval(loadFromBackend, 1000);
+        return () => clearInterval(interval);
+    }, [loadFromBackend]);
 
     // This effect is no longer needed as markers are rendered declaratively
     // useEffect(()=> {
@@ -293,7 +276,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
             ...additionalData,
         };
         addPoi(newPoi);
-        setPoiNum(prev => prev + 1);;
+        setPoiNum(prev => prev + 1);
         setControlPanelState("AddPin");
         setNewPinLocation(null);
         setTempPinType(null);
@@ -324,6 +307,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
     };
 
     const selectedPoiDetails = pois.find(p => p.id === selectedPoiId);
+    const ltvDetails = ltvPois.find(p => p.id === selectedPoiId);
 
     // Function to render the popup for a new pin or selected POI
     const renderPopup = () => {
@@ -422,7 +406,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                 </Popup>
             );
         }
-        return null;
+        return null
     };
 
     // Hazard Radius Popup Component (can be moved to a separate file)
@@ -527,14 +511,13 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                     {ltvPois.map(ltv => (
                         <div key={ltv.id}>
                             <Marker
+                                key={ltv.id}
                                 longitude={ltv.coords.lng}
                                 latitude={ltv.coords.lat}
                                 onClick={(e) => {
-                                    if (isTempMarkerActive) return
                                     e.originalEvent.stopPropagation(); // Prevent map click bubbling
                                     selectPoi(ltv.id);
                                     setControlPanelState("SelectPin");
-                                    setLtvToggle(true);
                                 }}
                             >
                                 <div
@@ -548,10 +531,10 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                                 longitude={ltv.coords.lng}
                                 latitude={ltv.coords.lat}
                                 anchor="top"
-                                offset={20}
+                                offset={-45}
                                 closeButton={false}
                                 closeOnClick={false}
-                                className="custom-final-popup z-20 pointer-events-none" // make sure it doesn't intercept clicks
+                                className="custom-final-popup z-20 pointer-events-none"
                             >
                                 <div className="text-xs font-semibold">{ltv.name}</div>
                             </Popup>
@@ -625,18 +608,18 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                 {/* These can largely remain the same, but their onClick handlers might change */}
                 <div className="absolute bottom-8 right-4 flex flex-col gap-2 items-end z-10">
                     {/* Draw Path */}
-                    <PrimaryButton
-                        logo={"/logo/edit-white.svg"}
-                        logoClassName={"w-8 h-8"}
-                        className={`
-                            relative flex flex-1 px-4 py-4 justify-center items-center gap-2 flex-shrink-0 bg-galaxy-purple
-                            border border-light-purple rounded-xl text-white transition-all duration-150
-                            hover:bg-another-purple
-                            active:bg-light-purple
-                          `}
-                    >
-                    <Tooltip text="Draw Path"/>
-                    </PrimaryButton>
+                    {/*<PrimaryButton*/}
+                    {/*    logo={"/logo/edit-white.svg"}*/}
+                    {/*    logoClassName={"w-8 h-8"}*/}
+                    {/*    className={`*/}
+                    {/*        relative flex flex-1 px-4 py-4 justify-center items-center gap-2 flex-shrink-0 bg-galaxy-purple*/}
+                    {/*        border border-light-purple rounded-xl text-white transition-all duration-150*/}
+                    {/*        hover:bg-another-purple*/}
+                    {/*        active:bg-light-purple*/}
+                    {/*      `}*/}
+                    {/*>*/}
+                    {/*<Tooltip text="Draw Path"/>*/}
+                    {/*</PrimaryButton>*/}
 
                     {/* expandable button container*/}
                     <div className="flex flex-row-reverse justify-center items-center text-nowrap
@@ -649,7 +632,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                             onClick={onAddClick} // Toggles the add menu
                         />
 
-                        {/* popup section - add POI & add Hazard & add LTV*/}
+                        {/* popup section - add POI & add Hazard*/}
                         <div className={`transition-all duration-300 ease-in-out overflow-hidden
                             ${addActive ? `opacity-100 mx-4 overflow-visible`: `opacity-0 w-0 pointer-events-none ml-0`} flex justify-center items-center gap-4`}>
                             <PrimaryButton onClick={prepareHazardAddition}> {/* Updated onClick */}
