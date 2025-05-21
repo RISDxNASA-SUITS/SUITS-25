@@ -4,8 +4,11 @@ import DirectionPanel from "./DirectionPanel";
 import TimePanel from "./TimePanel";
 import LiveVideoPanel from "./LiveVideoPanel";
 import TelemetryPanelEV from "./TelemetryPanel_EV";
+import { useDashboardStore } from "../../../hooks/dashboardHook";
 
-export default function DashboardPanelMiddle({data}: {data: any}) {
+export default function DashboardPanelMiddle() {
+    const { ev1Direction, ev1Time, ev1Headlights } = useDashboardStore();
+    
     return (
         <div
             className="flex flex-col"
@@ -28,7 +31,7 @@ export default function DashboardPanelMiddle({data}: {data: any}) {
                     top: 28,
                 }}
             >
-                <DirectionPanel degrees={315} filled={false} />
+                <DirectionPanel degrees={ev1Direction} filled={false} />
             </div>
             
             {/* PR Text Box */}
@@ -67,7 +70,7 @@ export default function DashboardPanelMiddle({data}: {data: any}) {
                     top: 24,
                 }}
             >
-                <TimePanel time="00:17:00" />
+                <TimePanel time={ev1Time} />
             </div>
             
             <div
@@ -77,7 +80,7 @@ export default function DashboardPanelMiddle({data}: {data: any}) {
                     top: 105,
                 }}
             >
-                <LiveVideoPanel coordinate="(M,15)" />
+                <LiveVideoPanel coordinate="(M,15)" headlightsOn={ev1Headlights} />
             </div>
             <div
                 style={{
@@ -86,7 +89,7 @@ export default function DashboardPanelMiddle({data}: {data: any}) {
                     top: 565,
                 }}
             >
-                <TelemetryPanelEV />
+                <TelemetryPanelEV type="ev1" />
             </div>
         </div>
     );

@@ -53,7 +53,7 @@ export const Warnings = () => {
             }
         }
         fetchErrors()
-        const interval = setInterval(fetchErrors, 1000);//set a loop to check warnings every second
+        const interval = setInterval(fetchErrors, 3000);//set a loop to check warnings every second
         return () => clearInterval(interval)
     }, [])
     return (

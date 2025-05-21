@@ -4,8 +4,13 @@ import HorizontalTextGaugeCard from "../Cards/HorizontalTextGaugeCard";
 import MultiGaugeCard from "../Cards/MultiGaugeCard";
 import VerticalTextReadoutCard from "../Cards/VerticalTextReadoutCard";
 import PanelSwitcherPR from "./PanelSwitcher_PR";
+import { useDashboardStore } from "../../../hooks/dashboardHook";
 
-export default function TelemetryPanelPR({data}: {data: any}) {
+export default function TelemetryPanelPR() {
+    const { prData:data } = useDashboardStore();
+
+    if (!data) return null;
+
     return (
         <div
             className="flex flex-col"

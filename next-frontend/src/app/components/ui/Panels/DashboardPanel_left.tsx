@@ -4,8 +4,11 @@ import DirectionPanel from "./DirectionPanel";
 import TimePanel from "./TimePanel";
 import LiveVideoPanel from "./LiveVideoPanel";
 import TelemetryPanelPR from "./TelemetryPanel_PR";
+import { useDashboardStore } from "../../../hooks/dashboardHook";
 
-export default function DashboardPanelLeft({data}: {data: any}) {
+export default function DashboardPanelLeft() {
+    const { prDirection, prTime, prHeadlights } = useDashboardStore();
+    
     return (
         <div
             className="flex flex-col"
@@ -28,7 +31,7 @@ export default function DashboardPanelLeft({data}: {data: any}) {
                     top: 28,
                 }}
             >
-                <DirectionPanel degrees={0} filled={true} />
+                <DirectionPanel degrees={prDirection} filled={true} />
             </div>
             
             {/* PR Text Box */}
@@ -67,7 +70,7 @@ export default function DashboardPanelLeft({data}: {data: any}) {
                     top: 24,
                 }}
             >
-                <TimePanel time="00:17:00" />
+                <TimePanel time={prTime} />
             </div>
 
             <div
@@ -86,7 +89,7 @@ export default function DashboardPanelLeft({data}: {data: any}) {
                     top: 565,
                 }}
             >
-                <TelemetryPanelPR data={data} />
+                <TelemetryPanelPR />
             </div>
         </div>
     );
