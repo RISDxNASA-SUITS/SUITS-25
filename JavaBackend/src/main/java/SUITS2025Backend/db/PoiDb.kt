@@ -59,6 +59,7 @@ class Poi(id: EntityID<Int>) : IntEntity(id) {
     var radius by Pois.radius
 
     fun asResponse(): PoiResponse {
+        
         return PoiResponse(
             this.id.value,
             this.name,
@@ -67,7 +68,7 @@ class Poi(id: EntityID<Int>) : IntEntity(id) {
             this.tags.split(",").filter { it.isNotEmpty() },
             this.description,
             this.type,
-            null,
+            this.audio?.id?.value,
             this.radius
         )
     }
@@ -100,7 +101,8 @@ class PoiDbController {
     )
     fun addVoiceNote(ctx: Context){
         val req = ctx.bodyAsClass(AddVoiceNoteRequest::class.java)
-        println("RUH ROH ")
+        println("Ruh Roh")
+        println(req.poiId)
         transaction {
             Poi.findById(req.poiId) ?.let {
                 it.audio = Audio.findById(req.voiceNote)

@@ -66,11 +66,6 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
                 <div className={"flex flex-col gap-4"}>
                     <p className={"text-2xl font-bold"}>Voice Notes</p>
 
-                    {/* map all recordings from zustand store to the notePreview card */}
-                    {recordingIDs?.map(item => (
-                        <NotePreview date="test" title={`${item}`} key={item}></NotePreview>
-                    ))}
-
                     <SecondaryButton logo={"/logo/add.svg"} onClick={() => setPanelState("AddVoiceNote")}
                     >Voice Note</SecondaryButton>
                 </div>
