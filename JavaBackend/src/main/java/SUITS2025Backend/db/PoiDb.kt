@@ -67,7 +67,7 @@ class Poi(id: EntityID<Int>) : IntEntity(id) {
             this.tags.split(",").filter { it.isNotEmpty() },
             this.description,
             this.type,
-            null,
+            this.audio.id.value,
             this.radius
         )
     }
