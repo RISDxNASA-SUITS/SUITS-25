@@ -19,7 +19,6 @@ export const ControlPanel = () => {
     const selectHazardPoi = hazardPois.find(poi => poi.id === selectedPoiId);
     const {panelState, setPanelState, showPopup, setShowPopup} = usePanelStore();
     
-    console.log(panelState);
     
     const handleClose = () => {
         selectPoi(null);
@@ -27,7 +26,6 @@ export const ControlPanel = () => {
     };
 
     function handleContent(state: string) {
-        console.log(state);
         switch (state) {
             case "EvDetails":
                 return <EvDetails

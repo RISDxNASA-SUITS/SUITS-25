@@ -140,7 +140,7 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         const data = await fetch('/api/pois')
         let json = await data.json()
         json = json.data.map((poi: poiBackend) => backendToFrontendPoi(poi))
-        const pois:Poi[] = json.filter((poi:Poi) => poi.type !== "breadCrumb" && poi.type !== 'hazard')
+        const pois:Poi[] = json.filter((poi:Poi) => poi.type !== "breadCrumb" && poi.type !== 'hazard' && poi.type !== "ltv")
         const hazardPois:HazardPoi[] = json.filter((poi:Poi) => poi.type === 'hazard')
         const breadCrumbs:BreadCrumb[] = json.filter((poi:Poi) => poi.type === 'breadCrumb')
         const ltvPois: Ltv[] = json.filter((poi: Poi) => poi.type === 'ltv');
@@ -159,54 +159,72 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         get().loadFromBackend()
     },
     addPoi: async (poi: Poi) => {
-        const backendPoi = frontendToBackendPoi(poi)
-        console.log(get().pois, "is the pois");
-
-        const data = await fetch('/api/pois', {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(backendPoi)
-        })
-        let json = await data.json()
-        console.log(json, "is the json");
-        const id = json.id
-        console.log(id, "is the id");
-
-        get().loadFromBackend()
-        set({selectedPoiId: id})
+        const backendPoi = frontendToBackendPoi(poi);
+        
+        try {
+            const response = await fetch('/api/pois', {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(backendPoi)
+            });
+            const json = await response.json();
+            const id = json.id;
+            
+            // Select the newly added POI first
+            set((state) => ({
+                selectedPoiId: id,
+                pois: [...state.pois, { ...poi, id }], // optimistic update
+            }));
+            
+            // Refresh data to reconcile with backend
+            await get().loadFromBackend();
+        } catch (error) {
+            console.error("Failed to add POI:", error);
+        }
     },
     addHazardPoi: async (hazardPoi: HazardPoi) => {
-        const data = await fetch('/api/pois', {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(frontendToBackendPoi(hazardPoi))
-        })
-        let json = await data.json()
-        console.log(json, "is the json");
-        const id = json.id
-        console.log(id, "is the id");
-        console.log(get().pois, "is the pois");
-        get().loadFromBackend()
-        set({selectedPoiId: id})
+        const backendPoi = frontendToBackendPoi(hazardPoi);
+        
+        try {
+            const response = await fetch('/api/pois', {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(backendPoi)
+            });
+            const json = await response.json();
+            const id = json.id;
+            
+            set((state) => ({
+                selectedPoiId: id,
+                hazardPois: [...state.hazardPois, { ...hazardPoi, id }],
+            }));
+            
+            await get().loadFromBackend();
+        } catch (error) {
+            console.error("Failed to add hazard POI:", error);
+        }
     },
     addLtvPoi: async (ltvPoi: Ltv) => {
-        const data = await fetch('/api/pois', {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(frontendToBackendPoi(ltvPoi))
-        })
-        let json = await data.json()
-        console.log(json, "is the json");
-        const id = json.id
-        console.log(id, "is the id");
-        get().loadFromBackend()
-        set({selectedPoiId: id})
+        const backendPoi = frontendToBackendPoi(ltvPoi);
+        
+        try {
+            const response = await fetch('/api/pois', {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(backendPoi)
+            });
+            const json = await response.json();
+            const id = json.id;
+            
+            set((state) => ({
+                selectedPoiId: id,
+                ltvPois: [...state.ltvPois, { ...ltvPoi, id }],
+            }));
+            
+            await get().loadFromBackend();
+        } catch (error) {
+            console.error("Failed to add LTV POI:", error);
+        }
     },
     selectPoi: (poiId: number | null) => set(() => ({
         selectedPoiId: poiId
@@ -226,9 +244,10 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         console.log("CALLED WITH ID ", poiId)
         const poi = get().pois.find(p => p.id === poiId)
         const hzrd = get().hazardPois.find(p => p.id === poiId)
-        const target = poi ?? hzrd
+        const ltv = get().ltvPois.find(p => p.id === poiId)
+        const target = poi ?? hzrd ?? ltv
         let tags = target.tags
-        console.log("hazard", hzrd, "pOI", poi)
+        console.log("hazard", hzrd, "poi", poi)
 
         if (target.tags.includes(label)) {
             target.tags = target.tags.filter(tag => tag !== label)

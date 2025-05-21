@@ -116,8 +116,8 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
     const [tempHazardPin, setTempHazardPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
     const [tempLtvPin, setTempLtvPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
    
-        const [tempHazardCategory, setTempHazardCategory] = useState<'warning' | 'caution'>('warning');
-
+    const [tempHazardCategory, setTempHazardCategory] = useState<'warning' | 'caution'>('warning');
+    const isTempMarkerActive = newPinLocation !== null;
     // For the expandable add menu
     const [addActive, toggleAddActive] = useState<boolean>(false);
     const [poiButtonClickActive, setPoiButtonClickActive] = useState<boolean>(false);
@@ -161,8 +161,8 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
         };
         
         init();
-        const interval = setInterval(loadFromBackend, 1000);
-        return () => clearInterval(interval);
+        // const interval = setInterval(loadFromBackend, 1000);
+        // return () => clearInterval(interval);
     }, [loadFromBackend, ltvPois, addLtvPoi]);
 
     // This effect is no longer needed as markers are rendered declaratively
@@ -187,6 +187,10 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
         <Marker
             longitude={lng}
             latitude={lat}
+            onClick={(e) => {
+                e.originalEvent.preventDefault();
+                
+            }}
         >
             <div
                 className="w-2 h-2 sm:w-2 sm:h-2 md:w-3 md:h-3 lg:w-3 lg:h-3 xl:w-3 xl:h-3 bg-contain bg-no-repeat bg-center"
@@ -327,7 +331,6 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
         // , newPinLocation, tempPinType, !tempPinType
         // )
         if (newPinLocation && !tempPinType) { // Temporary pin placed, show options
-            console.log("RENDER POPUP 1")
             return (
                 <Popup
                     key={`add-pin-${newPinLocation.lng}-${newPinLocation.lat}`}
@@ -487,7 +490,10 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                 >
                     {/* Add temporary marker when map is clicked */}
                     {newPinLocation && !tempPinType && (
-                        <TemporaryMarker lng={newPinLocation.lng} lat={newPinLocation.lat} />
+                        <TemporaryMarker
+                            lng={newPinLocation.lng}
+                            lat={newPinLocation.lat}
+                        />
                     )}
 
                     {/* Render normal POIs */}
@@ -497,6 +503,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                             longitude={poi.coords.lng}
                             latitude={poi.coords.lat}
                             onClick={(e) => {
+                                if (isTempMarkerActive) return
                                 e.originalEvent.stopPropagation();
                                 selectPoi(poi.id);
                                 setControlPanelState("SelectPin");
@@ -523,6 +530,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                                 longitude={ltv.coords.lng}
                                 latitude={ltv.coords.lat}
                                 onClick={(e) => {
+                                    if (isTempMarkerActive) return
                                     e.originalEvent.stopPropagation(); // Prevent map click bubbling
                                     selectPoi(ltv.id);
                                     setControlPanelState("SelectPin");
@@ -558,6 +566,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                             longitude={hazard.coords.lng}
                             latitude={hazard.coords.lat}
                             onClick={(e) => {
+                                if (isTempMarkerActive) return
                                 e.originalEvent.stopPropagation();
                                 selectPoi(hazard.id);
                                 setControlPanelState("SelectHazard");
