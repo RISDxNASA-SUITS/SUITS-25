@@ -17,7 +17,7 @@ const LineGauge = ({
   maxValue = 100,
   label,
   units = "%",
-  widthPx = 276,
+  widthPx = 185,
   backgroundWidthPx,
 }: LineGaugeProps) => {
   // Clamp and calculate percentage
@@ -30,7 +30,7 @@ const LineGauge = ({
     <div
       data-property-1="bar"
       style={{
-        width: 276,
+        width: 185,
         minHeight: 0,
         height: "auto",
         borderRadius: 8,
@@ -45,7 +45,7 @@ const LineGauge = ({
     >
       <div
         style={{
-          width: 260,
+          width: 174,
           height: "18px",
           display: "flex",
           alignItems: "center",
@@ -67,7 +67,7 @@ const LineGauge = ({
       </div>
       <div
         style={{
-          width: 260,
+          width: 174,
           height: "31px",
           display: "flex",
           alignItems: "center",
@@ -75,7 +75,7 @@ const LineGauge = ({
           color: "#FFF",
           fontFamily: "IBM Plex Sans, sans-serif",
           fontWeight: 700,
-          fontSize: 24, // font sizes/24
+          fontSize: 24,
           lineHeight: "100%",
           letterSpacing: 0,
           fontVariantNumeric: "slashed-zero",
@@ -89,7 +89,7 @@ const LineGauge = ({
       </div>
       <div
         style={{
-          width: 260,
+          width: 174,
           height: 16,
           position: "relative",
           marginTop: 4,
