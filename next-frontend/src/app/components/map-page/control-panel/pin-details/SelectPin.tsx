@@ -102,6 +102,7 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
                     <SecondaryButton logo={"/logo/add.svg"} onClick={() => setPanelState("AddVoiceNote")}
                     >Voice Note</SecondaryButton>
                 </div>
+
                 {/* Navigation */}
                 <div className="flex flex-col gap-4">
                     <p className="text-2xl font-bold">Navigation</p>
@@ -114,9 +115,9 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
                     <SecondaryButton 
                         logo={"/logo/add.svg"} 
                         onClick={handleNavigate}
-                        disabled={isNavigating}
-                        className={isNavigating ? "opacity-50 cursor-not-allowed" : ""}
-                    >Navigate</SecondaryButton>
+                        disabled={isNavigating}>
+                    Navigate
+                    </SecondaryButton>
                 </div>
             </div>
 
