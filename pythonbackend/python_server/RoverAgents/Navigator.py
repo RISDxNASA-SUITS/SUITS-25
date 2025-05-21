@@ -13,6 +13,7 @@ class Navigator:
         self.wall_found = False
         self.accelerating_count = 0
         self.returning = False
+        self.stop_driving = False
         self.lidar_weights = {
             0: 3,  # Front left wheel (30° left)
             1: 2.5,  # Front left (20° left)
@@ -35,13 +36,20 @@ class Navigator:
         path: The straight line path
         max_run_time: max running time before timeout
         '''
+        self.stop_driving = False
         finished = False
-        while not finished:
+        while not finished and not self.stop_driving:
             telemetry = get_telemetry()
-            while telemetry is None:
+            while telemetry is None and not self.stop_driving:
                 post_throttle(0)
                 time.sleep(1)
                 telemetry = get_telemetry()
+            
+            if self.stop_driving:
+                post_throttle(0)
+                post_steering(0)
+                return False
+                
             current_position = [telemetry['currentPosX'], telemetry['currentPosY']]
             distance_from_base = euclidean_distance(current_position, end)
             if distance_from_base < self.end_tolerance:

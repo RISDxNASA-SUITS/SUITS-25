@@ -4,12 +4,16 @@ from RoverAgents.Scanner import Scanner
 from RoverAgents.helper_functions import get_telemetry
 import math
 import time
+import threading
 
 app = Flask(__name__)
 
 # Initialize the agents
 navigator = Navigator(15, 300)
 scanner = Scanner()
+
+# Global variables to store the current navigation thread and its result
+current_navigation_thread = None
 
 def get_rover_pos():
     # Get current rover position from telemetry
@@ -74,6 +78,15 @@ def cluster_points(points, max_threshold, rover_pos):
 @app.route('/navigate', methods=['POST'])
 def navigate_to_point():
     try:
+        global current_navigation_thread
+        
+        # Stop any existing navigation
+        if current_navigation_thread and current_navigation_thread.is_alive():
+            navigator.stop_driving = True
+            print("Stopping navigation")
+            current_navigation_thread.join(timeout=2.0)  # Wait for thread to finish
+        else:
+            print("No navigation to stop")
         data = request.get_json()
         if not data or 'x' not in data or 'y' not in data:
             return jsonify({'error': 'Missing coordinates'}), 400
@@ -81,12 +94,22 @@ def navigate_to_point():
         x = float(data['x'])
         y = float(data['y'])
         print("Navigating to: ", x, y)
-        # Navigate to the point
-        success = navigator.follow_path([x, y])
+        
+        # Create and start new navigation thread
+        def navigation_task():
+            global navigation_result
+            navigation_result = navigator.follow_path([x, y])
+        
+        navigation_result = None
+        current_navigation_thread = threading.Thread(target=navigation_task)
+        current_navigation_thread.start()
+        
+        # Wait for the thread to complete
+        current_navigation_thread.join()
         
         return jsonify({
-            'success': success,
-            'message': 'Navigation completed' if success else 'Navigation failed'
+            'success': navigation_result,
+            'message': 'Navigation completed' if navigation_result else 'Navigation failed'
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -94,6 +117,13 @@ def navigate_to_point():
 @app.route('/scan', methods=['GET'])
 def scan_area():
     try:
+        global current_navigation_thread
+        
+        # Stop any existing navigation
+        if current_navigation_thread and current_navigation_thread.is_alive():
+            navigator.stop_driving = True
+            current_navigation_thread.join(timeout=2.0)  # Wait for thread to finish
+        
         # Get rover's current position
         rover_pos = get_rover_pos()
         
@@ -115,4 +145,4 @@ def scan_area():
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=4000) 
+    app.run(host='127.0.0.1', port=4000)
