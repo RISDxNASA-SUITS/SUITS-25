@@ -26,10 +26,10 @@ export default function DashboardPage() {
                 <PRPanel prData={prData} />
             </div>
             <div className="h-full">
-                <EvPanel evData={ev1Data}/>
+                <EvPanel evData={ev1Data} name="EV1"/>
             </div>
             <div className="h-full">
-                <EvPanel evData={ev2Data}/>
+                <EvPanel evData={ev2Data} name="EV2"/>
             </div>
             {/* <DashboardPanelLeft />
             <DashboardPanelMiddle />

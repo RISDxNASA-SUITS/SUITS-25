@@ -12,7 +12,7 @@ export default function PRPanel({prData}: {prData: prTelem}) {
     }
     return (
         <div className="flex flex-col basis-1/3 gap-4 h-[100%]">
-            <VideoPanel video="/videos/video.mp4" name="Oxygen" />
+            <VideoPanel video="/videos/video.mp4" name="PR" headlights={true} />
             <ThreeBig labels={["Cabin Temp.", "Cabin Pressure", "Battery Level"]} values={[`${prData.cabinTemperature.toFixed(2)}F`, 
                 `${prData.cabinPressure.toFixed(2)}PSI`, 
                 `${prData.batteryLevel.toFixed(2)}%`]} />
