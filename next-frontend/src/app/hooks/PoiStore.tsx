@@ -201,31 +201,27 @@ export const PoiStore = create<PoiStore>((set,get) => ({
     },
 
     updateTag: async (poiId, label) =>{
+        console.log("CALLED WITH ID ", poiId)
         const poi = get().pois.find(p => p.id === poiId)
         const hzrd = get().hazardPois.find(p => p.id === poiId)
-        let tags;
-        if (poi) {
-            if (poi.tags.includes(label)) {
-                poi.tags = poi.tags.filter(tag => tag !== label)
-            } else {
-                poi.tags.push(label)
-            }
-            tags = poi.tags
+        const target = poi ?? hzrd
+        let tags = target.tags
+        console.log("hazard", hzrd, "pOI", poi)
+
+        if (target.tags.includes(label)) {
+            target.tags = target.tags.filter(tag => tag !== label)
+        } else {
+            target.tags.push(label)
         }
-        if (hzrd) {
-            if (hzrd.tags.includes(label)) {
-                hzrd.tags = hzrd.tags.filter(tag => tag !== label)
-            } else {
-                hzrd.tags.push(label)
-            }
-            tags = hzrd.tags
-        }
+
+
+
         await fetch(`/api/pois/updateTags/${poiId}`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({tags: poi?.tags})
+            body: JSON.stringify({tags: target?.tags})
         })
         get().loadFromBackend()
     },
