@@ -1,0 +1,29 @@
+{
+    "version": 8,
+    "name": "Custom Raster Map",
+    "center": [-95.081213, 29.564795],
+    "zoom": 18,
+    "terrain": null,
+    "sources": {
+        "single-image-source": {
+            "type": "image",
+            "url": "tiles/100/513/512.png",
+            "coordinates": [
+                [-95.08176351207713, 29.565142600082694],
+                [-95.08066260052011, 29.565142380800154],
+                [-95.0806628133406, 29.564467418688906],
+                [-95.08176413546131, 29.564467668240866]
+            ]
+        }
+    },
+    "projection": {
+        "name": "globe"
+    },
+    "layers": [
+        {
+            "id": "single-image-layer",
+            "type": "raster",
+            "source": "single-image-source"
+        }
+    ]
+}
