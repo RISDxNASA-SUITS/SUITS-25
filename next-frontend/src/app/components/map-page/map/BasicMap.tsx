@@ -122,22 +122,6 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
     const [addActive, toggleAddActive] = useState<boolean>(false);
     const [poiButtonClickActive, setPoiButtonClickActive] = useState<boolean>(false);
 
-
-    // Add these function definitions
-    const prepareHazardAddition = () => {
-        setControlPanelState("AddHazard");
-        setPoiButtonClickActive(false);
-    };
-
-    const prepareLtvAddition = () => {
-        setPoiButtonClickActive(false);
-        setControlPanelState("AddPin");
-    };
-
-    const preparePoiAddition = () => {
-        setPoiButtonClickActive(true);
-        setControlPanelState("AddPin");
-    };
     
     useEffect(() => {
         const init = async () => {
@@ -164,11 +148,6 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
         const interval = setInterval(loadFromBackend, 1000);
         return () => clearInterval(interval);
     }, [loadFromBackend, ltvPois, addLtvPoi]);
-
-    // This effect is no longer needed as markers are rendered declaratively
-    // useEffect(()=> {
-    //     pois.forEach(x => x.addMarkerFromBackend()) // This method needs to be removed from Poi type or re-evaluated
-    // }, [pois])
     
     const handleMapClick = useCallback((event: MapMouseEvent) => {
         const { lng, lat } = event.lngLat;
@@ -178,7 +157,6 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
         setNewPinLocation({ lng, lat });
         setTempPinType(null); // Reset temp pin type
         setControlPanelState("EvDetails");
-        // Deselect any selected POI
         selectPoi(null);
     }, [setControlPanelState, selectPoi]);
 
@@ -210,18 +188,6 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
             </Marker>
         )
     }
-
-    // const onPoiButtonClick = () => {
-    //     setPoiButtonClickActive(!poiButtonClickActive);
-    //     if (newPinLocation) {
-    //         setNewPinLocation(null); // Clear temp pin if button is toggled off
-    //     }
-    //     if (!poiButtonClickActive) { // If turning on
-    //         toggleAddActive(true); // Ensure menu is open
-    //     } else { // If turning off
-    //         toggleAddActive(false);
-    //     }
-    // };
 
     // Generic function to add a new POI
     const addNewPinToStore = (
@@ -323,10 +289,22 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
 
     // Function to render the popup for a new pin or selected POI
     const renderPopup = () => {
-        // console.log("RENDER POPUP"
-        // , newPinLocation, tempPinType, !tempPinType
-        // )
-        if (newPinLocation && !tempPinType) { // Temporary pin placed, show options
+        if (selectedPoiDetails) {
+            if(newPinLocation){setNewPinLocation(null)};
+            return (
+                <Popup
+                    longitude={selectedPoiDetails.coords.lng}
+                    latitude={selectedPoiDetails.coords.lat}
+                    onClose={() => selectPoi(null)}
+                    closeButton={false} // Assuming close is handled by selecting another or closing panel
+                    offset={15}
+                    className="custom-final-popup z-20" // Ensure z-index if needed
+                >
+                    <div>{selectedPoiDetails.name}</div>
+                </Popup>
+            );
+        }
+        else if (newPinLocation && !tempPinType) { // Temporary pin placed, show options
             console.log("RENDER POPUP 1")
             return (
                 <Popup
@@ -405,20 +383,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
             );
         }
 
-        if (selectedPoiDetails) {
-            return (
-                <Popup
-                    longitude={selectedPoiDetails.coords.lng}
-                    latitude={selectedPoiDetails.coords.lat}
-                    onClose={() => selectPoi(null)}
-                    closeButton={false} // Assuming close is handled by selecting another or closing panel
-                    offset={15}
-                    className="custom-final-popup z-20" // Ensure z-index if needed
-                >
-                    <div>{selectedPoiDetails.name}</div>
-                </Popup>
-            );
-        }
+        
         return null;
     };
 
@@ -486,7 +451,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                     doubleClickZoom={false}
                 >
                     {/* Add temporary marker when map is clicked */}
-                    {newPinLocation && !tempPinType && (
+                    {newPinLocation && (
                         <TemporaryMarker lng={newPinLocation.lng} lat={newPinLocation.lat} />
                     )}
 
@@ -612,51 +577,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                 </Map>
                 <div className="map-grid-overlay pointer-events-none" />
 
-                {/* UI Elements: Add Marker Menu, Zoom Controls */}
-                {/* These can largely remain the same, but their onClick handlers might change */}
-                <div className="absolute bottom-8 right-4 flex flex-col gap-2 items-end z-10">
-                    {/* Draw Path */}
-                    <PrimaryButton
-                        logo={"/logo/edit-white.svg"}
-                        logoClassName={"w-8 h-8"}
-                        className={`
-                            relative flex flex-1 px-4 py-4 justify-center items-center gap-2 flex-shrink-0 bg-galaxy-purple
-                            border border-light-purple rounded-xl text-white transition-all duration-150
-                            hover:bg-another-purple
-                            active:bg-light-purple
-                          `}
-                    >
-                    <Tooltip text="Draw Path"/>
-                    </PrimaryButton>
-
-                    {/* expandable button container*/}
-                    <div className="flex flex-row-reverse justify-center items-center text-nowrap
-                    border border-light-purple bg-galaxy-purple rounded-xl transition-all duration-150">
-                        {/* expandable button*/}
-                        <PrimaryButton
-                            logo={`${addActive ? `/logo/minus.svg` : `logo/add-white.svg`}`}
-                            logoClassName={"w-8 h-8"}
-                            className={"p-4 relative hover:bg-another-purple rounded-xl"}
-                            onClick={onAddClick} // Toggles the add menu
-                        />
-
-                        {/* popup section - add POI & add Hazard & add LTV*/}
-                        <div className={`transition-all duration-300 ease-in-out overflow-hidden
-                            ${addActive ? `opacity-100 mx-4 overflow-visible`: `opacity-0 w-0 pointer-events-none ml-0`} flex justify-center items-center gap-4`}>
-                            <PrimaryButton onClick={prepareHazardAddition}> {/* Updated onClick */}
-                                <img src="/logo/hazard.svg" alt={"add-hazard"}/>
-                                Add Hazard
-                                <Tooltip text="Click anywhere on the map"/>
-                            </PrimaryButton>
-
-                            <PrimaryButton active={poiButtonClickActive} onClick={preparePoiAddition}> {/* Updated onClick and active state */}
-                                <img src="/logo/poi-stroke.svg" alt={"add-poi"}/>
-                                Add POI
-                                <Tooltip text="Click anywhere on the map"/>
-                            </PrimaryButton>
-                        </div>
-                    </div>
-                </div>
+                
 
                 {/* ZoomIn & ZoomOut*/}
                 <div className="absolute bottom-8 left-6 z-10">
@@ -664,14 +585,14 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                          <TertiaryButton
                             onClick={() => setViewState(v => ({...v, zoom: Math.min(22, v.zoom + 1), longitude: v.longitude, latitude: v.latitude, pitch: v.pitch, bearing: v.bearing, padding: v.padding}))}
                             logo="/logo/zoom-in.svg"
-                            className="rounded-none p-3"
-                        />
+                            className="rounded-none p-3">
+                        </TertiaryButton>
                         <div className="w-8 h-px bg-light-purple opacity-50" />
                         <TertiaryButton
                             onClick={() => setViewState(v => ({...v, zoom: Math.max(0, v.zoom - 1), longitude: v.longitude, latitude: v.latitude, pitch: v.pitch, bearing: v.bearing, padding: v.padding}))}
                             logo="/logo/zoom-out.svg"
-                            className="rounded-none p-3"
-                        />
+                            className="rounded-none p-3">
+                        </TertiaryButton>
                     </div>
                 </div>
                 
