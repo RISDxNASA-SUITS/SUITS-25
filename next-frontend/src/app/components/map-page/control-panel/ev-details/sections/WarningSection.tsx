@@ -5,7 +5,7 @@ import axios from "axios";
 
 const coolantLimit = 40
 const batteryLimit = 30
-const oxygenLimit = 25
+const oxygenLimit = 20
 interface ErrorState {
   fan_error: ErrorItem;
   oxy_error: ErrorItem;

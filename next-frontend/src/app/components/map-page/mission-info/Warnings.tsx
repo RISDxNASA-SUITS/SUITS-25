@@ -3,7 +3,7 @@
 import {useEffect, useState} from "react";
 const coolantLimit = 40
 const batteryLimit = 30
-const oxygenLimit = 25
+const oxygenLimit = 20
 const getErrorCard = (message : String, xEffect : () => void) => {
     return(
         <div className = "relative m-2 bg-warning border-l-2 border-crimson-red w-1/2 rounded-lg">
