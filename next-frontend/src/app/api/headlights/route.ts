@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 
-
-
-
 export async function POST(req: Request) {
     const body = await req.json();
     console.log(body);
@@ -10,5 +7,5 @@ export async function POST(req: Request) {
         method: "POST",
         body: JSON.stringify(body)
     })
-    return NextResponse.json({ message: "Headlights updated" });
+    return Response.json({ message: "Headlights updated" });
 }

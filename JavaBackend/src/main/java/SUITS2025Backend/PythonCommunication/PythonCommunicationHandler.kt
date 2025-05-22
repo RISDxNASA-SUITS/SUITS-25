@@ -204,7 +204,9 @@ object PythonCommunicationHandler {
     }
     
     private fun postHeadlights(ctx: Context) {
-        val headlights = setHeadlights(ctx.bodyAsClass(HeadlightsRequest::class.java).input)
+        val headlightsInp = ctx.bodyAsClass(HeadlightsRequest::class.java).input
+        val headlights = setHeadlights(headlightsInp)
+        println("Headlights set to $headlightsInp")
         ctx.json(headlights)
     }
 }
