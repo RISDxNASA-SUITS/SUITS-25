@@ -47,7 +47,7 @@ export async function PUT(request: Request) {
             },
             body: JSON.stringify(body),
         });
-        const json = await response.json();
+        const json = await response.text();
         return NextResponse.json(json);
     } catch (error) {
         console.log(error, "is the error")

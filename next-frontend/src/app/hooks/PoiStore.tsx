@@ -122,7 +122,7 @@ const frontendToBackendPoi = (poi: Poi): poiBackend => {
         name: poi.name,
         x: poi.moonCoords.x,
         y: poi.moonCoords.y,
-        tags: [],
+        tags: poi.tags,
         type: poi.type,
         audioId: poi.audioId,
         description: poi.description || "",

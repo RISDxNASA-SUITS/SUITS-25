@@ -37,11 +37,10 @@ export const Editpoi = ({poi, onClose}:AddpoiProps) => {
 
 
     const handleSave = () => {
-    
+        updatePoi(poi)
         setSavedText(inputValue);
         setInputValue(poi.name);
         setShowInput(false);
-
         setPanelState("EvDetails");
     }
 
