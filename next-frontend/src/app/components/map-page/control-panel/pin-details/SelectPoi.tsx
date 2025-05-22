@@ -82,8 +82,13 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
                 {/*Header*/}
                 <div className={"flex items-center justify-between"}>
                     {/*Handle user input*/}
-                    <div className={"flex text-2xl font-medium gap-2 items-center"}>
+                    <div className={"flex text-2xl font-medium gap-2 items-center w-4/5"}>
                         <p>{poi.name}</p>
+                    </div>
+                    <div className={"flex text-2xl font-medium gap-2 items-center"}>
+                        <button onClick = {() => {setPanelState("AddPin")}}>
+                            <img src = "logo/edit.svg"></img>
+                        </button>
                     </div>
                     {/*Close button*/}
                     <CloseButton onClose={onClose}/>

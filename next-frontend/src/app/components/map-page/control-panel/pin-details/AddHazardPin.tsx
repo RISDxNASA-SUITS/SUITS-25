@@ -76,7 +76,7 @@ export const AddHazardPin = ({poi, onClose, selectedMarkerRef, setControlPanelSt
                     <div className={"flex text-2xl font-medium gap-2 items-center"}>
                         {!showInput && (
                             <>
-                                <p>Edit</p>
+                                <p>Editting </p>
                                 <p>{poi.name}</p>
                             </>
                         )}

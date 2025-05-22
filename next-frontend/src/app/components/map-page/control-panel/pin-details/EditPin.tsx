@@ -65,7 +65,7 @@ export const Editpoi = ({poi, onClose}:AddpoiProps) => {
                     <div className={"flex text-2xl font-medium gap-2 items-center"}>
                         {!showInput && (
                             <>
-                                <p>Edit</p>
+                                <p>Editting </p>
                                 <p>{poi.name}</p>
                             </>
                         )}

@@ -739,7 +739,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                                     height: `${tempHazardPin.radius}px`,
                                 }}
                             >
-                                <div className="hazard-marker-exclamation text-center text-white font-bold text-lg">!</div>
+                                <div className="hazard-marker-exclamation text-center text-white font-bold text-lg">•</div>
                             </div>
                         </Marker>
                     )}
