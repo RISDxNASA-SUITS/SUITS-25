@@ -569,14 +569,9 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                             key={geo.id}
                             longitude={geo.coords.lng}
                             latitude={geo.coords.lat}
-                            onClick={(e) => {
-                                e.originalEvent.stopPropagation();
-                                selectPoi(geo.id);
-                                setControlPanelState("SelectPin");
-                            }}
                         >
                             <div
-                                className="bg-contain bg-no-repeat bg-center w-6 h-6 cursor-pointer"
+                                className="bg-contain bg-no-repeat bg-center w-6 h-6"
                                 style={{ backgroundImage: 'url(/markers/geo-scanning-marker.svg)' }}
                             />
                         </Marker>
