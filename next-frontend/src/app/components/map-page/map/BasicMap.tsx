@@ -118,8 +118,6 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
     const [hazardRadius, setHazardRadius] = useState(50); // Default hazard radius
     const [tempHazardPin, setTempHazardPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
     const [tempLtvPin, setTempLtvPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
-    const isTempMarkerActive = newPinLocation !== null;
-
 
     const [tempHazardCategory, setTempHazardCategory] = useState<'warning' | 'caution'>('warning');
 
@@ -481,7 +479,6 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                             longitude={poi.coords.lng}
                             latitude={poi.coords.lat}
                             onClick={(e) => {
-                                if (isTempMarkerActive) return;
                                 e.originalEvent.stopPropagation();
                                 selectPoi(poi.id);
                                 setControlPanelState("SelectPin");
