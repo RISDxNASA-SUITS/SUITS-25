@@ -21,9 +21,7 @@ export const AddTag = ({ onClose=()=>{},  compact = false } : SelectLabelProps) 
     const normalPoi = pois.find(p => p.id === selectedPoiId)
     const selectedHazardPoi = hazardPois.find(p => p.id === selectedPoiId);
     const selectedPoi = normalPoi ?? selectedHazardPoi
-    console.log("SELECTED POI IS", selectedPoi)
 
-    console.log(selectedPoi?.tags)
 
     const tagOptions: Record<SubTab, Record<string, string[]>> = {
         Rock: {

@@ -40,12 +40,6 @@ export interface Poi {
     coords: { lng: number; lat: number };
     moonCoords: { x: number; y: number };
     tags: String[];
-    // voiceMemo?: string[];
-
-    // voiceNoteID?: number[];
-
-    // voiceNotes?: VoiceNotes[];
-
     type: PinTypes;
     audioId: number | null;
     description?: string;
@@ -147,7 +141,7 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         const data = await fetch('/api/pois')
         let json = await data.json()
         json = json.data.map((poi: poiBackend) => backendToFrontendPoi(poi))
-        const pois:Poi[] = json.filter((poi:Poi) => poi.type !== "breadCrumb" && poi.type !== 'hazard' && poi.type !== 'geologicalSample' && poi.type !== 'ltv')
+        const pois:Poi[] = json.filter((poi:Poi) => poi.type !== "breadCrumb" && poi.type !== 'hazard' && poi.type !== 'geologicalSample')
         const hazardPois:HazardPoi[] = json.filter((poi:Poi) => poi.type === 'hazard')
         const breadCrumbs:BreadCrumb[] = json.filter((poi:Poi) => poi.type === 'breadCrumb')
         const ltvPois: Ltv[] = json.filter((poi: Poi) => poi.type === 'ltv');
@@ -213,7 +207,6 @@ export const PoiStore = create<PoiStore>((set,get) => ({
         const id = json.id
         console.log(id, "is the id");
         get().loadFromBackend()
-        set({selectedPoiId: id})
     },
     selectPoi: (poiId: number | null) => set(() => ({
         selectedPoiId: poiId

@@ -34,7 +34,15 @@ export const MissionInfoPanel = () => {
                 setPitch(`${res.pitch || 0}°`);
                 setRoll(`${res.roll || 0}°`);
                 setIncline(`${res.surfaceIncline || 0}°`);
-                setMissionTimer(res.missionElapsedTime || 0);
+                const totalSecondsPassed = res.missionElapsedTime
+                const hours = Math.floor(totalSecondsPassed / 3600);
+                const minutes = Math.floor((totalSecondsPassed % 3600) / 60);
+                const seconds = totalSecondsPassed % 60;
+
+                const formattedHours = String(hours).padStart(2, '0');
+                const formattedMinutes = String(minutes).padStart(2, '0');
+                const formattedSeconds = String(seconds).padStart(2, '0');
+                setMissionTimer(`${formattedHours}:${formattedMinutes}:${formattedSeconds}` || '00:00:00');
                 
             } catch (e) {
                 console.error("Failed to fetch: ", e);
@@ -88,7 +96,8 @@ export const MissionInfoPanel = () => {
                             <div className="flex-1">
                                 <p className={"text-l text-white"}>PR Angle/Direction</p>
                                 <div className={"flex flex-row items-center gap-4"}>
-                                    <img src={"/logo/direction.svg"} alt="direction" className="h-7 w-7" />
+                                    <img src={"/logo/direction.svg"} alt="direction" className="h-7 w-7"></img>
+                                    <p className={"text-4xl font-bold text-white"}>{prAngle + '°'}</p>
                                 </div>
                             </div>
                         </div>
