@@ -118,8 +118,9 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
     const [hazardRadius, setHazardRadius] = useState(50); // Default hazard radius
     const [tempHazardPin, setTempHazardPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
     const [tempLtvPin, setTempLtvPin] = useState<{lng: number, lat: number, radius: number} | null>(null);
-   
+
     const [tempHazardCategory, setTempHazardCategory] = useState<'warning' | 'caution'>('warning');
+
 
     // For the expandable add menu
     const [addActive, toggleAddActive] = useState<boolean>(false);
@@ -542,6 +543,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                                 e.originalEvent.stopPropagation();
                                 selectPoi(hazard.id);
                                 setControlPanelState("SelectHazard");
+                                setNewPinLocation(null);
                             }}
                         >
                             <div
