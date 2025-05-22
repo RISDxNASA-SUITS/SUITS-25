@@ -1,7 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function VideoPanel({video, name, headlights=false}: {video: string, name: string, headlights?: boolean}) {
-    const [headlightsOn, setHeadlightsOn] = useState(headlights);   
+    const [headlightsOn, setHeadlightsOn] = useState(headlights); 
+    
+    useEffect(() => {
+        fetch(`/api/headlights`, {
+            method: "POST",
+            body: JSON.stringify({input: headlightsOn? 1.0 : 0.0})
+        })
+    }, [headlightsOn])
+
     return (
         <div className="basis-2/5 flex flex-col gap-4 h-full p-4">
             <div className="text-bold text-2xl">{name}</div>
