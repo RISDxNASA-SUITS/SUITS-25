@@ -11,9 +11,12 @@ interface XrfSectionProps {
 export default function XrfSection() {
     const [geoData, setGeoData] = useState<GeoResponse[]>([]);
     const {setPanelState} = usePanelStore();
-    const { pois } = PoiStore();
+    const { geoPois, loadFromBackend } = PoiStore();
 
     useEffect(() => {
+        // Load POIs from backend
+        loadFromBackend();
+
         const fetchGeoData = async () => {
             const response = await fetch('/api/geo-data')
             const data = await response.json()
@@ -24,10 +27,7 @@ export default function XrfSection() {
             fetchGeoData()
         }, 1000)
         return () => clearInterval(interval)
-    }, [])
-
-    // Get POIs with type 'geologicalSample'
-    const geoPois = pois.filter(poi => poi.type === 'geologicalSample');
+    }, [loadFromBackend])
 
     // Combine both geo samples and POIs
     const allSamples = [
