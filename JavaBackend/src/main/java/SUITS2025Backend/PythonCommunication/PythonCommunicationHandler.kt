@@ -22,7 +22,7 @@ object PythonCommunicationHandler {
     private const val BRAKE_CMD = 1107
     private const val THROTTLE_CMD = 1109
     private const val STEERING_CMD = 1110
-    private const val HEADLIGHT_CMD = 1106
+    private const val HEADLIGHT_CMD = 1103
     val bgScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     
     data class Position(val x: Float, val y: Float)
