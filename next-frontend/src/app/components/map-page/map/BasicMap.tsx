@@ -284,7 +284,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                         latitude={roverCoords.lat}
                     >
                         <div
-                            className="border-2 border-blue-500 rounded-full opacity-50 transition-all duration-500"
+                            className="border-4 border-blue-500 rounded-full opacity-100 transition-all duration-500"
                             style={{
                                 width: `${[50, 100, 200][animationFrame]}px`,
                                 height: `${[50, 100, 200][animationFrame]}px`,
@@ -774,7 +774,7 @@ const BasicMap = ({ roverCoords, }: BasicMapProps) => {
                 </div>
                 
                 {/* Scan Button - repositioned to bottom left above zoom controls */}
-                <div className="absolute bottom-32 left-6 z-10">
+                <div className="absolute bottom-40 left-6 z-10">
                     <PrimaryButton
                         onClick={(e) => {
                             e.stopPropagation(); // Prevent event bubbling
