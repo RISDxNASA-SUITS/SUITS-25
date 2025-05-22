@@ -20,7 +20,7 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
     const [inputValue, setInputValue] = useState(poi.name);
     const [savedText, setSavedText] = useState<string>(poi.name);
     const {setPanelState} = usePanelStore();
-    const {selectedPoiId, pois, hazardPois, addVoiceNote} = PoiStore();
+    const {selectedPoiId, pois, hazardPois, addVoiceNote, updatePoi} = PoiStore();
 
     //voice note IDs from currently selected POI
     const recordingIDs = poi.audioId;
@@ -29,11 +29,10 @@ export const Selectpoi = ({poi, onClose}: selectpoiProps) => {
 
     const handleSave = () => {
         poi.name = inputValue;
-
         updatePoi(poi)
         setInputValue(poi.name);
         setShowInput(false);
-
+        onClose()
         setPanelState("EvDetails");
     }
 
